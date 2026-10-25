@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dalil</title>
+<style>
+  :root {
+    --bg: #f6f3ee; --card: #ffffff; --ink: #1d2433; --muted: #5d6677; --line: #e4dfd6;
+    --accent: #0f766e; --accent-ink: #ffffff; --warn-bg: #fff4e0; --warn: #8a5300;
+    --low-bg: #fdecec; --low: #9b1c1c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", "Noto Sans", sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; }
+  header h1 { margin: 0; font-size: 28px; letter-spacing: -0.5px; }
+  header p { margin: 4px 0 20px; color: var(--muted); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+  label { display: block; font-weight: 600; margin: 0 0 6px; }
+  .drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+          border: 2px dashed var(--line); border-radius: 12px; padding: 24px; text-align: center;
+          cursor: pointer; color: var(--muted); min-height: 140px; }
+  .drop:hover { border-color: var(--accent); }
+  .drop img { max-width: 100%; max-height: 220px; border-radius: 8px; }
+  input[type=file] { display: none; }
+  select, button { width: 100%; font: inherit; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+  .row { margin-top: 16px; }
+  button { background: var(--accent); color: var(--accent-ink); border: 0; font-weight: 600; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  #result { margin-top: 20px; }
+  .section { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .section:last-of-type { border-bottom: 0; }
+  .section h3 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+  .section p, .section ol { margin: 0; }
+  .section ol { padding-inline-start: 20px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .badge { font-size: 13px; padding: 4px 10px; border-radius: 999px; background: #e6f3f1; color: var(--accent); }
+  .badge.warn { background: var(--warn-bg); color: var(--warn); }
+  .low { background: var(--low-bg); color: var(--low); border-radius: 10px; padding: 12px; }
+  .link { display: block; margin-top: 14px; padding: 12px; text-align: center; border-radius: 10px;
+          border: 1px solid var(--accent); color: var(--accent); font-weight: 600; text-decoration: none; }
+  .disclaimer { font-size: 13px; color: var(--muted); margin-top: 12px; }
+  .error { color: var(--low); }
+  footer { margin-top: 24px; font-size: 13px; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Dalil · دليل</h1>
+    <p>Photo of an official document → plain explanation in your language.</p>
+  </header>
+
+  <div class="card">
+    <label for="file">1. Your document</label>
+    <div class="drop" id="drop" tabindex="0">
+      <span id="dropText">📸 Tap to take a photo or choose a file<br><small>JPG, PNG or PDF</small></span>
+    </div>
+    <input type="file" id="file" accept="image/*,application/pdf" capture="environment">
+
+    <div class="row">
+      <label for="lang">2. Your language</label>
+      <select id="lang"></select>
+    </div>
+
+    <div class="row">
+      <button id="go" disabled>Explain this document</button>
+    </div>
+  </div>
+
+  <div id="result"></div>
+  <footer>Your document is not stored. Dalil gives general guidance, not legal advice.</footer>
+</main>
+
+<script>
+const RTL = ["ar", "ur"];
+const $ = (id) => document.getElementById(id);
+let upload = null; // {blob, name}
+
+fetch("/languages").then(r => r.json()).then(langs => {
+  for (const [code, name] of Object.entries(langs)) $("lang").add(new Option(name, code));
+});
+
+$("drop").onclick = () => $("file").click();
+$("file").onchange = async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (f.type === "application/pdf") {
+    upload = { blob: f, name: f.name };
+    $("drop").innerHTML = `📄 ${f.name}`;
+  } else {
+    upload = { blob: await shrink(f), name: "photo.jpg" };
+    $("drop").innerHTML = `<img src="${URL.createObjectURL(upload.blob)}" alt="Your document">`;
+  }
+  $("go").disabled = false;
+};
+
+// Phone photos are large; shrink to max 2000px so uploads are fast and fit the AI's limits.
+function shrink(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 2000 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(resolve, "image/jpeg", 0.85);
+    };
+    img.onerror = () => resolve(file);
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+$("go").onclick = async () => {
+  $("go").disabled = true; $("go").textContent = "Reading your document…";
+  $("result").innerHTML = "";
+  const fd = new FormData();
+  fd.append("file", upload.blob, upload.name);
+  fd.append("lang", $("lang").value);
+  try {
+    const r = await fetch("/analyze", { method: "POST", body: fd });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Something went wrong");
+    render(data);
+  } catch (err) {
+    $("result").innerHTML = `<div class="card error">${esc(err.message)}</div>`;
+  } finally {
+    $("go").disabled = false; $("go").textContent = "Explain this document";
+  }
+};
+
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+
+function render(d) {
+  const f = d.footer, dir = RTL.includes(d.language) ? "rtl" : "ltr";
+  let body;
+  if (d.fallback) {
+    body = `<p class="low">${esc(d.fallback)}</p>`;
+  } else {
+    const e = d.explanation;
+    body = `
+      <div class="section"><h3>📄 What it is</h3><p>${esc(e.what_it_is)}</p></div>
+      <div class="section"><h3>💰 Cost</h3><p>${esc(e.cost)}</p></div>
+      <div class="section"><h3>⏰ Deadline</h3><p>${esc(e.deadline)}</p></div>
+      <div class="section"><h3>✅ Next steps</h3><ol>${e.next_steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol></div>`;
+  }
+  $("result").innerHTML = `
+    <div class="card" dir="${dir}" lang="${esc(d.language)}">
+      ${d.mock ? `<p class="badge warn">MOCK MODE: fake answer (no API key)</p>` : ""}
+      ${body}
+      <div class="badges">
+        <span class="badge">${esc(f.confidence_label)}</span>
+        <span class="badge">${esc(f.source_label)}</span>
+        ${f.unverified ? `<span class="badge warn">⚠️ ${esc(f.unverified)}</span>` : ""}
+      </div>
+      <a class="link" href="${esc(f.link)}" target="_blank" rel="noopener">🔗 ${esc(f.link_label)}</a>
+      <p class="disclaimer">${esc(f.disclaimer)}</p>
+    </div>`;
+}
+</script>
+</body>
+</html>

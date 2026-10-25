@@ -218,3 +218,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Dalil: never commit real people's documents (mock samples only)
+samples/private/
+Thumbs.db
+.DS_Store

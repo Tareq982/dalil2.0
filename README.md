@@ -1,2 +1,107 @@
-# dalil2.0
-hackathon
+# Dalil · دليل
+
+Dalil is an AI guidance agent that helps residents who can't easily read Arabic or English understand official documents. Send it a photo of a fine, visa notice or lease, and it explains, in your language, what the document means, what it costs, the deadline and the exact next step, with a link to the official service.
+
+Hackathon 2026 · Theme: **Zero Bureaucracy & Seamless Government** (secondary: Inclusive Digital Accessibility)
+
+## How it works
+
+```
+photo ──► extract.py ──► catalog.py ──► explain.py ──► safety.py ──► reply
+          (AI reads)     (code matches   (AI explains    (code adds confidence,
+                          verified data)  only those      source, official link,
+                                          facts)          not-legal-advice)
+```
+
+- **Grounded:** fees, deadline rules and links come from `data/services.json`, built from open data and official pages, never from the AI's memory.
+- **Responsible AI:** shows its confidence, refuses to guess below `MIN_CONFIDENCE`, always links the official source, and gives no legal advice.
+- **No storage:** photos stay in memory for one request. WhatsApp photos are deleted from Twilio after reading.
+
+## Quick start
+
+**Windows (cmd):**
+```
+cd dalil2.0
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
+```
+
+**Mac / Linux / Codespaces:**
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+```
+
+Then open `.env`, paste your `ANTHROPIC_API_KEY`, and run:
+
+```
+python -m app.main
+```
+
+Open **http://localhost:8000**, upload a document photo, and pick a language.
+
+> **No API key yet?** Leave it empty. The app runs in **mock mode** and returns a fake answer, so you can still work on the web page, WhatsApp and data.
+
+**Run the tests** (no API key needed):
+```
+python -m pytest
+```
+
+## WhatsApp (Twilio sandbox)
+
+1. In the Twilio console, go to **Messaging → Try it out → Send a WhatsApp message**. Each demo phone sends the `join <code>` message to the sandbox number once.
+2. Put `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` in `.env`.
+3. Start the app (`python -m app.main`), then in a second terminal run `ngrok http 8000`.
+4. In the sandbox settings, set **"When a message comes in"** to `https://<your-ngrok-url>/whatsapp` (method POST).
+5. On WhatsApp, send "hi" to get the language menu, reply with a number, then send a photo.
+
+On Codespaces, make port 8000 **Public** in the Ports tab and use that URL instead of ngrok.
+
+## Project layout
+
+| Path | What | Owner |
+|---|---|---|
+| `app/extract.py` | Reads the photo and returns structured fields (AI) | AI |
+| `app/explain.py` | Writes the explanation in the user's language (AI) | AI |
+| `app/safety.py` | Confidence, fallback, disclaimer text in every language (code) | AI |
+| `app/catalog.py` | Matches fields to a verified service record (code) | Data |
+| `data/services.json` | The verified service catalog | Data |
+| `data/sources.md` | Where every value came from | Data |
+| `app/main.py` | Web server, `/analyze` API, `/whatsapp` webhook | Channels |
+| `web/index.html` | Upload page (also the stage backup for the demo) | Channels |
+| `app/pipeline.py` | Connects all the steps | everyone |
+| `samples/` | Mock documents and expected answers | Demo |
+| `tests/` | Automated checks, run with `python -m pytest` | everyone |
+
+## Extracted fields (team contract)
+
+`extract.py` always returns exactly these keys. Change them only in a pull request that also updates `catalog.py`, `explain.py` and this table.
+
+| Key | Type | Example |
+|---|---|---|
+| `doc_type` | `traffic_fine` / `visa_residency_notice` / `tenancy_contract` / `other` | `traffic_fine` |
+| `emirate` | string or null | `Dubai` |
+| `issuing_authority` | string or null | `Dubai Police` |
+| `reference_number` | string or null | `12345678` |
+| `amount_aed` | number or null | `600` |
+| `issue_date` | `YYYY-MM-DD` or null | `2026-10-20` |
+| `deadline_date` | `YYYY-MM-DD` or null (only if printed) | `null` |
+| `subject` | string or null, in English | `Exceeding the speed limit` |
+| `key_points` | list of up to 5 strings | |
+| `keywords` | list of up to 8 lowercase words, used for matching | `["speed","radar"]` |
+| `document_language` | `ar` / `en` / `mixed` / `other` | `mixed` |
+| `readable` | bool | `true` |
+| `confidence` | 0–1 | `0.9` |
+
+Personal data (names, Emirates ID, passport and phone numbers) is deliberately **not** extracted.
+
+## Team rules
+
+- Never push straight to `main`. Make a branch, open a pull request, and have one teammate review it.
+- Never commit `.env` or API keys.
+- Never commit real people's documents. Use mock samples only (see `samples/README.md`).
+- Every value in `services.json` needs a source in `data/sources.md`. Set `"verified": true` only once it's checked. The app shows a ⚠️ warning for unverified records.

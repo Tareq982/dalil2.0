@@ -1,0 +1,5 @@
+# Kept to pure-Python packages so `pip install` works on any Python version
+flask>=3.0
+requests>=2.31
+python-dotenv>=1.0
+pytest>=8.0

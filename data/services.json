@@ -1,0 +1,143 @@
+{
+  "_readme": "Verified service catalog. Data role owns this file. Every record needs a source. Values marked null or TODO are NOT verified yet: fill them from official pages / open data, record the source in data/sources.md, then set verified=true and last_checked. Unverified records show a warning in the app.",
+  "services": [
+    {
+      "id": "dubai-traffic-fine",
+      "doc_type": "traffic_fine",
+      "emirate": "Dubai",
+      "authority": "Dubai Police",
+      "service_name": "Pay a traffic fine",
+      "official_url": "https://www.dubaipolice.gov.ae",
+      "fee_aed": null,
+      "fee_note": "The amount printed on the fine. TODO: check if early-payment discounts apply and record the rule.",
+      "deadline_rule": null,
+      "next_steps": [
+        "Open the official Dubai Police app or website",
+        "Search for the fine using your plate number or traffic file number",
+        "Check the amount matches the paper and pay online"
+      ],
+      "source": "TODO",
+      "source_url": null,
+      "verified": false,
+      "last_checked": null,
+      "match_keywords": ["dubai", "police", "rta", "traffic", "speed", "radar", "parking", "fine", "violation"],
+      "items": [
+        {
+          "id": "speeding",
+          "label": "Exceeding the speed limit",
+          "fine_aed": null,
+          "black_points": null,
+          "match_keywords": ["speed", "speeding", "radar", "limit"]
+        },
+        {
+          "id": "parking",
+          "label": "Parking violation",
+          "fine_aed": null,
+          "black_points": null,
+          "match_keywords": ["parking", "park", "parked"]
+        }
+      ]
+    },
+    {
+      "id": "abu-dhabi-traffic-fine",
+      "doc_type": "traffic_fine",
+      "emirate": "Abu Dhabi",
+      "authority": "Abu Dhabi Police",
+      "service_name": "Pay a traffic fine",
+      "official_url": "https://www.adpolice.gov.ae",
+      "fee_aed": null,
+      "fee_note": "The amount printed on the fine. TODO: verify discount rules.",
+      "deadline_rule": null,
+      "next_steps": [
+        "Open the official Abu Dhabi Police or TAMM app or website",
+        "Search for the fine using your plate number or traffic file number",
+        "Check the amount and pay online"
+      ],
+      "source": "TODO",
+      "source_url": null,
+      "verified": false,
+      "last_checked": null,
+      "match_keywords": ["abu", "dhabi", "police", "traffic", "speed", "radar", "fine", "tamm"],
+      "items": []
+    },
+    {
+      "id": "dubai-residency-notice",
+      "doc_type": "visa_residency_notice",
+      "emirate": "Dubai",
+      "authority": "GDRFA Dubai",
+      "service_name": "Residency and visa services (Dubai)",
+      "official_url": "https://gdrfad.gov.ae",
+      "fee_aed": null,
+      "fee_note": "TODO: fees depend on the service (renewal, cancellation, overstay). Fill per item.",
+      "deadline_rule": null,
+      "next_steps": [
+        "Open the official GDRFA Dubai website or app",
+        "Find the service named on your notice (for example renewal or cancellation)",
+        "Check the required documents and fees before you apply"
+      ],
+      "source": "TODO",
+      "source_url": null,
+      "verified": false,
+      "last_checked": null,
+      "match_keywords": ["dubai", "gdrfa", "residency", "residence", "visa", "permit", "renewal", "cancellation", "overstay", "expiry"],
+      "items": [
+        {
+          "id": "renewal",
+          "label": "Residency renewal",
+          "fine_aed": null,
+          "match_keywords": ["renewal", "renew", "expiry", "expired"]
+        },
+        {
+          "id": "overstay",
+          "label": "Overstay",
+          "fine_aed": null,
+          "match_keywords": ["overstay", "fines", "grace"]
+        }
+      ]
+    },
+    {
+      "id": "federal-residency-notice",
+      "doc_type": "visa_residency_notice",
+      "emirate": null,
+      "authority": "ICP (Federal Authority for Identity, Citizenship, Customs and Port Security)",
+      "service_name": "Residency and visa services (other emirates)",
+      "official_url": "https://icp.gov.ae",
+      "fee_aed": null,
+      "fee_note": "TODO: fill per service.",
+      "deadline_rule": null,
+      "next_steps": [
+        "Open the official ICP website or UAEICP app",
+        "Find the service named on your notice",
+        "Check the required documents and fees before you apply"
+      ],
+      "source": "TODO",
+      "source_url": null,
+      "verified": false,
+      "last_checked": null,
+      "match_keywords": ["icp", "federal", "identity", "citizenship", "residency", "visa", "emirates", "permit"],
+      "items": []
+    },
+    {
+      "id": "dubai-tenancy-contract",
+      "doc_type": "tenancy_contract",
+      "emirate": "Dubai",
+      "authority": "Dubai Land Department (Ejari)",
+      "service_name": "Register a tenancy contract (Ejari)",
+      "official_url": "https://dubailand.gov.ae",
+      "fee_aed": null,
+      "fee_note": "TODO: verify the Ejari registration fee.",
+      "deadline_rule": null,
+      "next_steps": [
+        "Check the contract dates, rent amount and number of cheques",
+        "Make sure the contract is registered in Ejari (ask your landlord or agent, or use the official Dubai Land Department channels)",
+        "Keep a copy of the Ejari certificate"
+      ],
+      "source": "TODO",
+      "source_url": null,
+      "verified": false,
+      "last_checked": null,
+      "match_keywords": ["dubai", "tenancy", "lease", "rent", "ejari", "landlord", "tenant", "contract", "land", "department"],
+      "items": []
+    }
+  ]
+}
