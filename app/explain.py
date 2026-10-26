@@ -1,7 +1,7 @@
 """Step 4: explain the document in the user's language, using ONLY the facts we give it."""
 import json
 
-from . import claude, config
+from . import ai, config
 
 SYSTEM = """You help residents of the UAE who cannot easily read Arabic or English understand official documents.
 Write in {language}. Use simple words and short sentences, as if explaining to a friend.
@@ -30,8 +30,8 @@ def explain(fields: dict, service: dict | None, days_left: int | None, language:
         "matched_service": _public(service),
         "days_left_until_deadline": days_left,
     }
-    content = [{"type": "text", "text": "DATA:\n" + json.dumps(data, ensure_ascii=False, indent=2)}]
-    out = claude.parse_json(claude.ask(SYSTEM.format(language=language), content, max_tokens=900))
+    text = "DATA:\n" + json.dumps(data, ensure_ascii=False, indent=2)
+    out = ai.parse_json(ai.ask(SYSTEM.format(language=language), text, max_tokens=900))
     steps = out.get("next_steps") or []
     return {
         "what_it_is": str(out.get("what_it_is", "")),

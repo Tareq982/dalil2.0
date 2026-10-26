@@ -3,7 +3,7 @@
 The output shape below is the team's shared contract (see README "Extracted fields").
 If you change it, update the README and catalog.py/explain.py in the same pull request.
 """
-from . import claude, config
+from . import ai, config
 
 DOC_TYPES = ["traffic_fine", "visa_residency_notice", "tenancy_contract", "other"]
 
@@ -53,11 +53,8 @@ def extract(data: bytes, media_type: str) -> dict:
     if config.MOCK_AI:
         return dict(MOCK_FIELDS)
 
-    content = [
-        claude.file_block(data, media_type),
-        {"type": "text", "text": "Read this document and return the JSON."},
-    ]
-    fields = claude.parse_json(claude.ask(SYSTEM, content, max_tokens=800))
+    reply = ai.ask(SYSTEM, "Read this document and return the JSON.", file=(data, media_type), max_tokens=800)
+    fields = ai.parse_json(reply)
     return normalise(fields)
 
 

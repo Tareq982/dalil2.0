@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape
 import requests
 from flask import Flask, Response, jsonify, request, send_from_directory
 
-from . import claude, config, pipeline
+from . import ai, config, pipeline
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB upload limit
@@ -26,7 +26,7 @@ def index():
 
 @app.get("/health")
 def health():
-    return {"ok": True, "mock_ai": config.MOCK_AI, "model": config.CLAUDE_MODEL}
+    return {"ok": True, "mock_ai": config.MOCK_AI, "provider": config.AI_PROVIDER, "model": config.AI_MODEL}
 
 
 @app.get("/languages")
@@ -42,7 +42,7 @@ def analyze():
     data = file.read()  # kept in memory only, never saved
     try:
         result = pipeline.analyze(data, file.mimetype, request.form.get("lang", "en"))
-    except claude.AIError as e:
+    except ai.AIError as e:
         log.warning("analyze failed: %s", e)
         return jsonify({"error": str(e)}), 502
     return jsonify(result)
@@ -142,6 +142,8 @@ def delete_twilio_media(media_url: str, auth):
 
 if __name__ == "__main__":
     if config.MOCK_AI:
-        log.warning("MOCK_AI is on (no ANTHROPIC_API_KEY or MOCK_AI=1): answers are fake.")
+        log.warning("MOCK_AI is on (no API key for %s, or MOCK_AI=1): answers are fake.", config.AI_PROVIDER)
+    else:
+        log.info("Using %s (%s)", config.AI_PROVIDER, config.AI_MODEL)
     # debug stays off: the debugger must never be reachable through ngrok/Codespaces
     app.run(host="0.0.0.0", port=config.PORT, debug=False)

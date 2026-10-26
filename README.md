@@ -36,7 +36,12 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Then open `.env`, paste your `ANTHROPIC_API_KEY`, and run:
+Then open `.env` (`notepad .env` on Windows) and add an AI key:
+
+- **Gemini (free tier):** get a key at [aistudio.google.com](https://aistudio.google.com), set `AI_PROVIDER=gemini` and paste it after `GEMINI_API_KEY=`. The free tier may use what you send to improve Google's products, so **test with mock documents only**.
+- **Claude:** get a key at [platform.claude.com](https://platform.claude.com/settings/keys), set `AI_PROVIDER=claude` and paste it after `ANTHROPIC_API_KEY=`.
+
+Then run:
 
 ```
 python -m app.main
@@ -74,6 +79,7 @@ On Codespaces, make port 8000 **Public** in the Ports tab and use that URL inste
 | `app/main.py` | Web server, `/analyze` API, `/whatsapp` webhook | Channels |
 | `web/index.html` | Upload page (also the stage backup for the demo) | Channels |
 | `app/pipeline.py` | Connects all the steps | everyone |
+| `app/ai.py` | Talks to Gemini or Claude (chosen by `AI_PROVIDER` in `.env`) | AI |
 | `samples/` | Mock documents and expected answers | Demo |
 | `tests/` | Automated checks, run with `python -m pytest` | everyone |
 
