@@ -3,6 +3,44 @@
 Every fee, deadline rule and link in `services.json` must trace back to a row here.
 This file is also your evidence for the "Effective Use of Open Data" score (20%).
 
+## Verification pass (2026-10-28)
+
+Each record was re-checked on the authority's **own official page**. `verified = true` is set only where the official page itself states the value.
+
+| Record id | What was confirmed | Official source | Result |
+|---|---|---|---|
+| dubai-traffic-fine | Fee = fine amount + **AED 20 Knowledge and Innovation fees per fine**; payment channels and steps; **no early-payment discount and no payment deadline listed** | [RTA: Pay Vehicle Fines](https://www.rta.ae/wps/portal/rta/ae/home/rta-services/service-details?serviceId=521) | ✅ verified. The Dubai Police service card (noted below) states the same AED 20 but blocks automated reading. |
+| abu-dhabi-traffic-fine | 35% within 60 days / 25% from 60 days to 1 year, high-risk violations excluded | Gulf News quoting named Abu Dhabi Police officials ([17 Oct 2025](https://gulfnews.com/uae/transport/abu-dhabi-police-offer-up-to-35-traffic-fine-discounts-under-new-program-1.500312209)); Khaleej Times | ⚠️ not verified. The official [TAMM payment page](https://www.tamm.abudhabi/en/life-events/individual/Make-a-payment/Fines/paytrafficfines) only loads in a browser: **open it by hand and confirm the discount**, then set `verified = true`. |
+| dubai-residency-notice | Private-sector renewal: AED 200 renewal + AED 10 Knowledge + AED 10 Innovation + AED 20 delivery + AED 500 "fee inside the country"; +AED 100/year beyond two years; **60-day grace period** | [GDRFA Dubai: Renewing a residence permit for the private sector](https://www.gdrfad.gov.ae/en/services/95222a40-56f2-11ea-0320-0050569629e8) | ✅ verified (private-sector category only) |
+| dubai-residency-notice, federal-residency-notice | **Overstay fine AED 50 per day**, from the day after the grace period | [ICP: Payment of visa or residence violation fine](https://icp.gov.ae/en/services-details/?serviceid=68e73faf5ae59b00117389f1); [u.ae: residence visa provisions](https://u.ae/en/information-and-services/visa-and-emirates-id/Visa-information/general-provisions-for-the-residence-visa) ("standardised at AED 50 per day") | ✅ verified. **Conflict resolved:** the AED 100/day on the old GDRFA FAQ is outdated. |
+| federal-residency-notice | AED 100 application + AED 100 per year + AED 100 smart service fee; grace periods 180 / 90 / 60 / 30 days by category | [ICP: Renewal of residency permits](https://icp.gov.ae/en/services-details/?serviceid=64afe3c1035448005bd52e66) | ✅ verified |
+| dubai-tenancy-contract | **AED 177.75** online (100 + 10 + 10 + 55 partner + 2.75 VAT); **AED 220** at a Trustee Centre; channels: DLD website, Dubai REST, Dubai Now, Trustee Centres; **no registration deadline stated** | [DLD: Register / Renew Tenancy Contract](https://dubailand.gov.ae/en/eservices/register-renew-ejari-contract/) | ✅ verified. **Conflict resolved:** "flat AED 220" applies only at Trustee Centres. |
+
+Still open:
+- **Dubai early-payment discount.** The official RTA page lists none, and no official Dubai Police announcement was found. Dalil therefore says there is no listed discount and tells the user to check the amount in the app. Don't claim a Dubai discount in the pitch.
+- **Speeding fine amounts** (Gulf News scale). These are media figures, so `fine_aed` stays `null`. The amount printed on the fine is what the user pays anyway.
+
+## Open datasets (for the 20% open-data score)
+
+These are real datasets on official UAE open-data portals. Each one has a job in Dalil.
+
+| Id | Dataset | Portal / publisher | What it contains | How Dalil uses it |
+|---|---|---|---|---|
+| dubai-pulse-government-service-prices | [Dubai Government Service Prices](https://www.dubaipulse.gov.ae/data/dof-pricing/dof_government_service_prices-open) | Dubai Pulse | About 8,000 official service fees across Dubai government entities, **including Dubai Police, RTA and Dubai Land Department**. 23 fields: service name, fee name, amount, pricing type (fee / fine / tax), legislation, entity. CSV and API, updated quarterly (last update 2 Apr 2024). | **Grounds the fees in the catalog.** For each service in `services.json`, look up its official fee rows. This is the clearest "the AI doesn't guess, the data decides" story. Run `python tools/lookup_service_prices.py <downloaded.csv> "Land Department" ejari` to check fees from the file. |
+| dubai-pulse-ejari-rent-contracts | [Ejari rent contracts](https://www.dubaipulse.gov.ae/data/dld-registration/dld_rent_contracts-open) | Dubai Pulse (Dubai Land Department / Ejari system) | Every registered tenancy contract: new or renewal, dates, rent amount, property type and usage, area, tenant type (person / company). About 40 fields, CSV, **updated daily**. | **Impact numbers:** how many tenancy contracts are registered each year, so how many people have to understand one. Also sanity-checks extracted rent amounts (for example, a value far outside the normal range for that area means a re-check). |
+| bayanat-cause-of-traffic-fines | [Cause of Traffic Fines](https://bayanat.ae/en/Datasets/Dataset-info?id=CvrEX9sZ1jUcWJU4W2lyIv8yPCJm1bJ4XTJcDpQCUAg) | Bayanat (UAE open data portal), Ministry of Interior | Causes of traffic fines per emirate, 2012–2016, as an XLSX download. | **Prioritisation:** shows which fine types are most common, so which ones Dalil should support first. Older data: present it as "historical pattern", not current figures. |
+| bayanat-unified-federal-traffic-system-2023 | [Unified Federal Traffic System 2023](https://bayanat.ae/en/Datasets/Dataset-info?id=wUntGlYM4QgQrmL-ThqY_08k-Cr1-Xdyd2Hn5uT5B3I) | Bayanat, Ministry of Interior (licence CC BY-SA 4.0) | 8 XLSX tables for all emirates, including **registered vehicles** and **new licences by gender**. | **Scale for the impact slide:** the number of registered vehicles means the number of people who can receive a traffic fine. |
+| dubai-pulse-traffic-incidents | [Dubai Police traffic incidents](https://www.dubaipulse.gov.ae/data/dp-traffic/dp_traffic_incidents-open) | Dubai Pulse, Dubai Police | Real-time incident records with type, time and coordinates. CSV, last update 6 Dec 2025. | Optional. Context only, not needed for the pilot. |
+
+**Data person, to do:**
+1. **Download** the Service Prices CSV (it needs a free Dubai Pulse account or API key) and the Cause of Traffic Fines XLSX. Confirm they open. Note the download date here.
+2. Run `tools/lookup_service_prices.py` on the CSV for each service. If an amount differs from the official page above, record both and use the newer one.
+3. For slide 1, get **one population statistic** from an official source: Dubai Statistics Center "Population by community" on Dubai Pulse, or Bayanat "Population by Age Groups, Gender and Nationality". The official u.ae fact sheet only says "the expatriate community outnumbers the population of UAE nationals", with no percentage. Use an exact figure only from one of these datasets.
+
+## Research log (Noureldin, 2026-10-27)
+
+Original research with all sources considered. The verification pass above decides what the app uses.
+
 | Record id | Field(s) | Source (name) | URL | Downloaded / checked on | Notes |
 |---|---|---|---|---|---|
 | dubai-traffic-fine | official_url | Dubai Police (official home page) | https://www.dubaipolice.gov.ae | 2026-10-27 | Official domain. Hosts the Fines Inquiry and Payment service. |
@@ -31,7 +69,9 @@ This file is also your evidence for the "Effective Use of Open Data" score (20%)
 | dubai-tenancy-contract | fee_aed (CONFLICT) | ID Booth, "UAE Property Rental: Ejari Registration Guide 2026" | https://idbooth.ae/uae-property-rental-ejari-registration-guide-2026/ | 2026-10-27 | Third-party. Claims a flat AED 220 for all channels. Another older guide (Wasl) gives AED 120 as the base government fee. Conflicting, so confirm on the DLD page before setting verified = true. |
 | dubai-tenancy-contract | deadline_rule | UAE Expert Hub, "Tenancy Contract & Ejari Registration Dubai 2026 Guide" | https://www.uaeexperthub.com/tenancy-contract-dubai-guide/ | 2026-10-27 | Third-party. Ejari is mandatory for all rentals in Dubai (Law No. 26 of 2007) and must be redone for each new tenancy period. No official numeric deadline was found (one guide suggests registering within 30 days, which is unconfirmed). Landlord approval is reported to take up to 5 days (RealKeyper). |
 
-## Verification status (read before setting `verified = true`)
+### Status before the official check (kept for history)
+
+> Superseded by the "Verification pass (2026-10-28)" above, where the Ejari and overstay conflicts are resolved from official pages.
 
 Only the **Dubai Police** fee rule (AED 20 knowledge and innovation fees) and links come from an official authority page. Everything else is from media reports or third-party guides, and is marked as such in the Notes column. Each of those should be re-checked on the authority's own page before the record is set to `verified = true`.
 
@@ -40,16 +80,8 @@ Open conflicts to resolve:
 - **Overstay fine:** AED 50 per day (2026, reported) vs the older AED 100 per day on the GDRFA FAQ.
 - **Ejari fee:** AED 177.75 online / AED 220 trustee centre vs a flat AED 220.
 
-## Open data portals to check
-
-Check what is actually downloadable before claiming it in the pitch.
-
-- **Bayanat** (UAE federal open data): https://bayanat.ae
-- **Dubai Pulse** (Dubai open data): https://www.dubaipulse.gov.ae (see also its data catalog dataset)
-- **RTA open data**: https://www.rta.ae/wps/portal/rta/ae/home/open-data
-- Official service catalogs and fee pages of each authority (Dubai Police, GDRFA, ICP, Dubai Land Department)
-
 ## Ideas for the pitch
 
-- Use open data on fine categories or service volumes to show which documents cause the most confusion.
-- Show one example end to end: photo → matched record → fee/deadline/link → which dataset each came from.
+- Show one example end to end: photo → matched record → fee, deadline and link → the official page or dataset each value came from.
+- "Every fee Dalil shows comes from an official government page or the Dubai Government Service Prices open dataset. The AI only reads the document and explains it."
+- Use Cause of Traffic Fines to justify starting with traffic fines, and Ejari rent contracts for the size of the tenancy problem.

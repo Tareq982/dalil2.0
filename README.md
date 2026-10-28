@@ -75,7 +75,8 @@ On Codespaces, make port 8000 **Public** in the Ports tab and use that URL inste
 | `app/safety.py` | Confidence, fallback, disclaimer text in every language (code) | AI |
 | `app/catalog.py` | Matches fields to a verified service record (code) | Data |
 | `data/services.json` | The verified service catalog | Data |
-| `data/sources.md` | Where every value came from | Data |
+| `data/sources.md` | Where every value came from, plus the open datasets used | Data |
+| `tools/lookup_service_prices.py` | Looks up official fees in the Dubai Government Service Prices open dataset | Data |
 | `app/main.py` | Web server, `/analyze` API, `/whatsapp` webhook | Channels |
 | `web/index.html` | Upload page (also the stage backup for the demo) | Channels |
 | `app/pipeline.py` | Connects all the steps | everyone |
