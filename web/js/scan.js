@@ -162,12 +162,12 @@ async function analyze() {
 
 // ---------------------------------------------------------------- result
 
-function stamp(daysLeft) {
+function stamp(daysLeft, tr) {
   if (daysLeft === null || daysLeft === undefined) return "";
   const urgent = daysLeft <= 7;
   let num = Math.abs(daysLeft);
-  let unit = daysLeft < 0 ? t("stamp_overdue") : daysLeft === 1 ? t("stamp_day_left") : t("stamp_days_left");
-  if (daysLeft === 0) { num = "!"; unit = t("stamp_today"); }
+  let unit = daysLeft < 0 ? tr("stamp_overdue") : daysLeft === 1 ? tr("stamp_day_left") : tr("stamp_days_left");
+  if (daysLeft === 0) { num = "!"; unit = tr("stamp_today"); }
   return `<div class="stamp${urgent ? " urgent" : ""}" role="img" aria-label="${esc(`${num} ${unit}`)}">
             <span><span class="num">${esc(num)}</span><span class="unit">${esc(unit)}</span></span></div>`;
 }
@@ -178,20 +178,23 @@ function renderResult(d) {
   const foot = d.footer || {};
   const lang = d.language || "en";
   const dir = RTL_LANGS.includes(lang) ? "rtl" : "ltr";
-  const kind = t(`kind_${f.doc_type || "other"}`);
-  const kindLine = f.issuing_authority ? `${kind} ${t("kind_from")} ${f.issuing_authority}` : kind;
+  const tr = (key) => t(key, lang); // labels in the answer language, not the interface language
+  const kind = tr(`kind_${f.doc_type || "other"}`);
+  const kindLine = f.issuing_authority
+    ? tr("kind_line").replace("{kind}", kind).replace("{authority}", f.issuing_authority)
+    : kind;
 
   const amount = f.amount_aed != null
-    ? { label: t("fact_amount"), value: formatAED(f.amount_aed) }
-    : s && s.fee_aed != null ? { label: t("fact_fee"), value: formatAED(s.fee_aed) } : null;
-  const deadline = f.deadline_date ? formatDate(f.deadline_date) : null;
+    ? { label: tr("fact_amount"), value: formatAED(f.amount_aed) }
+    : s && s.fee_aed != null ? { label: tr("fact_fee"), value: formatAED(s.fee_aed) } : null;
+  const deadline = f.deadline_date ? formatDate(f.deadline_date, lang) : null;
 
   const facts = `
     <div class="facts">
-      <div class="fact"><span class="label">${esc(amount ? amount.label : t("fact_amount"))}</span>
-        <span class="value">${amount ? `<span class="mark">${esc(amount.value)}</span>` : esc(t("fact_none"))}</span></div>
-      <div class="fact"><span class="label">${esc(t("fact_deadline"))}</span>
-        <span class="value">${deadline ? `<span class="mark">${esc(deadline)}</span>` : esc(t("fact_none"))}</span></div>
+      <div class="fact"><span class="label">${esc(amount ? amount.label : tr("fact_amount"))}</span>
+        <span class="value">${amount ? `<span class="mark">${esc(amount.value)}</span>` : esc(tr("fact_none"))}</span></div>
+      <div class="fact"><span class="label">${esc(tr("fact_deadline"))}</span>
+        <span class="value">${deadline ? `<span class="mark">${esc(deadline)}</span>` : esc(tr("fact_none"))}</span></div>
     </div>`;
 
   let body;
@@ -200,14 +203,14 @@ function renderResult(d) {
   } else {
     const e = d.explanation || {};
     body = `
-      ${stamp(d.days_left)}
+      ${stamp(d.days_left, tr)}
       <p class="doc-kind">${esc(kindLine)}</p>
-      <h2 dir="${dir}" lang="${esc(lang)}">${esc(e.what_it_is)}</h2>
+      <h2>${esc(e.what_it_is)}</h2>
       ${facts}
-      <div class="explain" dir="${dir}" lang="${esc(lang)}">
-        <div><h3>${esc(t("h_cost"))}</h3><p>${esc(e.cost)}</p></div>
-        <div><h3>${esc(t("h_deadline"))}</h3><p>${esc(e.deadline)}</p></div>
-        <div><h3>${esc(t("h_steps"))}</h3>
+      <div class="explain">
+        <div><h3>${esc(tr("h_cost"))}</h3><p>${esc(e.cost)}</p></div>
+        <div><h3>${esc(tr("h_deadline"))}</h3><p>${esc(e.deadline)}</p></div>
+        <div><h3>${esc(tr("h_steps"))}</h3>
           <ol class="steps">${(e.next_steps || []).map((x) => `<li><span>${esc(x)}</span></li>`).join("")}</ol></div>
       </div>`;
   }
@@ -215,29 +218,29 @@ function renderResult(d) {
   const trust = `
     <div class="trust">
       ${s ? (s.verified
-        ? `<p class="seal">${ICON_SEAL}<span>${esc(t("verified"))}${s.last_checked ? ` (${esc(formatDate(s.last_checked))})` : ""}</span></p>`
-        : `<p class="seal unverified">${ICON_WARN}<span>${esc(t("unverified"))}</span></p>`) : ""}
-      ${s && s.source ? `<p class="muted">${esc(t("source"))}: ${esc(s.source)}</p>` : ""}
-      ${s && s.legal_basis ? `<p class="muted">${esc(t("legal_basis"))}: ${esc(s.legal_basis)}</p>` : ""}
-      <p dir="${dir}" lang="${esc(lang)}">${esc(foot.confidence_label)}</p>
-      <p class="muted" dir="${dir}" lang="${esc(lang)}">${esc(foot.disclaimer)}</p>
+        ? `<p class="seal">${ICON_SEAL}<span>${esc(tr("verified"))}${s.last_checked ? ` (${esc(formatDate(s.last_checked, lang))})` : ""}</span></p>`
+        : `<p class="seal unverified">${ICON_WARN}<span>${esc(tr("unverified"))}</span></p>`) : ""}
+      ${s && s.source ? `<p class="muted">${esc(tr("source"))}: ${esc(s.source)}</p>` : ""}
+      ${s && s.legal_basis ? `<p class="muted">${esc(tr("legal_basis"))}: ${esc(s.legal_basis)}</p>` : ""}
+      <p>${esc(foot.confidence_label)}</p>
+      <p class="muted">${esc(foot.disclaimer)}</p>
     </div>`;
 
   const rows = [
     ["read_type", kind], ["read_authority", f.issuing_authority], ["read_reference", f.reference_number],
-    ["read_amount", f.amount_aed != null ? formatAED(f.amount_aed) : ""], ["read_issue", formatDate(f.issue_date)],
-    ["read_deadline", formatDate(f.deadline_date)], ["read_subject", f.subject],
+    ["read_amount", f.amount_aed != null ? formatAED(f.amount_aed) : ""], ["read_issue", formatDate(f.issue_date, lang)],
+    ["read_deadline", formatDate(f.deadline_date, lang)], ["read_subject", f.subject],
   ].filter(([, v]) => v);
   const read = `
-    <details class="read"><summary>${esc(t("read_title"))}</summary>
-      <dl>${rows.map(([k, v]) => `<dt>${esc(t(k))}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+    <details class="read"><summary>${esc(tr("read_title"))}</summary>
+      <dl>${rows.map(([k, v]) => `<dt>${esc(tr(k))}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
     </details>`;
 
   return `
-    <article class="sheet">
-      ${d.mock ? `<span class="mock-flag">${esc(t("mock"))}</span>` : ""}
+    <article class="sheet" dir="${dir}" lang="${esc(lang)}">
+      ${d.mock ? `<span class="mock-flag">${esc(tr("mock"))}</span>` : ""}
       ${body}
-      ${foot.link ? `<a class="btn" href="${esc(foot.link)}" target="_blank" rel="noopener">${esc(t("open_official"))}</a>` : ""}
+      ${foot.link ? `<a class="btn" href="${esc(foot.link)}" target="_blank" rel="noopener">${esc(tr("open_official"))}</a>` : ""}
       ${trust}
       ${read}
     </article>`;

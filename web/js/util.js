@@ -9,13 +9,17 @@ export function esc(value) {
 
 export const RTL_LANGS = ["ar", "ur"];
 
-// "2026-11-19" -> "19 Nov 2026" in the reader's language (falls back to the raw text).
+const LOCALES = { en: "en-GB", ar: "ar-AE", hi: "hi-IN", ur: "ur-PK", tl: "fil-PH", bn: "bn-BD", ml: "ml-IN" };
+
+// "2026-11-19" -> "19 Nov 2026" in the reader's language, with the same digits as the paper.
 export function formatDate(iso, lang = "en") {
   if (!iso) return "";
   const d = new Date(`${iso}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
   try {
-    return new Intl.DateTimeFormat(lang, { day: "numeric", month: "short", year: "numeric" }).format(d);
+    return new Intl.DateTimeFormat(LOCALES[lang] || lang, {
+      day: "numeric", month: "short", year: "numeric", numberingSystem: "latn",
+    }).format(d);
   } catch {
     return iso;
   }

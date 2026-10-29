@@ -155,14 +155,14 @@ input[type="file"] { display: none; }
   background: var(--sheet); border-radius: var(--radius-sheet);
   box-shadow: 0 1px 0 var(--line), 0 12px 30px -18px rgba(19, 41, 75, 0.35);
 }
-/* The stamp sits on the sheet's right (the sheet itself is always left-to-right), so reserve
-   physical right-hand space, even when the text inside is right-to-left. */
-.doc-kind { color: var(--muted); font-weight: 700; font-size: var(--step--1); padding-right: 112px; }
-.sheet h2 { margin-top: 8px; font-size: clamp(1.3rem, 4.6vw, var(--step-2)); font-weight: 700; letter-spacing: -0.015em; padding-right: 100px; }
+/* The whole sheet follows the answer's direction, so the stamp and the space kept free for it
+   both use logical sides (right in English, left in Arabic and Urdu). */
+.doc-kind { color: var(--muted); font-weight: 700; font-size: var(--step--1); padding-inline-end: 112px; }
+.sheet h2 { margin-top: 8px; font-size: clamp(1.3rem, 4.6vw, var(--step-2)); font-weight: 700; letter-spacing: -0.015em; padding-inline-end: 100px; }
 
 /* The deadline stamp: the one bold element. */
 .stamp {
-  position: absolute; top: 16px; right: 16px; width: 100px; height: 100px;
+  position: absolute; top: 16px; inset-inline-end: 16px; width: 100px; height: 100px;
   display: grid; place-items: center; text-align: center; border-radius: 50%;
   border: 3px double var(--ink); color: var(--ink); transform: rotate(-9deg);
   font-weight: 700; line-height: 1.05; padding: 10px;
@@ -171,6 +171,7 @@ input[type="file"] { display: none; }
 .stamp .num { display: block; font-size: 2rem; }
 .stamp .unit { display: block; font-size: 0.72rem; margin-top: 2px; }
 .stamp.urgent { color: var(--stamp); border-color: var(--stamp); }
+.sheet[dir="rtl"] .stamp { transform: rotate(9deg); }
 @keyframes stamp-in { from { opacity: 0; transform: scale(1.6) rotate(-9deg); } }
 
 .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px; }
