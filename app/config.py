@@ -28,10 +28,6 @@ else:
 # No key for the chosen provider -> mock mode (fake answers), so the app still runs
 MOCK_AI = env("MOCK_AI", "0") == "1" or not AI_API_KEY
 
-TWILIO_ACCOUNT_SID = env("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN")
-TWILIO_WHATSAPP_FROM = env("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886")
-
 PORT = int(env("PORT", "8000"))
 MIN_CONFIDENCE = float(env("MIN_CONFIDENCE", "0.6"))
 

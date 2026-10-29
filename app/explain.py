@@ -1,5 +1,6 @@
 """Step 4: explain the document in the user's language, using ONLY the facts we give it."""
 import json
+import re
 
 from . import ai, config
 
@@ -11,6 +12,8 @@ Use ONLY the facts in DATA. Never invent fees, dates, rules or links.
 - If the deadline is unknown, say the document does not show one and to check the official link soon.
 - Do not give legal advice or say whether to dispute or appeal. You may say the official service explains how.
 - Keep names of authorities and services in English (you may add a translation in brackets).
+- Never write web addresses (URLs). The app shows the official link as a button; say "the official link" instead.
+- Don't repeat personal details from the document (names, plate numbers, ID numbers).
 
 Return ONLY a JSON object, all text in {language}:
 {{
@@ -35,11 +38,19 @@ def explain(fields: dict, service: dict | None, days_left: int | None, language:
     out = ai.ask_json(SYSTEM.format(language=language), text, max_tokens=2500)
     steps = out.get("next_steps") or []
     return {
-        "what_it_is": str(out.get("what_it_is", "")),
-        "cost": str(out.get("cost", "")),
-        "deadline": str(out.get("deadline", "")),
-        "next_steps": [str(s) for s in steps][:3],
+        "what_it_is": _no_urls(out.get("what_it_is", "")),
+        "cost": _no_urls(out.get("cost", "")),
+        "deadline": _no_urls(out.get("deadline", "")),
+        "next_steps": [_no_urls(s) for s in steps][:3],
     }
+
+
+URL = re.compile(r"\(?\s*(?:https?://\s*\S+|www\.\S+)\s*\)?")
+
+
+def _no_urls(text) -> str:
+    """Remove web addresses from the AI's text: the official link is shown as a button."""
+    return re.sub(r"\s{2,}", " ", URL.sub(" ", str(text))).replace(" .", ".").strip()
 
 
 def _public(service: dict | None) -> dict | None:
