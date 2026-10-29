@@ -76,7 +76,7 @@ def test_pipeline_end_to_end_mock():
     assert r["service_id"] == "dubai-traffic-fine"
     assert r["explanation"]["next_steps"]
     assert r["footer"]["disclaimer"] == safety.TEXT["hi"]["disclaimer"]
-    assert len(pipeline.to_text(r)) <= 1600
+    assert r["service"]["verified"] is True and r["service"]["official_url"].startswith("https://")
 
 
 def test_web_analyze_endpoint():
@@ -87,9 +87,13 @@ def test_web_analyze_endpoint():
     assert r.status_code == 200 and r.json["service_id"] == "dubai-traffic-fine"
 
 
-def test_whatsapp_language_menu():
+def test_app_page_and_front_end_files_are_served():
     client = app.test_client()
-    r = client.post("/whatsapp", data={"From": "whatsapp:+971500000000", "Body": "hi there", "NumMedia": "0"})
-    assert b"Choose your language" in r.data
-    r = client.post("/whatsapp", data={"From": "whatsapp:+971500000000", "Body": "3", "NumMedia": "0"})
-    assert "हिन्दी".encode() in r.data
+    assert client.get("/").status_code == 200
+    for f in ["/web/css/app.css", "/web/js/app.js", "/web/js/scan.js"]:
+        assert client.get(f).status_code == 200, f
+
+
+def test_services_endpoint_lists_catalog():
+    r = app.test_client().get("/services")
+    assert r.status_code == 200 and any(s["id"] == "dubai-traffic-fine" for s in r.json)

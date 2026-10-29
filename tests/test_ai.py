@@ -111,3 +111,10 @@ def test_non_json_reply_is_retried_with_a_reminder(monkeypatch):
 def test_error_message_shows_what_the_model_said():
     with pytest.raises(ai.AIError, match="It said: 'I cannot"):
         ai.parse_json("I cannot read this image.")
+
+
+def test_explanation_text_has_no_web_addresses():
+    from app.explain import _no_urls
+    s = _no_urls("افتح الرابط الرسمي https:// www.rta.ae/wps/portal?serviceId=521 أو حمّل تطبيق")
+    assert "http" not in s and "www" not in s and "أو حمّل" in s
+    assert _no_urls("Open the official link (https://www.rta.ae/x?y=1) and pay.") == "Open the official link and pay."

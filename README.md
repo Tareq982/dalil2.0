@@ -15,7 +15,7 @@ photo ──► extract.py ──► catalog.py ──► explain.py ──► s
 
 - **Grounded:** fees, deadline rules and links come from `data/services.json`, built from open data and official pages, never from the AI's memory.
 - **Responsible AI:** shows its confidence, refuses to guess below `MIN_CONFIDENCE`, always links the official source, and gives no legal advice.
-- **No storage:** photos stay in memory for one request. WhatsApp photos are deleted from Twilio after reading.
+- **No storage:** photos stay in memory for one request.
 
 ## Quick start
 
@@ -49,22 +49,12 @@ python -m app.main
 
 Open **http://localhost:8000**, upload a document photo, and pick a language.
 
-> **No API key yet?** Leave it empty. The app runs in **mock mode** and returns a fake answer, so you can still work on the web page, WhatsApp and data.
+> **No API key yet?** Leave it empty. The app runs in **mock mode** and returns a fake answer, so you can still work on the app's look and on the data.
 
 **Run the tests** (no API key needed):
 ```
 python -m pytest
 ```
-
-## WhatsApp (Twilio sandbox)
-
-1. In the Twilio console, go to **Messaging → Try it out → Send a WhatsApp message**. Each demo phone sends the `join <code>` message to the sandbox number once.
-2. Put `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` in `.env`.
-3. Start the app (`python -m app.main`), then in a second terminal run `ngrok http 8000`.
-4. In the sandbox settings, set **"When a message comes in"** to `https://<your-ngrok-url>/whatsapp` (method POST).
-5. On WhatsApp, send "hi" to get the language menu, reply with a number, then send a photo.
-
-On Codespaces, make port 8000 **Public** in the Ports tab and use that URL instead of ngrok.
 
 ## Project layout
 
@@ -77,8 +67,13 @@ On Codespaces, make port 8000 **Public** in the Ports tab and use that URL inste
 | `data/services.json` | The verified service catalog | Data |
 | `data/sources.md` | Where every value came from, plus the open datasets used | Data |
 | `tools/lookup_service_prices.py` | Looks up official fees in the Dubai Government Service Prices open dataset | Data |
-| `app/main.py` | Web server, `/analyze` API, `/whatsapp` webhook | Channels |
-| `web/index.html` | Upload page (also the stage backup for the demo) | Channels |
+| `app/main.py` | Web server and API: `/analyze`, `/services`, `/languages`, `/health` | everyone |
+| `web/index.html` | App page: header, tab bar, one `<section>` per tab | UI |
+| `web/css/app.css` | All styles. Colours and sizes are variables at the top | UI |
+| `web/js/app.js` | Switches tabs (`#scan`, `#deadlines`, `#services`, `#how`) | UI |
+| `web/js/i18n.js` | Every interface text, ready for translation (#16) | UI |
+| `web/js/scan.js` | Scan tab: upload, progress steps, result (#12) | UI |
+| `web/js/deadlines.js`, `services.js`, `how.js` | The other tabs, placeholders for #13, #14, #15 | UI |
 | `app/pipeline.py` | Connects all the steps | everyone |
 | `app/ai.py` | Talks to Gemini or Claude (chosen by `AI_PROVIDER` in `.env`) | AI |
 | `samples/` | Mock documents and expected answers | Demo |

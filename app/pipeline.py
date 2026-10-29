@@ -30,6 +30,7 @@ def analyze(data: bytes, media_type: str, lang: str = "en") -> dict:
         "language": lang,
         "fields": fields,
         "service_id": (service or {}).get("id"),
+        "service": service_summary(service),
         "confidence": conf,
         "footer": footer,
         "mock": config.MOCK_AI,
@@ -45,19 +46,10 @@ def analyze(data: bytes, media_type: str, lang: str = "en") -> dict:
     return result
 
 
-def to_text(result: dict) -> str:
-    """Format a result as a WhatsApp message (Twilio limit is 1600 characters)."""
-    f = result["footer"]
-    lines = []
-    if result.get("fallback"):
-        lines.append(result["fallback"])
-    else:
-        e = result["explanation"]
-        lines += [f"📄 {e['what_it_is']}", "", f"💰 {e['cost']}", f"⏰ {e['deadline']}", ""]
-        lines += [f"{i}. {step}" for i, step in enumerate(e["next_steps"], 1)]
-    lines += ["", f"🔗 {f['link_label']}: {f['link']}", f"✅ {f['confidence_label']} · {f['source_label']}"]
-    if f.get("unverified"):
-        lines.append(f"⚠️ {f['unverified']}")
-    lines.append(f"ℹ️ {f['disclaimer']}")
-    text = "\n".join(lines)
-    return text if len(text) <= 1600 else text[:1590] + "…"
+def service_summary(service: dict | None) -> dict | None:
+    """What the app shows about the matched official service (verified badge, link, law)."""
+    if not service:
+        return None
+    keep = ["id", "service_name", "authority", "official_url", "verified", "last_checked",
+            "source", "legal_basis", "fee_aed", "fee_note"]
+    return {k: service.get(k) for k in keep}
