@@ -15,7 +15,7 @@ Return ONLY a JSON object, no other text, with exactly these keys:
   "emirate": "Dubai" | "Abu Dhabi" | "Sharjah" | "Ajman" | "Umm Al Quwain" | "Ras Al Khaimah" | "Fujairah" | null,
   "issuing_authority": string or null,          // e.g. "Dubai Police", "RTA", "GDRFA", "ICP", "Dubai Land Department"
   "reference_number": string or null,
-  "amount_aed": number or null,                 // total amount due, as printed
+  "amount_aed": number or null,                 // the money the reader must pay BECAUSE of this document (fine total, fee)
   "issue_date": "YYYY-MM-DD" or null,
   "deadline_date": "YYYY-MM-DD" or null,        // only if a date is printed on the document
   "subject": string or null,                    // the violation, notice reason, or contract subject, in English
@@ -26,10 +26,21 @@ Return ONLY a JSON object, no other text, with exactly these keys:
   "confidence": number between 0 and 1          // how sure you are about doc_type AND the key fields
 }}
 
+Document types (decide from what the document IS, not from words it mentions):
+- traffic_fine: a traffic or parking fine, or a reminder about one (police, RTA).
+- visa_residency_notice: about the reader's OWN residence permit or visa: expiry, renewal, cancellation,
+  overstay fine (GDRFA, ICP).
+- tenancy_contract: a tenancy or lease contract, an Ejari registration certificate, a Tawtheeq lease
+  (Dubai Land Department, a municipality, a landlord). Still a tenancy contract when it is a PDF or
+  when it mentions Ejari or registration.
+- other: anything else, including text messages, emails, chats, receipts, adverts and screenshots of
+  websites, even if they mention a fine or the police.
+
 Rules:
 - Copy values exactly as printed. Never invent a value: use null if it is not visible.
+- Rent in a tenancy contract is NOT an amount due: use amount_aed null and put the rent in key_points.
 - Do not include personal data such as names, Emirates ID, passport or phone numbers.
-- If the image is not an official document, set doc_type "other", readable false, confidence 0."""
+- If it is not an official document, set doc_type "other". Set readable false only if you cannot read it."""
 
 
 MOCK_FIELDS = {

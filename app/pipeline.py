@@ -36,6 +36,12 @@ def analyze(data: bytes, media_type: str, lang: str = "en") -> dict:
         "mock": config.MOCK_AI,
     }
 
+    if fields.get("doc_type") == "other" and fields.get("readable"):
+        # Readable, but not a document Dalil supports (receipt, scam text message...)
+        result["fallback"] = safety.text(lang)["not_supported"]
+        result["not_supported"] = True
+        return result
+
     if safety.level(conf) == 2:  # too unsure: don't guess
         result["fallback"] = safety.text(lang)["fallback"]
         return result

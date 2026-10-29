@@ -97,3 +97,26 @@ def test_app_page_and_front_end_files_are_served():
 def test_services_endpoint_lists_catalog():
     r = app.test_client().get("/services")
     assert r.status_code == 200 and any(s["id"] == "dubai-traffic-fine" for s in r.json)
+
+
+# ---- fixes from the first real test run (samples/results, 29 Oct)
+
+def test_tenancy_contract_misread_as_residency_gets_no_wrong_page():
+    # The PDF tenancy contract was read as a residency notice: it must NOT be sent to GDRFA.
+    f = fields(doc_type="visa_residency_notice", emirate="Dubai", issuing_authority="Dubai Land Department",
+               subject="Unified tenancy contract", keywords=["tenancy", "contract", "ejari", "dubai", "land"])
+    assert catalog.match(f) is None
+
+
+def test_place_name_alone_is_not_a_match():
+    f = fields(doc_type="traffic_fine", emirate="Dubai", issuing_authority=None, subject=None, keywords=["dubai"])
+    assert catalog.match(f) is None
+
+
+def test_readable_non_document_gets_not_supported_message(monkeypatch):
+    receipt = fields(doc_type="other", emirate=None, issuing_authority="Sample Cafe", amount_aed=17,
+                     subject="Cafe receipt", keywords=["receipt"], readable=True, confidence=0.9)
+    monkeypatch.setattr(pipeline.extract, "extract", lambda data, media: receipt)
+    r = pipeline.analyze(b"x", "image/png", "ar")
+    assert r["fallback"] == safety.TEXT["ar"]["not_supported"] and "explanation" not in r
+    assert r["service_id"] is None
