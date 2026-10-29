@@ -74,3 +74,40 @@ def test_unsupported_file_type_rejected(monkeypatch):
 
 def test_parse_json_handles_code_fences():
     assert ai.parse_json('```json\n{"x": 2}\n```') == {"x": 2}
+
+
+def test_claude_cut_off_reply_is_retried_with_more_room(monkeypatch):
+    use(monkeypatch, "claude", "m")
+    sent = []
+    replies = iter([
+        FakeResponse({"content": [{"type": "text", "text": '{"what_it_is": "ഇത് ഒരു'}], "stop_reason": "max_tokens"}),
+        FakeResponse({"content": [{"type": "text", "text": '{"what_it_is": "ok"}'}], "stop_reason": "end_turn"}),
+    ])
+
+    def fake_post(url, headers=None, json=None, timeout=None):
+        sent.append(json["max_tokens"])
+        return next(replies)
+    monkeypatch.setattr(ai.requests, "post", fake_post)
+    assert ai.ask_json("S", "t", max_tokens=100) == {"what_it_is": "ok"}
+    assert sent == [100, 200]
+
+
+def test_non_json_reply_is_retried_with_a_reminder(monkeypatch):
+    use(monkeypatch, "claude", "m")
+    prompts = []
+    replies = iter([
+        FakeResponse({"content": [{"type": "text", "text": "Sure! Here is what the document says..."}], "stop_reason": "end_turn"}),
+        FakeResponse({"content": [{"type": "text", "text": '{"doc_type": "traffic_fine"}'}], "stop_reason": "end_turn"}),
+    ])
+
+    def fake_post(url, headers=None, json=None, timeout=None):
+        prompts.append(json["messages"][0]["content"][-1]["text"])
+        return next(replies)
+    monkeypatch.setattr(ai.requests, "post", fake_post)
+    assert ai.ask_json("S", "t") == {"doc_type": "traffic_fine"}
+    assert "ONLY the JSON object" in prompts[1]
+
+
+def test_error_message_shows_what_the_model_said():
+    with pytest.raises(ai.AIError, match="It said: 'I cannot"):
+        ai.parse_json("I cannot read this image.")

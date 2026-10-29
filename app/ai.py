@@ -7,6 +7,7 @@ Plain HTTP with `requests`, so no extra SDKs to install.
 """
 import base64
 import json
+import logging
 import re
 
 import requests
@@ -17,8 +18,15 @@ IMAGE_TYPES = ("image/jpeg", "image/png", "image/webp", "image/gif")
 PDF = "application/pdf"
 
 
+log = logging.getLogger("dalil.ai")
+
+
 class AIError(Exception):
     pass
+
+
+class CutOff(AIError):
+    """The reply hit the length limit before it was finished."""
 
 
 def ask(system: str, text: str, file: tuple[bytes, str] | None = None, max_tokens: int = 1200) -> str:
@@ -29,11 +37,27 @@ def ask(system: str, text: str, file: tuple[bytes, str] | None = None, max_token
     return _claude(system, text, file, max_tokens)
 
 
+def ask_json(system: str, text: str, file: tuple[bytes, str] | None = None, max_tokens: int = 2000) -> dict:
+    """Ask for a JSON object. If the reply is cut off or isn't JSON, try once more:
+    with a bigger length limit, and a reminder to reply with JSON only."""
+    try:
+        return parse_json(ask(system, text, file, max_tokens))
+    except CutOff:
+        log.warning("AI reply was cut off at %s tokens, retrying with more room", max_tokens)
+        return parse_json(ask(system, text, file, max_tokens * 2))
+    except AIError as e:
+        if "did not return JSON" not in str(e) and "Could not parse" not in str(e):
+            raise
+        log.warning("AI reply was not JSON (%s), retrying once", e)
+        reminder = text + "\n\nReply with ONLY the JSON object: start with { and end with }. No other text."
+        return parse_json(ask(system, reminder, file, max_tokens))
+
+
 def parse_json(text: str) -> dict:
     """Pull the first JSON object out of a reply (tolerates ```json fences)."""
     match = re.search(r"\{.*\}", text, re.DOTALL)
     if not match:
-        raise AIError("The model did not return JSON.")
+        raise AIError(f"The model did not return JSON. It said: {text[:200]!r}")
     try:
         return json.loads(match.group(0))
     except json.JSONDecodeError as e:
@@ -59,17 +83,20 @@ def _gemini(system, text, file, max_tokens) -> str:
             "contents": [{"role": "user", "parts": parts}],
             # Both our prompts ask for JSON; this makes Gemini return clean JSON.
             # Generous token limit: some Gemini models spend tokens "thinking" first.
-            "generationConfig": {"responseMimeType": "application/json", "maxOutputTokens": max(max_tokens, 4096)},
+            "generationConfig": {"responseMimeType": "application/json", "maxOutputTokens": max(max_tokens * 2, 4096)},
         },
-        timeout=60,
+        timeout=90,
     )
     if resp.status_code != 200:
         raise AIError(f"Gemini API error {resp.status_code}: {resp.text[:300]}")
     try:
         cand = resp.json()["candidates"][0]
-        return "".join(p.get("text", "") for p in cand["content"]["parts"] if not p.get("thought")).strip()
+        reply = "".join(p.get("text", "") for p in cand["content"]["parts"] if not p.get("thought")).strip()
     except (KeyError, IndexError) as e:
         raise AIError(f"Unexpected Gemini response: {resp.text[:300]}") from e
+    if cand.get("finishReason") == "MAX_TOKENS":
+        raise CutOff(f"The AI's answer was cut off at {max_tokens} tokens.")
+    return reply
 
 
 # ---------------------------------------------------------------- Claude
@@ -93,9 +120,14 @@ def _claude(system, text, file, max_tokens) -> str:
             "system": system,
             "messages": [{"role": "user", "content": content}],
         },
-        timeout=60,
+        timeout=90,
     )
     if resp.status_code != 200:
         raise AIError(f"Claude API error {resp.status_code}: {resp.text[:300]}")
-    parts = resp.json().get("content", [])
-    return "".join(p.get("text", "") for p in parts if p.get("type") == "text").strip()
+    body = resp.json()
+    reply = "".join(p.get("text", "") for p in body.get("content", []) if p.get("type") == "text").strip()
+    if body.get("stop_reason") == "max_tokens":
+        raise CutOff(f"The AI's answer was cut off at {max_tokens} tokens.")
+    if body.get("stop_reason") == "refusal":
+        raise AIError("The AI declined to read this document. Try a clearer photo of an official document.")
+    return reply

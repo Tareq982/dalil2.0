@@ -31,7 +31,8 @@ def explain(fields: dict, service: dict | None, days_left: int | None, language:
         "days_left_until_deadline": days_left,
     }
     text = "DATA:\n" + json.dumps(data, ensure_ascii=False, indent=2)
-    out = ai.parse_json(ai.ask(SYSTEM.format(language=language), text, max_tokens=900))
+    # Non-Latin scripts (Malayalam, Bengali, Urdu...) need many more tokens for the same text
+    out = ai.ask_json(SYSTEM.format(language=language), text, max_tokens=2500)
     steps = out.get("next_steps") or []
     return {
         "what_it_is": str(out.get("what_it_is", "")),

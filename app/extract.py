@@ -53,8 +53,7 @@ def extract(data: bytes, media_type: str) -> dict:
     if config.MOCK_AI:
         return dict(MOCK_FIELDS)
 
-    reply = ai.ask(SYSTEM, "Read this document and return the JSON.", file=(data, media_type), max_tokens=800)
-    fields = ai.parse_json(reply)
+    fields = ai.ask_json(SYSTEM, "Read this document and return the JSON.", file=(data, media_type), max_tokens=1500)
     return normalise(fields)
 
 
