@@ -2,4 +2,5 @@
 flask>=3.0
 requests>=2.31
 python-dotenv>=1.0
+openpyxl>=3.1   # reads the Bayanat .xlsx open datasets
 pytest>=8.0

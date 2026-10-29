@@ -1,40 +1,67 @@
 {
-  "_readme": "Verified service catalog. Data role owns this file. Every record needs a source. Values marked null or TODO are NOT verified yet: fill them from official pages / open data, record the source in data/sources.md, then set verified=true and last_checked. Unverified records show a warning in the app.",
+  "_readme": "Verified service catalog. Data role owns this file. Every value must trace to data/sources.md. verified=true ONLY when the fee/deadline/link was read on the authority's own official page (see 'Verification pass' in sources.md). Records from media or third-party guides stay verified=false, and the app shows a warning for them.",
   "services": [
     {
       "id": "dubai-traffic-fine",
       "doc_type": "traffic_fine",
       "emirate": "Dubai",
-      "authority": "Dubai Police",
-      "service_name": "Pay a traffic fine",
-      "official_url": "https://www.dubaipolice.gov.ae",
+      "authority": "Dubai Police / RTA",
+      "service_name": "Pay Vehicle Fines (RTA)",
+      "official_url": "https://www.rta.ae/wps/portal/rta/ae/home/rta-services/service-details?serviceId=521",
       "fee_aed": null,
-      "fee_note": "The amount printed on the fine. TODO: check if early-payment discounts apply and record the rule.",
-      "deadline_rule": null,
+      "fee_note": "The amount printed on the fine, plus AED 20 Knowledge and Innovation fees per fine.",
+      "deadline_rule": "The official RTA service page lists no early-payment discount and no payment deadline. Unpaid fines must be paid before renewing a driving licence or vehicle ownership.",
       "next_steps": [
-        "Open the official Dubai Police app or website",
-        "Search for the fine using your plate number or traffic file number",
-        "Check the amount matches the paper and pay online"
+        "Open the RTA website or the RTA Dubai / Dubai Now app and go to Fines Enquiry and Payment",
+        "Enter your details (for example plate number or traffic file) or log in with UAE Pass",
+        "Check the amount matches the paper, pay by card, and keep the receipt sent by email"
       ],
-      "source": "TODO",
-      "source_url": null,
-      "verified": false,
-      "last_checked": null,
-      "match_keywords": ["dubai", "police", "rta", "traffic", "speed", "radar", "parking", "fine", "violation"],
+      "source": "RTA, Pay Vehicle Fines service page (official)",
+      "source_url": "https://www.rta.ae/wps/portal/rta/ae/home/rta-services/service-details?serviceId=521",
+      "verified": true,
+      "last_checked": "2026-10-28",
+      "official_fee_codes": [
+        "DPD (147 traffic fine types)"
+      ],
+      "legal_basis": "Regulation No. (7) of 2006 on traffic control rules and procedures in the Emirate of Dubai (as listed for Dubai Police traffic fines in the Dubai Government Service Prices dataset)",
+      "related_datasets": [
+        "bayanat-cause-of-traffic-fines",
+        "dubai-pulse-government-service-prices"
+      ],
+      "match_keywords": [
+        "dubai",
+        "police",
+        "rta",
+        "traffic",
+        "speed",
+        "radar",
+        "parking",
+        "fine",
+        "violation"
+      ],
       "items": [
         {
           "id": "speeding",
           "label": "Exceeding the speed limit",
           "fine_aed": null,
           "black_points": null,
-          "match_keywords": ["speed", "speeding", "radar", "limit"]
+          "match_keywords": [
+            "speed",
+            "speeding",
+            "radar",
+            "limit"
+          ]
         },
         {
           "id": "parking",
           "label": "Parking violation",
           "fine_aed": null,
           "black_points": null,
-          "match_keywords": ["parking", "park", "parked"]
+          "match_keywords": [
+            "parking",
+            "park",
+            "parked"
+          ]
         }
       ]
     },
@@ -43,21 +70,33 @@
       "doc_type": "traffic_fine",
       "emirate": "Abu Dhabi",
       "authority": "Abu Dhabi Police",
-      "service_name": "Pay a traffic fine",
-      "official_url": "https://www.adpolice.gov.ae",
+      "service_name": "Traffic Fines Payment (TAMM)",
+      "official_url": "https://www.tamm.abudhabi/en/life-events/individual/Make-a-payment/Fines/paytrafficfines",
       "fee_aed": null,
-      "fee_note": "The amount printed on the fine. TODO: verify discount rules.",
-      "deadline_rule": null,
+      "fee_note": "The amount printed on the fine. No extra service fee was found.",
+      "deadline_rule": "Reported early-payment discount: 35% off if paid within 60 days of the violation, 25% off if paid between 60 days and one year. Serious (high-risk) violations are excluded. Confirm the discounted amount in the TAMM or Abu Dhabi Police app before paying.",
       "next_steps": [
-        "Open the official Abu Dhabi Police or TAMM app or website",
-        "Search for the fine using your plate number or traffic file number",
-        "Check the amount and pay online"
+        "Open the TAMM or Abu Dhabi Police app or website (log in with UAE Pass)",
+        "Search for the fine using your plate number, licence number or Emirates ID",
+        "Check the amount, including any early-payment discount, and pay online"
       ],
-      "source": "TODO",
-      "source_url": null,
+      "source": "Gulf News report quoting Abu Dhabi Police officials (17 Oct 2025); Khaleej Times (corroboration). Official TAMM page could not be read automatically.",
+      "source_url": "https://gulfnews.com/uae/transport/abu-dhabi-police-offer-up-to-35-traffic-fine-discounts-under-new-program-1.500312209",
       "verified": false,
-      "last_checked": null,
-      "match_keywords": ["abu", "dhabi", "police", "traffic", "speed", "radar", "fine", "tamm"],
+      "last_checked": "2026-10-28",
+      "related_datasets": [
+        "bayanat-cause-of-traffic-fines"
+      ],
+      "match_keywords": [
+        "abu",
+        "dhabi",
+        "police",
+        "traffic",
+        "speed",
+        "radar",
+        "fine",
+        "tamm"
+      ],
       "items": []
     },
     {
@@ -65,33 +104,61 @@
       "doc_type": "visa_residency_notice",
       "emirate": "Dubai",
       "authority": "GDRFA Dubai",
-      "service_name": "Residency and visa services (Dubai)",
-      "official_url": "https://gdrfad.gov.ae",
+      "service_name": "Renewing a residence permit (private sector), GDRFA Dubai",
+      "official_url": "https://www.gdrfad.gov.ae/en/services/95222a40-56f2-11ea-0320-0050569629e8",
       "fee_aed": null,
-      "fee_note": "TODO: fees depend on the service (renewal, cancellation, overstay). Fill per item.",
-      "deadline_rule": null,
+      "fee_note": "For private-sector residence renewal, GDRFA lists: AED 200 renewal fee, AED 10 Knowledge Dirham, AED 10 Innovation Dirham, AED 20 delivery, and an AED 500 'fee inside the country'. The fee rises by AED 100 per year for residence longer than two years. Other visa categories have different fees: check the exact total on GDRFA before paying.",
+      "deadline_rule": "Grace period: 60 days after the residence permit expires or is cancelled (GDRFA, private sector). After the grace period, the federal overstay fine is AED 50 per day (ICP).",
       "next_steps": [
-        "Open the official GDRFA Dubai website or app",
-        "Find the service named on your notice (for example renewal or cancellation)",
-        "Check the required documents and fees before you apply"
+        "Open the GDRFA Dubai website or app and log in with UAE Pass",
+        "Find the renewal service that matches your visa type and apply",
+        "Pay the fees before the grace period ends to avoid daily overstay fines"
       ],
-      "source": "TODO",
-      "source_url": null,
-      "verified": false,
-      "last_checked": null,
-      "match_keywords": ["dubai", "gdrfa", "residency", "residence", "visa", "permit", "renewal", "cancellation", "overstay", "expiry"],
+      "source": "GDRFA Dubai service page (official); ICP 'Payment of visa or residence violation fine' (official)",
+      "source_url": "https://www.gdrfad.gov.ae/en/services/95222a40-56f2-11ea-0320-0050569629e8",
+      "verified": true,
+      "last_checked": "2026-10-28",
+      "official_fee_codes": [
+        "GDRF-0026914"
+      ],
+      "legal_basis": "Cabinet Resolution No. 22 of 2014 on regulating and developing nationality, residency and ports services (Dubai Government Service Prices dataset, fee GDRF-0026914: renewal of a residence permit for a private-sector or free-zone employee)",
+      "related_datasets": [
+        "dubai-pulse-government-service-prices"
+      ],
+      "match_keywords": [
+        "dubai",
+        "gdrfa",
+        "residency",
+        "residence",
+        "visa",
+        "permit",
+        "renewal",
+        "cancellation",
+        "overstay",
+        "expiry"
+      ],
       "items": [
         {
           "id": "renewal",
           "label": "Residency renewal",
           "fine_aed": null,
-          "match_keywords": ["renewal", "renew", "expiry", "expired"]
+          "match_keywords": [
+            "renewal",
+            "renew",
+            "expiry",
+            "expired"
+          ]
         },
         {
           "id": "overstay",
           "label": "Overstay",
-          "fine_aed": null,
-          "match_keywords": ["overstay", "fines", "grace"]
+          "fine_aed_per_day": 50,
+          "note": "Charged per day after the grace period ends (ICP, official).",
+          "match_keywords": [
+            "overstay",
+            "fines",
+            "grace"
+          ]
         }
       ]
     },
@@ -100,43 +167,84 @@
       "doc_type": "visa_residency_notice",
       "emirate": null,
       "authority": "ICP (Federal Authority for Identity, Citizenship, Customs and Port Security)",
-      "service_name": "Residency and visa services (other emirates)",
-      "official_url": "https://icp.gov.ae",
+      "service_name": "Renewal of residency permits (ICP)",
+      "official_url": "https://icp.gov.ae/en/services-details/?serviceid=64afe3c1035448005bd52e66",
       "fee_aed": null,
-      "fee_note": "TODO: fill per service.",
-      "deadline_rule": null,
+      "fee_note": "AED 100 application fee + AED 100 for each year of residence + AED 100 smart service fee.",
+      "deadline_rule": "Grace period after expiry or cancellation depends on the category: 180 days (Golden, Green and Blue residence holders and their families, students after finishing their studies, and some family categories), 90 days (skilled workers levels 1-3 and property owners), 60 days (permits with a guarantor or host), 30 days (all other categories). After the grace period: AED 50 fine per day.",
       "next_steps": [
-        "Open the official ICP website or UAEICP app",
-        "Find the service named on your notice",
-        "Check the required documents and fees before you apply"
+        "Open the ICP smart services website or the UAEICP app and log in with UAE Pass",
+        "Choose 'Renewal of residency permits', check the pre-filled data and attach documents if asked",
+        "Pay the fees before your grace period ends"
       ],
-      "source": "TODO",
-      "source_url": null,
-      "verified": false,
-      "last_checked": null,
-      "match_keywords": ["icp", "federal", "identity", "citizenship", "residency", "visa", "emirates", "permit"],
-      "items": []
+      "source": "ICP 'Renewal of residency permits' and 'Payment of visa or residence violation fine' service pages (official); u.ae residence visa provisions (official)",
+      "source_url": "https://icp.gov.ae/en/services-details/?serviceid=64afe3c1035448005bd52e66",
+      "verified": true,
+      "last_checked": "2026-10-28",
+      "related_datasets": [],
+      "match_keywords": [
+        "icp",
+        "federal",
+        "identity",
+        "citizenship",
+        "residency",
+        "visa",
+        "emirates",
+        "permit"
+      ],
+      "items": [
+        {
+          "id": "overstay",
+          "label": "Overstay",
+          "fine_aed_per_day": 50,
+          "match_keywords": [
+            "overstay",
+            "fines",
+            "grace",
+            "violation"
+          ]
+        }
+      ]
     },
     {
       "id": "dubai-tenancy-contract",
       "doc_type": "tenancy_contract",
       "emirate": "Dubai",
       "authority": "Dubai Land Department (Ejari)",
-      "service_name": "Register a tenancy contract (Ejari)",
-      "official_url": "https://dubailand.gov.ae",
-      "fee_aed": null,
-      "fee_note": "TODO: verify the Ejari registration fee.",
-      "deadline_rule": null,
+      "service_name": "Register / Renew Tenancy Contract (Ejari)",
+      "official_url": "https://dubailand.gov.ae/en/eservices/register-renew-ejari-contract/",
+      "fee_aed": 177.75,
+      "fee_note": "AED 177.75 through the Dubai REST app or DLD website (AED 100 registration + AED 10 knowledge + AED 10 innovation + AED 55 service partner fee + AED 2.75 VAT). AED 220 at a Real Estate Services Trustee Centre. This is the Ejari registration fee, not the rent.",
+      "deadline_rule": "The official DLD page gives no deadline for registering. The same service is used to register a new contract or renew an existing one.",
       "next_steps": [
-        "Check the contract dates, rent amount and number of cheques",
-        "Make sure the contract is registered in Ejari (ask your landlord or agent, or use the official Dubai Land Department channels)",
+        "Check the contract dates, yearly rent and number of cheques match what you agreed",
+        "Register (or renew) the contract in Ejari through the Dubai REST app, the DLD website, Dubai Now, or a Trustee Centre",
         "Keep a copy of the Ejari certificate"
       ],
-      "source": "TODO",
-      "source_url": null,
-      "verified": false,
-      "last_checked": null,
-      "match_keywords": ["dubai", "tenancy", "lease", "rent", "ejari", "landlord", "tenant", "contract", "land", "department"],
+      "source": "Dubai Land Department, Register / Renew Tenancy Contract service page (official)",
+      "source_url": "https://dubailand.gov.ae/en/eservices/register-renew-ejari-contract/",
+      "verified": true,
+      "last_checked": "2026-10-28",
+      "official_fee_codes": [
+        "DLD-0020607"
+      ],
+      "legal_basis": "Executive Council Resolution No. (25) of 2009 approving the fees of the Real Estate Regulatory Agency (Dubai Government Service Prices dataset, fee DLD-0020607: tenancy contract registration fee)",
+      "related_datasets": [
+        "dubai-pulse-ejari-rent-contracts",
+        "dubai-pulse-government-service-prices"
+      ],
+      "match_keywords": [
+        "dubai",
+        "tenancy",
+        "lease",
+        "rent",
+        "ejari",
+        "landlord",
+        "tenant",
+        "contract",
+        "land",
+        "department"
+      ],
       "items": []
     }
   ]

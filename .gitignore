@@ -223,3 +223,6 @@ __marimo__/
 samples/private/
 Thumbs.db
 .DS_Store
+
+# Open datasets too big for GitHub (see data/open/README.md)
+data/open/large/
