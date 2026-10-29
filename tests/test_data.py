@@ -78,3 +78,27 @@ def test_open_data_stats_do_not_double_count_speeding():
     assert 0.70 < stats[2016]["uae_speeding_share"] < 0.72
     assert ods.price_list()["by_type"]["Fine"] == 2377
     assert ods.vehicles_2023() == 672_163
+
+
+# ---- mock test documents (samples/)
+
+def test_every_expected_sample_file_exists():
+    import csv as _csv
+    rows = list(_csv.DictReader(open(config.ROOT / "samples" / "expected.csv", encoding="utf-8")))
+    assert len(rows) >= 20
+    for r in rows:
+        assert (config.ROOT / "samples" / r["file"]).exists(), r["file"]
+        if r["service_id"] not in ("", "none"):
+            assert any(s["id"] == r["service_id"] for s in catalog.load()), r["service_id"]
+
+
+def test_sample_scoring_rules():
+    from tools.run_samples import check
+    res = {"fields": {"amount_aed": 1000.0, "deadline_date": None, "emirate": "Abu Dhabi"},
+           "service_id": None, "fallback": None}
+    assert check("amount_aed", "1000", res) is True
+    assert check("deadline_date", "none", res) is True        # nothing printed, nothing guessed
+    assert check("service_id", "none", res) is True           # e.g. Sharjah: no wrong page
+    assert check("emirate", "abu dhabi", res) is True
+    assert check("fallback", "yes", res) is False
+    assert check("amount_aed", "", res) is None               # empty = not scored
