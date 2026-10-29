@@ -40,3 +40,20 @@ def test_lookup_tool_filters_by_entity_and_keywords(tmp_path):
     hits = lsp.search(str(path), "land department", ["ejari"])
     assert [h["service_fees_code"] for h in hits] == ["1"]
     assert lsp.search(str(path), "roads", ["ejari"]) == []
+
+
+def test_lookup_tool_reads_real_file_spelling(tmp_path):
+    """The downloaded CSV spells columns without inner underscores (feename_en, ...)."""
+    path = tmp_path / "real.csv"
+    header = ["amount_ar", "amount_en", "collectioncycle_ar", "collectioncycle_en", "entitytype_ar",
+              "entitytype_en", "feename_ar", "feename_en", "feestatus_en", "governmententity_en",
+              "pricingtype_en", "servicefeescode", "servicename_en"]
+    with open(path, "w", newline="", encoding="utf-8-sig") as f:
+        w = csv.DictWriter(f, fieldnames=header)
+        w.writeheader()
+        w.writerow({"amount_en": "100", "feename_en": "Registration fee", "feestatus_en": "Active",
+                    "governmententity_en": "Dubai Land Department", "pricingtype_en": "Fee",
+                    "servicefeescode": "DLD-1", "servicename_en": "Ejari Registration"})
+    hits = lsp.search(str(path), "Land Department", ["ejari"])
+    assert hits[0]["service_fees_code"] == "DLD-1" and hits[0]["amount_en"] == "100"
+    assert lsp.entities(str(path)) == {"Dubai Land Department": 1}
