@@ -20,4 +20,4 @@ tenancy_contract_dubai_unified.png,tenancy_contract,Dubai,,none,dubai-tenancy-co
 tenancy_contract_dubai_unified.pdf,tenancy_contract,Dubai,,none,dubai-tenancy-contract,no,Same contract as a PDF
 tenancy_abudhabi_tawtheeq.png,tenancy_contract,Abu Dhabi,,none,none,,No Abu Dhabi tenancy record in the catalog
 not_a_document_receipt.png,other,,,,none,yes,Cafe receipt: not an official document
-scam_sms_fine.png,other,,,,none,,Scam text message with a fake link: must not be treated as a real fine (see #18)
+scam_sms_fine.png,other,,,,none,yes,Scam text message with a fake link: must not be treated as a real fine (see #18)

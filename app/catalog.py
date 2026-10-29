@@ -21,6 +21,11 @@ def _words(*values) -> set[str]:
     return {w.strip(".,()/-") for w in text.split() if len(w) > 2}
 
 
+# Place names say WHERE a document is from, not WHAT it is about, so they can't be the only match.
+PLACE_WORDS = {"dubai", "abu", "dhabi", "sharjah", "ajman", "umm", "quwain", "ras", "khaimah",
+               "fujairah", "uae", "emirates", "emirate"}
+
+
 def match(fields: dict) -> dict | None:
     """Return the best service record for these fields, or None if nothing fits."""
     emirate = fields.get("emirate")
@@ -48,7 +53,14 @@ def match(fields: dict) -> dict | None:
             s += 1
         return s
 
+    def topical(service: dict) -> int:
+        return len((doc_words - PLACE_WORDS) & {k.lower() for k in service.get("match_keywords", [])})
+
     best = max(candidates, key=score)
+    if topical(best) == 0:
+        # Nothing about the subject matches (e.g. a tenancy contract read as a residency notice):
+        # better no official page than the wrong one.
+        return None
     record = dict(best)
     record["matched_item"] = match_item(best, doc_words)
     return record
