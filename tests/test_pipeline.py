@@ -120,3 +120,29 @@ def test_readable_non_document_gets_not_supported_message(monkeypatch):
     r = pipeline.analyze(b"x", "image/png", "ar")
     assert r["fallback"] == safety.TEXT["ar"]["not_supported"] and "explanation" not in r
     assert r["service_id"] is None
+
+
+def test_blurry_document_with_no_readable_details_is_refused(monkeypatch):
+    # Second test run: the blurry Abu Dhabi fine was "read" at 0.6 confidence with no details.
+    blurry = fields(emirate="Abu Dhabi", issuing_authority="Abu Dhabi Police", reference_number=None,
+                    amount_aed=None, issue_date=None, deadline_date=None, readable=True, confidence=0.6)
+    monkeypatch.setattr(pipeline.extract, "extract", lambda data, media: blurry)
+    r = pipeline.analyze(b"x", "image/jpeg", "en")
+    assert r["fallback"] == safety.TEXT["en"]["fallback"] and "explanation" not in r
+
+
+def test_cropped_document_with_some_details_is_still_explained(monkeypatch):
+    cropped = fields(reference_number="DXB-TF-2026-0051290", amount_aed=None, deadline_date=None,
+                     issue_date="2026-10-18", confidence=0.92)
+    monkeypatch.setattr(pipeline.extract, "extract", lambda data, media: cropped)
+    r = pipeline.analyze(b"x", "image/jpeg", "en")
+    assert "explanation" in r and not r.get("fallback")
+
+
+def test_readable_tenancy_contract_without_reference_or_amount_is_explained(monkeypatch):
+    contract = fields(doc_type="tenancy_contract", issuing_authority="Dubai Land Department",
+                      subject="Unified tenancy contract", keywords=["tenancy", "ejari"], reference_number=None,
+                      amount_aed=None, issue_date=None, deadline_date=None, confidence=0.95)
+    monkeypatch.setattr(pipeline.extract, "extract", lambda data, media: contract)
+    r = pipeline.analyze(b"x", "image/png", "en")
+    assert "explanation" in r and r["service_id"] == "dubai-tenancy-contract"

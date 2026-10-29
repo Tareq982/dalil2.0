@@ -40,7 +40,9 @@ Rules:
 - Copy values exactly as printed. Never invent a value: use null if it is not visible.
 - Rent in a tenancy contract is NOT an amount due: use amount_aed null and put the rent in key_points.
 - Do not include personal data such as names, Emirates ID, passport or phone numbers.
-- If it is not an official document, set doc_type "other". Set readable false only if you cannot read it."""
+- If it is not an official document, set doc_type "other".
+- Set readable false if the photo is too blurry, dark or cut off to read the key details
+  (reference number, amounts, dates) with certainty. Never guess a detail you can't read clearly."""
 
 
 MOCK_FIELDS = {
