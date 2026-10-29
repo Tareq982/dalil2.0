@@ -73,10 +73,21 @@ def text(lang: str) -> dict:
     return TEXT.get(lang, TEXT["en"])
 
 
+# The details that prove Dalil actually READ a fine or notice, not just recognised its shape.
+# (Tenancy contracts often have none of these printed, so the rule doesn't apply to them.)
+KEY_DETAILS = ["reference_number", "amount_aed", "issue_date", "deadline_date"]
+NEEDS_KEY_DETAILS = {"traffic_fine", "visa_residency_notice"}
+
+
 def overall_confidence(fields: dict, service: dict | None) -> float:
-    """Model's own confidence, reduced when we couldn't match a verified service."""
+    """Model's own confidence, reduced when we couldn't match a verified service.
+
+    Code overrides the model: an official document where none of the key details could be
+    read (e.g. a very blurry photo) is treated as unreadable, whatever the model says."""
     c = fields.get("confidence", 0.0)
     if not fields.get("readable"):
+        return 0.0
+    if fields.get("doc_type") in NEEDS_KEY_DETAILS and not any(fields.get(k) for k in KEY_DETAILS):
         return 0.0
     if service is None:
         c *= 0.7
