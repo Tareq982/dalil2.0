@@ -4,9 +4,13 @@
    https://www.dubaipulse.gov.ae/data/dof-pricing/dof_government_service_prices-open
    and save it as data/open/dubai_government_service_prices.csv
 2. Run, for example:
-   python tools/lookup_service_prices.py data/open/dubai_government_service_prices.csv "Land Department" ejari
-   python tools/lookup_service_prices.py data/open/dubai_government_service_prices.csv "Roads" fine
-   python tools/lookup_service_prices.py data/open/dubai_government_service_prices.csv "Police"
+   python tools/lookup_service_prices.py data/open/dubai_government_service_prices.csv "Land Department" "عقد ايجار"
+   python tools/lookup_service_prices.py data/open/dubai_government_service_prices.csv "Residency" "تجديد تصريح اقامة"
+   python tools/lookup_service_prices.py data/open/dubai_government_service_prices.csv "Dubai Police"
+
+Most service and fee names in the file are in Arabic (even the "_en" columns), so search
+with Arabic keywords. The downloaded export has NO amounts: use it for official fee codes,
+the legal basis of each fee and counts, and take amounts from the official service pages.
 
 Arguments: the CSV file, part of the government entity name, then keywords that must
 ALL appear in the service or fee name (case does not matter). Copy what you find into
@@ -24,6 +28,9 @@ from collections import Counter
 # match column names with underscores removed and accept either spelling.
 COLUMNS = ["service_fees_code", "government_entity_en", "service_name_en", "fee_name_en",
            "amount_en", "pricing_type_en", "fee_status_en"]
+# Optional columns: the downloaded file has Arabic names (most "_en" names are Arabic too)
+# and the legal basis of each fee. Used when present.
+OPTIONAL = ["service_name_ar", "fee_name_ar", "amount_ar", "legislation_en"]
 
 
 def _norm(name: str) -> str:
@@ -38,7 +45,8 @@ def load(path: str) -> list[dict]:
         missing = [c for c in COLUMNS if _norm(c) not in header]
         if missing:
             raise SystemExit(f"Missing columns {missing}.\nColumns in this file: {sorted(header.values())}")
-        return [{c: (row.get(header[_norm(c)]) or "").strip() for c in COLUMNS} for row in reader]
+        cols = COLUMNS + [c for c in OPTIONAL if _norm(c) in header]
+        return [{c: (row.get(header[_norm(c)]) or "").strip() for c in cols} for row in reader]
 
 
 def search(path: str, entity: str, keywords: list[str]) -> list[dict]:
@@ -47,7 +55,7 @@ def search(path: str, entity: str, keywords: list[str]) -> list[dict]:
     for r in load(path):
         if entity not in r["government_entity_en"].lower():
             continue
-        text = f"{r['service_name_en']} {r['fee_name_en']}".lower()
+        text = " ".join(r.get(k, "") for k in ("service_name_en", "fee_name_en", "service_name_ar", "fee_name_ar")).lower()
         if all(k in text for k in keywords):
             out.append(r)
     return out
@@ -67,8 +75,9 @@ def main(argv: list[str]) -> None:
         raise SystemExit(1)
     matches = search(argv[1], argv[2], argv[3:])
     for m in matches:
-        print(f"[{m['service_fees_code']}] {m['government_entity_en']} | {m['service_name_en']} | "
-              f"{m['fee_name_en']} | {m['amount_en']} | {m['pricing_type_en']} | {m['fee_status_en']}")
+        amount = m["amount_en"] or m.get("amount_ar") or "(no amount in file)"
+        print(f"[{m['service_fees_code']}] {m['government_entity_en']} | {m['fee_name_en']} | "
+              f"{amount} | {m['pricing_type_en']} | {m.get('legislation_en', '')[:90]}")
     print(f"\n{len(matches)} matching fee rows")
     if not matches:
         print("Tip: run with --entities to see the exact entity names in this file.")

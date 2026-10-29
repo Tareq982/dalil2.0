@@ -57,3 +57,24 @@ def test_lookup_tool_reads_real_file_spelling(tmp_path):
     hits = lsp.search(str(path), "Land Department", ["ejari"])
     assert hits[0]["service_fees_code"] == "DLD-1" and hits[0]["amount_en"] == "100"
     assert lsp.entities(str(path)) == {"Dubai Land Department": 1}
+
+
+# ---- the real downloaded open datasets (data/open/)
+
+def test_real_price_list_finds_official_fee_codes_in_arabic():
+    path = str(config.DATA_DIR / "open" / "dubai_government_service_prices.csv")
+    codes = {r["service_fees_code"] for r in lsp.search(path, "Land Department", ["رسم تسجيل عقد ايجار"])}
+    assert "DLD-0020607" in codes
+    for s in catalog.load():
+        for code in s.get("official_fee_codes", []):
+            if code.startswith(("DLD-", "GDRF-")):
+                assert any(r["service_fees_code"] == code for r in lsp.load(path)), code
+
+
+def test_open_data_stats_do_not_double_count_speeding():
+    from tools import open_data_stats as ods
+    stats = ods.traffic_fines()
+    assert stats[2016]["uae_fines"] == 12_098_575
+    assert 0.70 < stats[2016]["uae_speeding_share"] < 0.72
+    assert ods.price_list()["by_type"]["Fine"] == 2377
+    assert ods.vehicles_2023() == 672_163

@@ -20,22 +20,48 @@
       "source_url": "https://www.rta.ae/wps/portal/rta/ae/home/rta-services/service-details?serviceId=521",
       "verified": true,
       "last_checked": "2026-10-28",
-      "related_datasets": ["bayanat-cause-of-traffic-fines", "dubai-pulse-government-service-prices"],
-      "match_keywords": ["dubai", "police", "rta", "traffic", "speed", "radar", "parking", "fine", "violation"],
+      "official_fee_codes": [
+        "DPD (147 traffic fine types)"
+      ],
+      "legal_basis": "Regulation No. (7) of 2006 on traffic control rules and procedures in the Emirate of Dubai (as listed for Dubai Police traffic fines in the Dubai Government Service Prices dataset)",
+      "related_datasets": [
+        "bayanat-cause-of-traffic-fines",
+        "dubai-pulse-government-service-prices"
+      ],
+      "match_keywords": [
+        "dubai",
+        "police",
+        "rta",
+        "traffic",
+        "speed",
+        "radar",
+        "parking",
+        "fine",
+        "violation"
+      ],
       "items": [
         {
           "id": "speeding",
           "label": "Exceeding the speed limit",
           "fine_aed": null,
           "black_points": null,
-          "match_keywords": ["speed", "speeding", "radar", "limit"]
+          "match_keywords": [
+            "speed",
+            "speeding",
+            "radar",
+            "limit"
+          ]
         },
         {
           "id": "parking",
           "label": "Parking violation",
           "fine_aed": null,
           "black_points": null,
-          "match_keywords": ["parking", "park", "parked"]
+          "match_keywords": [
+            "parking",
+            "park",
+            "parked"
+          ]
         }
       ]
     },
@@ -58,8 +84,19 @@
       "source_url": "https://gulfnews.com/uae/transport/abu-dhabi-police-offer-up-to-35-traffic-fine-discounts-under-new-program-1.500312209",
       "verified": false,
       "last_checked": "2026-10-28",
-      "related_datasets": ["bayanat-cause-of-traffic-fines"],
-      "match_keywords": ["abu", "dhabi", "police", "traffic", "speed", "radar", "fine", "tamm"],
+      "related_datasets": [
+        "bayanat-cause-of-traffic-fines"
+      ],
+      "match_keywords": [
+        "abu",
+        "dhabi",
+        "police",
+        "traffic",
+        "speed",
+        "radar",
+        "fine",
+        "tamm"
+      ],
       "items": []
     },
     {
@@ -81,21 +118,47 @@
       "source_url": "https://www.gdrfad.gov.ae/en/services/95222a40-56f2-11ea-0320-0050569629e8",
       "verified": true,
       "last_checked": "2026-10-28",
-      "related_datasets": ["dubai-pulse-government-service-prices"],
-      "match_keywords": ["dubai", "gdrfa", "residency", "residence", "visa", "permit", "renewal", "cancellation", "overstay", "expiry"],
+      "official_fee_codes": [
+        "GDRF-0026914"
+      ],
+      "legal_basis": "Cabinet Resolution No. 22 of 2014 on regulating and developing nationality, residency and ports services (Dubai Government Service Prices dataset, fee GDRF-0026914: renewal of a residence permit for a private-sector or free-zone employee)",
+      "related_datasets": [
+        "dubai-pulse-government-service-prices"
+      ],
+      "match_keywords": [
+        "dubai",
+        "gdrfa",
+        "residency",
+        "residence",
+        "visa",
+        "permit",
+        "renewal",
+        "cancellation",
+        "overstay",
+        "expiry"
+      ],
       "items": [
         {
           "id": "renewal",
           "label": "Residency renewal",
           "fine_aed": null,
-          "match_keywords": ["renewal", "renew", "expiry", "expired"]
+          "match_keywords": [
+            "renewal",
+            "renew",
+            "expiry",
+            "expired"
+          ]
         },
         {
           "id": "overstay",
           "label": "Overstay",
           "fine_aed_per_day": 50,
           "note": "Charged per day after the grace period ends (ICP, official).",
-          "match_keywords": ["overstay", "fines", "grace"]
+          "match_keywords": [
+            "overstay",
+            "fines",
+            "grace"
+          ]
         }
       ]
     },
@@ -119,13 +182,27 @@
       "verified": true,
       "last_checked": "2026-10-28",
       "related_datasets": [],
-      "match_keywords": ["icp", "federal", "identity", "citizenship", "residency", "visa", "emirates", "permit"],
+      "match_keywords": [
+        "icp",
+        "federal",
+        "identity",
+        "citizenship",
+        "residency",
+        "visa",
+        "emirates",
+        "permit"
+      ],
       "items": [
         {
           "id": "overstay",
           "label": "Overstay",
           "fine_aed_per_day": 50,
-          "match_keywords": ["overstay", "fines", "grace", "violation"]
+          "match_keywords": [
+            "overstay",
+            "fines",
+            "grace",
+            "violation"
+          ]
         }
       ]
     },
@@ -148,8 +225,26 @@
       "source_url": "https://dubailand.gov.ae/en/eservices/register-renew-ejari-contract/",
       "verified": true,
       "last_checked": "2026-10-28",
-      "related_datasets": ["dubai-pulse-ejari-rent-contracts", "dubai-pulse-government-service-prices"],
-      "match_keywords": ["dubai", "tenancy", "lease", "rent", "ejari", "landlord", "tenant", "contract", "land", "department"],
+      "official_fee_codes": [
+        "DLD-0020607"
+      ],
+      "legal_basis": "Executive Council Resolution No. (25) of 2009 approving the fees of the Real Estate Regulatory Agency (Dubai Government Service Prices dataset, fee DLD-0020607: tenancy contract registration fee)",
+      "related_datasets": [
+        "dubai-pulse-ejari-rent-contracts",
+        "dubai-pulse-government-service-prices"
+      ],
+      "match_keywords": [
+        "dubai",
+        "tenancy",
+        "lease",
+        "rent",
+        "ejari",
+        "landlord",
+        "tenant",
+        "contract",
+        "land",
+        "department"
+      ],
       "items": []
     }
   ]
