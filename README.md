@@ -73,7 +73,10 @@ python -m pytest
 | `web/js/app.js` | Switches tabs (`#scan`, `#deadlines`, `#services`, `#how`) | UI |
 | `web/js/i18n.js` | Every interface text, ready for translation (#16) | UI |
 | `web/js/scan.js` | Scan tab: upload, progress steps, result (#12) | UI |
-| `web/js/deadlines.js`, `services.js`, `how.js` | The other tabs, placeholders for #13, #14, #15 | UI |
+| `web/js/deadlines.js` | My deadlines tab: saved deadlines, days left, Add to calendar (#13) | UI |
+| `web/js/store.js`, `web/js/calendar.js` | Saving deadlines on the phone only; building the calendar file | UI |
+| `web/js/services.js` | Services tab: the verified catalog, filters, open data used (#14) | UI |
+| `web/js/how.js` | How it works tab, placeholder for #15 | UI |
 | `app/pipeline.py` | Connects all the steps | everyone |
 | `app/ai.py` | Talks to Gemini or Claude (chosen by `AI_PROVIDER` in `.env`) | AI |
 | `samples/` | Mock documents and expected answers | Demo |

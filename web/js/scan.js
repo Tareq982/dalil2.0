@@ -1,6 +1,7 @@
 // Scan tab (issue #12): photo in -> marked-up explanation out.
 import { t } from "./i18n.js";
 import { esc, formatAED, formatDate, RTL_LANGS } from "./util.js";
+import { addDeadline } from "./store.js";
 
 let panel;
 let upload = null; // { blob, name, previewUrl? }
@@ -140,6 +141,7 @@ async function analyze() {
     await new Promise((res) => setTimeout(res, 350));
     progress.hide();
     result.innerHTML = renderResult(data);
+    if (data.explanation) addSaveBox(result, data);
   } catch (err) {
     progress.hide();
     result.innerHTML = `
@@ -158,6 +160,44 @@ async function analyze() {
     panel.scrollIntoView({ behavior: "smooth", block: "start" });
   });
   result.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// ---------------------------------------------------------------- save deadline (#13)
+
+function addSaveBox(result, d) {
+  const f = d.fields || {};
+  const printed = Boolean(f.deadline_date);
+  const inWeek = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+  result.insertAdjacentHTML("beforeend", `
+    <div class="save-box" id="save-box">
+      <h3>${esc(t("save_title"))}</h3>
+      <p class="muted">${esc(t(printed ? "save_hint_printed" : "save_hint_none"))}</p>
+      ${printed ? "" : `<label class="field-label" for="remind-date">${esc(t("save_date"))}</label>
+        <input type="date" id="remind-date" value="${inWeek}" min="${new Date().toISOString().slice(0, 10)}">`}
+      <button class="btn" id="save-deadline">${esc(t("save_button"))}</button>
+      <p id="save-status" aria-live="polite"></p>
+    </div>`);
+  result.querySelector("#save-deadline").addEventListener("click", (e) => {
+    const date = printed ? f.deadline_date : result.querySelector("#remind-date").value;
+    if (!date) return;
+    const ok = addDeadline({
+      kind: f.doc_type,
+      authority: f.issuing_authority,
+      amount_aed: f.amount_aed,
+      date,
+      date_is_reminder: !printed,
+      summary: d.explanation.what_it_is,
+      answer_lang: d.language,
+      official_url: (d.footer || {}).link,
+    });
+    const status = result.querySelector("#save-status");
+    if (ok) {
+      e.target.disabled = true;
+      status.innerHTML = `<strong>${esc(t("saved"))}</strong> <a href="#deadlines">${esc(t("saved_link"))}</a>`;
+    } else {
+      status.textContent = t("save_failed");
+    }
+  });
 }
 
 // ---------------------------------------------------------------- result
