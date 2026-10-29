@@ -210,6 +210,59 @@ details.read dd { margin: 0; font-weight: 700; word-break: break-word; }
 .mock-flag { display: inline-block; margin-bottom: 10px; padding: 3px 10px; border-radius: 999px; background: var(--warn-bg); color: var(--warn-ink); font-size: 0.8rem; font-weight: 700; }
 .again { margin-top: 16px; }
 
+/* ---------------------------------------------------------------- save deadline */
+
+.save-box { margin-top: 16px; padding: 18px; border: 2px solid var(--line); border-radius: var(--radius-sheet); background: var(--sheet); display: grid; gap: 10px; }
+.save-box h3 { font-size: var(--step-1); }
+.save-box .muted, .muted { color: var(--muted); font-size: var(--step--1); }
+.save-box .field-label { margin: 4px 0 0; }
+input[type="date"] { width: 100%; min-height: 50px; padding: 10px 12px; border-radius: var(--radius-control); border: 2px solid var(--line); background: var(--sheet); color: var(--ink); font: inherit; }
+#save-status a { font-weight: 700; }
+
+/* ---------------------------------------------------------------- tab count */
+
+.tabs a { position: relative; }
+.tab-count {
+  position: absolute; top: 6px; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: 999px; background: var(--stamp); color: #fff; font-size: 0.7rem; line-height: 18px; text-align: center;
+}
+@media (min-width: 760px) { .tab-count { position: static; margin-inline-start: 2px; } }
+
+/* ---------------------------------------------------------------- my deadlines */
+
+.deadline-list { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 14px; }
+.deadline { background: var(--sheet); border-radius: var(--radius-sheet); padding: 18px; box-shadow: 0 1px 0 var(--line); display: grid; gap: 10px; }
+.deadline-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.deadline-kind { color: var(--muted); font-weight: 700; font-size: var(--step--1); }
+.deadline-date { font-size: var(--step-1); font-weight: 700; margin-top: 2px; }
+.days { flex: none; padding: 4px 10px; border: 2px solid var(--ink); border-radius: 999px; font-weight: 700; font-size: var(--step--1); white-space: nowrap; }
+.days.urgent { border-color: var(--stamp); color: var(--stamp); }
+.deadline-summary { font-size: var(--step-0); }
+.deadline-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+.deadline-actions .btn { min-height: 46px; font-size: var(--step--1); }
+.link-btn { grid-column: 1 / -1; justify-self: start; background: none; border: 0; padding: 4px 0; color: var(--muted); font: inherit; font-size: var(--step--1); text-decoration: underline; cursor: pointer; }
+
+/* ---------------------------------------------------------------- services */
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.chip { min-height: 40px; padding: 6px 14px; border-radius: 999px; border: 2px solid var(--line); background: var(--sheet); color: var(--ink); font: inherit; font-size: var(--step--1); font-weight: 700; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.service-list { display: grid; gap: 12px; margin-top: 18px; }
+details.service { background: var(--sheet); border-radius: var(--radius-sheet); box-shadow: 0 1px 0 var(--line); }
+details.service summary { list-style: none; cursor: pointer; padding: 16px 18px; display: grid; gap: 4px; }
+details.service summary::-webkit-details-marker { display: none; }
+details.service summary::after { content: "+"; position: absolute; }
+details.service { position: relative; }
+details.service summary::after { top: 14px; inset-inline-end: 18px; font-size: 1.4rem; color: var(--muted); }
+details.service[open] summary::after { content: "−"; }
+.service-name { font-weight: 700; font-size: var(--step-1); padding-inline-end: 24px; }
+.service-meta { color: var(--muted); font-size: var(--step--1); }
+details.service .seal { font-size: var(--step--1); }
+.service-body { padding: 0 18px 18px; display: grid; gap: 14px; }
+.service-body h3 { font-size: var(--step-0); margin-bottom: 4px; }
+.service-body .btn { margin-top: 4px; }
+.service-body .trust { margin-top: 0; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
