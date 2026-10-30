@@ -1,5 +1,5 @@
 // Scan tab (issue #12): photo in -> marked-up explanation out.
-import { t } from "./i18n.js";
+import { getLanguage, LANGUAGES, t } from "./i18n.js";
 import { esc, formatAED, formatDate, RTL_LANGS } from "./util.js";
 import { addDocument, currentAccount, removeDocument, updateDocument } from "./store.js";
 import { openAccount } from "./account.js";
@@ -13,11 +13,15 @@ const ICON_LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10
 const ICON_SEAL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.4 1.8 3-.2.9 2.9 2.4 1.8-1 2.8 1 2.8-2.4 1.8-.9 2.9-3-.2L12 21l-2.4-1.8-3 .2-.9-2.9-2.4-1.8 1-2.8-1-2.8 2.4-1.8.9-2.9 3 .2z"/><path d="M8.5 12.2l2.3 2.3 4.7-4.7"/></svg>';
 const ICON_WARN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>';
 
+// Labels that only show a translated text carry data-i18n="key", so when the interface
+// language changes they are re-filled in place (applyStatic) and the photo and answer stay.
+const L = (key) => `data-i18n="${key}"`;
+
 export function render(el) {
   panel = el;
   panel.innerHTML = `
-    <h1 id="scan-title">${esc(t("scan_title"))}</h1>
-    <p class="lede">${esc(t("scan_lede"))}</p>
+    <h1 id="scan-title" ${L("scan_title")}>${esc(t("scan_title"))}</h1>
+    <p class="lede" ${L("scan_lede")}>${esc(t("scan_lede"))}</p>
 
     <div id="scan-form">
       <label class="drop" id="drop" for="file">
@@ -25,12 +29,12 @@ export function render(el) {
       </label>
       <input type="file" id="file" accept="image/*,application/pdf">
 
-      <label class="field-label" for="lang">${esc(t("answer_language"))}</label>
+      <label class="field-label" for="lang" ${L("answer_language")}>${esc(t("answer_language"))}</label>
       <select id="lang"></select>
 
       <div class="scan-actions">
-        <button class="btn" id="go" disabled>${esc(t("explain_button"))}</button>
-        <p class="privacy-note">${ICON_LOCK}<span>${esc(t("privacy"))}</span></p>
+        <button class="btn" id="go" disabled ${L("explain_button")}>${esc(t("explain_button"))}</button>
+        <p class="privacy-note">${ICON_LOCK}<span ${L("privacy")}>${esc(t("privacy"))}</span></p>
       </div>
     </div>
 
@@ -39,10 +43,16 @@ export function render(el) {
   `;
   resetDrop();
 
+  // Answer languages come from the server (config.LANGUAGES), shown in their own script.
+  // Default: the language picked last time, else the interface language.
   fetch("/languages").then((r) => r.json()).then((langs) => {
     const select = panel.querySelector("#lang");
-    for (const [code, name] of Object.entries(langs)) select.add(new Option(name, code));
-    select.value = "en";
+    for (const [code, name] of Object.entries(langs)) {
+      const option = new Option(LANGUAGES[code] || name, code);
+      option.lang = code;
+      select.add(option);
+    }
+    select.value = langs[getLanguage()] ? getLanguage() : "en";
     try { const saved = localStorage.getItem("dalil.answerLang"); if (saved && langs[saved]) select.value = saved; } catch {}
   });
   panel.querySelector("#lang").addEventListener("change", (e) => {
@@ -61,11 +71,23 @@ export function render(el) {
   panel.querySelector("#go").addEventListener("click", analyze);
 }
 
+// The interface language changed: labels marked data-i18n were already re-filled.
+// If the answer language was the same as the old interface language, move it along too
+// (someone who switches the app to Urdu most likely wants the explanation in Urdu).
+export function onLanguage(previous, next) {
+  if (!panel) return;
+  const select = panel.querySelector("#lang");
+  if (select && select.value === previous && [...select.options].some((o) => o.value === next)) {
+    select.value = next;
+    try { localStorage.setItem("dalil.answerLang", next); } catch {}
+  }
+}
+
 function resetDrop() {
   panel.querySelector("#drop-inner").innerHTML = `
     <span class="icon-circle">${ICON_CAMERA}</span>
-    <strong>${esc(t("drop_title"))}</strong>
-    <small>${esc(t("drop_hint"))}</small>`;
+    <strong ${L("drop_title")}>${esc(t("drop_title"))}</strong>
+    <small ${L("drop_hint")}>${esc(t("drop_hint"))}</small>`;
 }
 
 async function choose(file) {
@@ -73,11 +95,11 @@ async function choose(file) {
   const inner = panel.querySelector("#drop-inner");
   if (file.type === "application/pdf") {
     upload = { blob: file, name: file.name };
-    inner.innerHTML = `<span class="file-name">${esc(file.name)}</span><span class="drop-change">${esc(t("drop_change"))}</span>`;
+    inner.innerHTML = `<span class="file-name">${esc(file.name)}</span><span class="drop-change" ${L("drop_change")}>${esc(t("drop_change"))}</span>`;
   } else {
     const blob = await shrink(file);
     upload = { blob, name: "photo.jpg", previewUrl: URL.createObjectURL(blob) };
-    inner.innerHTML = `<img src="${upload.previewUrl}" alt=""><span class="drop-change">${esc(t("drop_change"))}</span>`;
+    inner.innerHTML = `<img src="${upload.previewUrl}" alt=""><span class="drop-change" ${L("drop_change")}>${esc(t("drop_change"))}</span>`;
   }
   panel.querySelector("#go").disabled = false;
   panel.querySelector("#result").innerHTML = "";
@@ -110,7 +132,7 @@ const STEPS = ["step_read", "step_match", "step_explain"];
 function startProgress() {
   const list = panel.querySelector("#progress");
   list.hidden = false;
-  list.innerHTML = STEPS.map((k) => `<li><span class="dot"></span><span>${esc(t(k))}</span></li>`).join("");
+  list.innerHTML = STEPS.map((k) => `<li><span class="dot"></span><span ${L(k)}>${esc(t(k))}</span></li>`).join("");
   const items = [...list.children];
   let i = 0;
   const mark = () => items.forEach((li, n) => {
@@ -150,10 +172,10 @@ async function analyze() {
   } catch (err) {
     progress.hide();
     result.innerHTML = `
-      <div class="notice error" role="alert"><strong>${esc(t("error_title"))}</strong><br>${esc(t("error_hint"))}
+      <div class="notice error" role="alert"><strong ${L("error_title")}>${esc(t("error_title"))}</strong><br><span ${L("error_hint")}>${esc(t("error_hint"))}</span>
       <br><small>${esc(err.message)}</small></div>`;
   }
-  result.insertAdjacentHTML("beforeend", `<button class="btn btn-quiet again" id="again">${esc(t("scan_another"))}</button>`);
+  result.insertAdjacentHTML("beforeend", `<button class="btn btn-quiet again" id="again" ${L("scan_another")}>${esc(t("scan_another"))}</button>`);
   result.querySelector("#again").addEventListener("click", () => {
     result.innerHTML = "";
     form.hidden = false;
@@ -192,7 +214,7 @@ async function autoSave(result, d) {
   box.className = "save-box";
   box.id = "save-box";
   if (!saved) {
-    box.innerHTML = `<p>${esc(t("save_failed"))}</p>`;
+    box.innerHTML = `<p ${L("save_failed")}>${esc(t("save_failed"))}</p>`;
     result.insertBefore(box, result.querySelector("#chat") || result.querySelector("#again"));
     return;
   }
@@ -200,28 +222,28 @@ async function autoSave(result, d) {
   box.innerHTML = `
     <div class="saved-row">
       <span class="saved-check" aria-hidden="true"></span>
-      <div><strong>${esc(t("auto_saved"))}</strong>
-        <p class="muted">${esc(t(currentAccount() ? "auto_saved_synced" : "auto_saved_local"))}</p></div>
-      <button class="link-btn plain" id="undo-save">${esc(t("undo"))}</button>
+      <div><strong ${L("auto_saved")}>${esc(t("auto_saved"))}</strong>
+        <p class="muted" ${L(currentAccount() ? "auto_saved_synced" : "auto_saved_local")}>${esc(t(currentAccount() ? "auto_saved_synced" : "auto_saved_local"))}</p></div>
+      <button class="link-btn plain" id="undo-save" ${L("undo")}>${esc(t("undo"))}</button>
     </div>
     ${printed ? "" : `
       <div class="reminder">
-        <label class="field-label" for="remind-date">${esc(t("save_hint_none"))}</label>
+        <label class="field-label" for="remind-date" ${L("save_hint_none")}>${esc(t("save_hint_none"))}</label>
         <div class="reminder-row">
           <input type="date" id="remind-date" value="${inWeek}" min="${new Date().toISOString().slice(0, 10)}">
-          <button class="btn small" id="add-reminder">${esc(t("add_reminder"))}</button>
+          <button class="btn small" id="add-reminder" ${L("add_reminder")}>${esc(t("add_reminder"))}</button>
         </div>
       </div>`}
     <div class="saved-links">
-      <a href="#deadlines">${esc(t("saved_link"))}</a>
-      ${currentAccount() ? "" : `<button class="link-btn plain" id="sync-signin">${esc(t("doc_sign_in_sync"))}</button>`}
+      <a href="#deadlines" ${L("saved_link")}>${esc(t("saved_link"))}</a>
+      ${currentAccount() ? "" : `<button class="link-btn plain" id="sync-signin" ${L("doc_sign_in_sync")}>${esc(t("doc_sign_in_sync"))}</button>`}
     </div>
     <p id="save-status" aria-live="polite"></p>`;
   result.insertBefore(box, result.querySelector("#chat") || result.querySelector("#again"));
 
   box.querySelector("#undo-save").addEventListener("click", async () => {
     await removeDocument(saved.id);
-    box.innerHTML = `<p class="muted">${esc(t("not_saved"))}</p>`;
+    box.innerHTML = `<p class="muted" ${L("not_saved")}>${esc(t("not_saved"))}</p>`;
   });
   box.querySelector("#sync-signin")?.addEventListener("click", openAccount);
   box.querySelector("#add-reminder")?.addEventListener("click", async (e) => {
@@ -266,8 +288,8 @@ function renderResult(d) {
     : kind;
 
   const amount = f.amount_aed != null
-    ? { label: tr("fact_amount"), value: formatAED(f.amount_aed) }
-    : s && s.fee_aed != null ? { label: tr("fact_fee"), value: formatAED(s.fee_aed) } : null;
+    ? { label: tr("fact_amount"), value: formatAED(f.amount_aed, lang) }
+    : s && s.fee_aed != null ? { label: tr("fact_fee"), value: formatAED(s.fee_aed, lang) } : null;
   const deadline = f.deadline_date ? formatDate(f.deadline_date, lang) : null;
 
   const facts = `
@@ -309,7 +331,7 @@ function renderResult(d) {
 
   const rows = [
     ["read_type", kind], ["read_authority", f.issuing_authority], ["read_reference", f.reference_number],
-    ["read_amount", f.amount_aed != null ? formatAED(f.amount_aed) : ""], ["read_issue", formatDate(f.issue_date, lang)],
+    ["read_amount", f.amount_aed != null ? formatAED(f.amount_aed, lang) : ""], ["read_issue", formatDate(f.issue_date, lang)],
     ["read_deadline", formatDate(f.deadline_date, lang)], ["read_subject", f.subject],
   ].filter(([, v]) => v);
   const read = `

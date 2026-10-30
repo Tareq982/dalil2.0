@@ -40,9 +40,11 @@ export async function render(el) {
     draw();
   }));
   try {
-    const r = await fetch("/services");
-    if (!r.ok) throw new Error(`Server error ${r.status}`);
-    services = await r.json();
+    if (!services.length) { // already loaded when this is only a language change
+      const r = await fetch("/services");
+      if (!r.ok) throw new Error(`Server error ${r.status}`);
+      services = await r.json();
+    }
     draw();
   } catch (err) {
     panel.querySelector("#service-list").innerHTML =

@@ -11,7 +11,7 @@ from datetime import timedelta
 
 from flask import Flask, jsonify, request, send_from_directory
 
-from . import accounts, ai, chat, config, pipeline
+from . import accounts, ai, chat, config, langdetect, pipeline
 
 app = Flask(__name__, static_folder=str(config.WEB_DIR), static_url_path="/web")
 app.json.sort_keys = False  # keep the language order from config.LANGUAGES
@@ -67,13 +67,18 @@ def analyze():
 def ask_dalil():
     """Follow-up questions about a scanned document (only its non-sensitive details are sent)."""
     data = request.get_json(silent=True) or {}
-    lang = data.get("lang") if data.get("lang") in config.LANGUAGES else "en"
+    messages = data.get("messages") or []
+    # Answer in the language of the question (typed or spoken). If it can't be told
+    # (e.g. "ok?"), keep the language the browser sent: the chat's current language.
+    question = next((str(m.get("content", "")) for m in reversed(messages)
+                     if isinstance(m, dict) and m.get("role") == "user"), "")
+    lang = langdetect.detect(question) or (data.get("lang") if data.get("lang") in config.LANGUAGES else "en")
     try:
-        answer = chat.ask(data.get("fields") or {}, data.get("service_id"), data.get("messages") or [],
-                          config.LANGUAGES[lang])
+        answer = chat.ask(data.get("fields") or {}, data.get("service_id"), messages, config.LANGUAGES[lang])
     except ai.AIError as e:
         log.warning("chat failed: %s", e)
         return jsonify({"error": str(e)}), 502
+    answer["language"] = lang  # the app labels the reply and sets its direction with this
     return jsonify(answer)
 
 
