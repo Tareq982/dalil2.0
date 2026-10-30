@@ -7,13 +7,22 @@ Front-end files live in web/ and are served under /web/ (web/js/scan.js -> /web/
 import json
 import logging
 
+from datetime import timedelta
+
 from flask import Flask, jsonify, request, send_from_directory
 
-from . import ai, config, pipeline
+from . import accounts, ai, config, pipeline
 
 app = Flask(__name__, static_folder=str(config.WEB_DIR), static_url_path="/web")
 app.json.sort_keys = False  # keep the language order from config.LANGUAGES
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB upload limit
+app.config.update(
+    SECRET_KEY=config.SECRET_KEY,
+    SESSION_COOKIE_HTTPONLY=True,      # page scripts can't read the login cookie
+    SESSION_COOKIE_SAMESITE="Lax",     # other sites can't make signed-in requests
+    PERMANENT_SESSION_LIFETIME=timedelta(days=30),
+)
+app.register_blueprint(accounts.bp)
 log = logging.getLogger("dalil")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 

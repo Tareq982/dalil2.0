@@ -226,3 +226,7 @@ Thumbs.db
 
 # Open datasets too big for GitHub (see data/open/README.md)
 data/open/large/
+
+# Accounts database (real user data never goes in git)
+data/dalil.db
+data/*.db-journal

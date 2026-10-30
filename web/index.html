@@ -19,7 +19,11 @@
       <span class="brand-name">Dalil <span lang="ar">دليل</span></span>
     </a>
     <!-- Interface language picker goes here (issue #16) -->
+    <button class="account-btn" id="account-btn" type="button" aria-label="Sign in"></button>
   </header>
+
+  <!-- Account sheet: web/js/account.js -->
+  <dialog class="account-sheet" id="account-dialog"></dialog>
 
   <!-- Floating glass tab bar. Each tab is a <section> below. -->
   <nav class="tabs" aria-label="Main">
@@ -29,7 +33,7 @@
       <span data-i18n="tab_scan">Scan</span>
     </a>
     <a href="#deadlines" data-tab="deadlines">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8.5 3v4M15.5 3v4"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 8.5a2.5 2.5 0 0 1 2.5-2.5h3.6l2 2H18a2.5 2.5 0 0 1 2.5 2.5V17a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 17z"/><path d="M3.5 10.5h17"/></svg>
       <span data-i18n="tab_deadlines">My deadlines</span>
     </a>
     <a href="#services" data-tab="services">
@@ -46,7 +50,7 @@
     <!-- Scan: web/js/scan.js (issue #12) -->
     <section id="tab-scan" class="tab-panel" aria-labelledby="scan-title"></section>
 
-    <!-- My deadlines: web/js/deadlines.js (issue #13) -->
+    <!-- My documents: web/js/deadlines.js (issue #13, synced with accounts) -->
     <section id="tab-deadlines" class="tab-panel" hidden></section>
 
     <!-- Services: web/js/services.js (issue #14) -->

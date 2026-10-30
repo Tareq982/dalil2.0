@@ -1,7 +1,8 @@
 // Scan tab (issue #12): photo in -> marked-up explanation out.
 import { t } from "./i18n.js";
 import { esc, formatAED, formatDate, RTL_LANGS } from "./util.js";
-import { addDeadline } from "./store.js";
+import { addDocument, currentAccount, removeDocument, updateDocument } from "./store.js";
+import { openAccount } from "./account.js";
 
 let panel;
 let upload = null; // { blob, name, previewUrl? }
@@ -141,7 +142,7 @@ async function analyze() {
     await new Promise((res) => setTimeout(res, 350));
     progress.hide();
     result.innerHTML = renderResult(data);
-    if (data.explanation) addSaveBox(result, data);
+    if (data.explanation) autoSave(result, data);
   } catch (err) {
     progress.hide();
     result.innerHTML = `
@@ -162,40 +163,70 @@ async function analyze() {
   result.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// ---------------------------------------------------------------- save deadline (#13)
+// ---------------------------------------------------------------- auto-save to My documents
 
-function addSaveBox(result, d) {
+// Every explained document is saved automatically (summary only, never the photo),
+// with Undo. If no deadline is printed, the user can add a reminder date.
+async function autoSave(result, d) {
   const f = d.fields || {};
   const printed = Boolean(f.deadline_date);
+  const saved = await addDocument({
+    kind: f.doc_type,
+    authority: f.issuing_authority,
+    emirate: f.emirate,
+    subject: f.subject,
+    amount_aed: f.amount_aed,
+    issue_date: f.issue_date,
+    date: f.deadline_date || null,
+    date_is_reminder: false,
+    summary: d.explanation.what_it_is,
+    answer_lang: d.language,
+    official_url: (d.footer || {}).link,
+    service_id: d.service_id,
+  });
+  const box = document.createElement("div");
+  box.className = "save-box";
+  box.id = "save-box";
+  if (!saved) {
+    box.innerHTML = `<p>${esc(t("save_failed"))}</p>`;
+    result.appendChild(box);
+    return;
+  }
   const inWeek = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
-  result.insertAdjacentHTML("beforeend", `
-    <div class="save-box" id="save-box">
-      <h3>${esc(t("save_title"))}</h3>
-      <p class="muted">${esc(t(printed ? "save_hint_printed" : "save_hint_none"))}</p>
-      ${printed ? "" : `<label class="field-label" for="remind-date">${esc(t("save_date"))}</label>
-        <input type="date" id="remind-date" value="${inWeek}" min="${new Date().toISOString().slice(0, 10)}">`}
-      <button class="btn" id="save-deadline">${esc(t("save_button"))}</button>
-      <p id="save-status" aria-live="polite"></p>
-    </div>`);
-  result.querySelector("#save-deadline").addEventListener("click", (e) => {
-    const date = printed ? f.deadline_date : result.querySelector("#remind-date").value;
+  box.innerHTML = `
+    <div class="saved-row">
+      <span class="saved-check" aria-hidden="true"></span>
+      <div><strong>${esc(t("auto_saved"))}</strong>
+        <p class="muted">${esc(t(currentAccount() ? "auto_saved_synced" : "auto_saved_local"))}</p></div>
+      <button class="link-btn plain" id="undo-save">${esc(t("undo"))}</button>
+    </div>
+    ${printed ? "" : `
+      <div class="reminder">
+        <label class="field-label" for="remind-date">${esc(t("save_hint_none"))}</label>
+        <div class="reminder-row">
+          <input type="date" id="remind-date" value="${inWeek}" min="${new Date().toISOString().slice(0, 10)}">
+          <button class="btn small" id="add-reminder">${esc(t("add_reminder"))}</button>
+        </div>
+      </div>`}
+    <div class="saved-links">
+      <a href="#deadlines">${esc(t("saved_link"))}</a>
+      ${currentAccount() ? "" : `<button class="link-btn plain" id="sync-signin">${esc(t("doc_sign_in_sync"))}</button>`}
+    </div>
+    <p id="save-status" aria-live="polite"></p>`;
+  result.appendChild(box);
+
+  box.querySelector("#undo-save").addEventListener("click", async () => {
+    await removeDocument(saved.id);
+    box.innerHTML = `<p class="muted">${esc(t("not_saved"))}</p>`;
+  });
+  box.querySelector("#sync-signin")?.addEventListener("click", openAccount);
+  box.querySelector("#add-reminder")?.addEventListener("click", async (e) => {
+    const date = box.querySelector("#remind-date").value;
     if (!date) return;
-    const ok = addDeadline({
-      kind: f.doc_type,
-      authority: f.issuing_authority,
-      amount_aed: f.amount_aed,
-      date,
-      date_is_reminder: !printed,
-      summary: d.explanation.what_it_is,
-      answer_lang: d.language,
-      official_url: (d.footer || {}).link,
-    });
-    const status = result.querySelector("#save-status");
+    const ok = await updateDocument(saved.id, { date, date_is_reminder: true });
     if (ok) {
       e.target.disabled = true;
-      status.innerHTML = `<strong>${esc(t("saved"))}</strong> <a href="#deadlines">${esc(t("saved_link"))}</a>`;
-    } else {
-      status.textContent = t("save_failed");
+      box.querySelector("#save-status").textContent = `${t("reminder_set")} ${formatDate(date)}`;
     }
   });
 }
