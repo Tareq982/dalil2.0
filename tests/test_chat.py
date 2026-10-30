@@ -49,6 +49,7 @@ def test_answer_uses_official_search_and_returns_sources(claude):
     tool = req["tools"][0]
     assert tool["type"] == "web_search_20250305" and "dubaipolice.gov.ae" in tool["allowed_domains"]
     assert all(d.endswith((".ae", ".abudhabi")) for d in tool["allowed_domains"])
+    assert "user_location" not in tool  # the API rejects country "AE"
     # privacy: sensitive details never sent
     assert "DXB-123" not in req["system"] and "Q 40512" not in req["system"] and "Arjun" not in req["system"]
     # grounding: verified catalog record included (looked up on the server)
@@ -94,3 +95,11 @@ def test_chat_endpoint_mock_mode(monkeypatch):
     r = app.test_client().post("/chat", json={"fields": FIELDS, "service_id": "dubai-traffic-fine", "lang": "ar",
                                               "messages": [{"role": "user", "content": "Where can I pay?"}]})
     assert r.status_code == 200 and r.json["sources"][0]["url"].startswith("https://")
+
+
+def test_falls_back_when_search_tool_settings_are_refused(claude, monkeypatch):
+    claude(Resp({"type": "error", "error": {"type": "invalid_request_error",
+                 "message": "tools.0.web_search_20250305: Country code AE is not supported."}}, status=400))
+    monkeypatch.setattr(ai, "ask", lambda system, text, file=None, max_tokens=1200: "Pay on the RTA website.")
+    out = chat.ask(FIELDS, "dubai-traffic-fine", [{"role": "user", "content": "What if I don't pay?"}], "English")
+    assert out["live"] is False and out["answer"] == "Pay on the RTA website."

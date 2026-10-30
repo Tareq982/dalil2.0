@@ -133,13 +133,14 @@ def _post(payload: dict) -> requests.Response:
 
 def _claude_with_search(system: str, turns: list, service: dict | None) -> dict:
     tools = [{"type": "web_search_20250305", "name": "web_search", "max_uses": 3,
-              "allowed_domains": OFFICIAL_SITES,
-              "user_location": {"type": "approximate", "country": "AE", "timezone": "Asia/Dubai"}}]
+              "allowed_domains": OFFICIAL_SITES}]
+    # No user_location: the search tool rejects country code "AE". allowed_domains already keeps it to UAE sites.
     messages = [dict(t) for t in turns]
     payload = {"model": config.AI_MODEL, "max_tokens": 1500, "system": system, "messages": messages, "tools": tools}
     resp = _post(payload)
-    if resp.status_code == 400 and "web search" in resp.text.lower():
-        # Web search switched off for this API account: still answer, from the checked data only.
+    if resp.status_code == 400 and ("web search" in resp.text.lower() or "web_search" in resp.text.lower()):
+        # The search tool was refused (switched off for this API account, or a setting it doesn't accept):
+        # still answer, from the checked data only.
         return _answer_without_search(system, turns, service)
     if resp.status_code != 200:
         raise AIError(f"Claude API error {resp.status_code}: {resp.text[:300]}")
