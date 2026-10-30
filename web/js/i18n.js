@@ -4,6 +4,7 @@
 // (same codes as config.LANGUAGES in app/config.py), copy the "en" block, translate the
 // values, keep the keys. Any missing key falls back to English.
 import { RTL_LANGS } from "./util.js";
+import { SCAM_STRINGS } from "./i18n-scam.js";
 
 // Each language written in its own script, so people can find theirs in the picker.
 export const LANGUAGES = {
@@ -1239,6 +1240,9 @@ export const STRINGS = {
       "how_limits": "ദലീൽ ഒരു വഴികാട്ടിയാണ്, സർക്കാർ സേവനമല്ല. ട്രാഫിക് പിഴകൾ, റെസിഡൻസി, വിസ അറിയിപ്പുകൾ, വാടക കരാറുകൾ എന്നിവ വിശദീകരിക്കുന്നു, ഏറ്റവും കൂടുതൽ വിവരങ്ങൾ ദുബായിക്കാണ്. പണമടയ്ക്കുന്നതിന് മുമ്പ് എപ്പോഴും ഔദ്യോഗിക ലിങ്കിൽ ഉറപ്പാക്കൂ."
   },
 };
+
+// "Is this message real?" text lives in i18n-scam.js; add it to each language here.
+for (const [code, strings] of Object.entries(SCAM_STRINGS)) Object.assign((STRINGS[code] ||= {}), strings);
 
 // ---------------------------------------------------------------- interface language
 

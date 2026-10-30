@@ -1,4 +1,6 @@
 // Scan tab (issue #12): photo in -> marked-up explanation out.
+// Two modes: "Explain a document" (/analyze) and "Is this message real?" (/check-message):
+// a screenshot or pasted text of a "pay your fine" SMS, email or website, checked before paying.
 import { getLanguage, LANGUAGES, t } from "./i18n.js";
 import { esc, formatAED, formatDate, RTL_LANGS } from "./util.js";
 import { addDocument, currentAccount, removeDocument, updateDocument } from "./store.js";
@@ -7,11 +9,25 @@ import { chatCard } from "./chat.js";
 
 let panel;
 let upload = null; // { blob, name, previewUrl? }
+let mode = "doc"; // "doc" = explain a document, "msg" = is this message real?
+
+// Texts that change with the mode: element id -> [key in doc mode, key in msg mode]
+const MODE_TEXT = {
+  "scan-title": ["scan_title", "msg_title"],
+  "scan-lede": ["scan_lede", "msg_lede"],
+  "lang-label": ["answer_language", "msg_answer_language"],
+  "go": ["explain_button", "msg_button"],
+  "privacy-text": ["privacy", "msg_privacy"],
+};
 
 const ICON_CAMERA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a2 2 0 0 1 2-2h1.7l1.4-2h5.8l1.4 2H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="13.2" r="3.4"/></svg>';
 const ICON_LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>';
 const ICON_SEAL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.4 1.8 3-.2.9 2.9 2.4 1.8-1 2.8 1 2.8-2.4 1.8-.9 2.9-3-.2L12 21l-2.4-1.8-3 .2-.9-2.9-2.4-1.8 1-2.8-1-2.8 2.4-1.8.9-2.9 3 .2z"/><path d="M8.5 12.2l2.3 2.3 4.7-4.7"/></svg>';
 const ICON_WARN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>';
+const ICON_STOP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 3h7.6L21 8.2v7.6L15.8 21H8.2L3 15.8V8.2z"/><path d="M9 9l6 6M15 9l-6 6"/></svg>';
+const ICON_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.7 2.7L16 9.6"/></svg>';
+const ICON_QUESTION = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.6M12 16.6v.4"/></svg>';
+const ICON_MESSAGE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 3.5V17h0A2.5 2.5 0 0 1 4 14.5z"/><path d="M8.5 9h7M8.5 12.5h4.5"/></svg>';
 
 // Labels that only show a translated text carry data-i18n="key", so when the interface
 // language changes they are re-filled in place (applyStatic) and the photo and answer stay.
@@ -20,8 +36,12 @@ const L = (key) => `data-i18n="${key}"`;
 export function render(el) {
   panel = el;
   panel.innerHTML = `
+    <div class="mode-switch" role="tablist" aria-label="Scan">
+      <button type="button" role="tab" data-mode="doc" aria-selected="true" ${L("mode_doc")}>${esc(t("mode_doc"))}</button>
+      <button type="button" role="tab" data-mode="msg" aria-selected="false" ${L("mode_msg")}>${esc(t("mode_msg"))}</button>
+    </div>
     <h1 id="scan-title" ${L("scan_title")}>${esc(t("scan_title"))}</h1>
-    <p class="lede" ${L("scan_lede")}>${esc(t("scan_lede"))}</p>
+    <p class="lede" id="scan-lede" ${L("scan_lede")}>${esc(t("scan_lede"))}</p>
 
     <div id="scan-form">
       <label class="drop" id="drop" for="file">
@@ -29,12 +49,18 @@ export function render(el) {
       </label>
       <input type="file" id="file" accept="image/*,application/pdf">
 
-      <label class="field-label" for="lang" ${L("answer_language")}>${esc(t("answer_language"))}</label>
+      <div id="paste-box" hidden>
+        <label class="field-label" for="msg-text" ${L("msg_paste_label")}>${esc(t("msg_paste_label"))}</label>
+        <textarea id="msg-text" rows="4" maxlength="4000" dir="auto" data-i18n-placeholder="msg_paste_placeholder"
+          placeholder="${esc(t("msg_paste_placeholder"))}"></textarea>
+      </div>
+
+      <label class="field-label" for="lang" id="lang-label" ${L("answer_language")}>${esc(t("answer_language"))}</label>
       <select id="lang"></select>
 
       <div class="scan-actions">
         <button class="btn" id="go" disabled ${L("explain_button")}>${esc(t("explain_button"))}</button>
-        <p class="privacy-note">${ICON_LOCK}<span ${L("privacy")}>${esc(t("privacy"))}</span></p>
+        <p class="privacy-note">${ICON_LOCK}<span id="privacy-text" ${L("privacy")}>${esc(t("privacy"))}</span></p>
       </div>
     </div>
 
@@ -68,7 +94,32 @@ export function render(el) {
     e.preventDefault(); drop.classList.remove("dragging");
     if (e.dataTransfer.files[0]) choose(e.dataTransfer.files[0]);
   });
-  panel.querySelector("#go").addEventListener("click", analyze);
+  panel.querySelector("#go").addEventListener("click", () => (mode === "msg" ? checkMessage() : analyze()));
+  panel.querySelector("#msg-text").addEventListener("input", updateGo);
+  panel.querySelectorAll(".mode-switch button").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+}
+
+// Switch between "Explain a document" and "Is this message real?". The chosen photo stays.
+function setMode(next) {
+  if (next === mode) return;
+  mode = next;
+  const i = mode === "msg" ? 1 : 0;
+  panel.querySelectorAll(".mode-switch button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.mode === mode)));
+  for (const [id, keys] of Object.entries(MODE_TEXT)) {
+    const el = panel.querySelector(`#${id}`);
+    el.dataset.i18n = keys[i];
+    el.textContent = t(keys[i]);
+  }
+  panel.querySelector("#paste-box").hidden = mode !== "msg";
+  panel.querySelector("#scan-form").hidden = false;
+  panel.querySelector("#result").innerHTML = "";
+  if (!upload) resetDrop();
+  updateGo();
+}
+
+function updateGo() {
+  const text = panel.querySelector("#msg-text").value.trim();
+  panel.querySelector("#go").disabled = !(upload || (mode === "msg" && text));
 }
 
 // The interface language changed: labels marked data-i18n were already re-filled.
@@ -84,10 +135,11 @@ export function onLanguage(previous, next) {
 }
 
 function resetDrop() {
+  const [title, hint, icon] = mode === "msg" ? ["msg_drop_title", "msg_drop_hint", ICON_MESSAGE] : ["drop_title", "drop_hint", ICON_CAMERA];
   panel.querySelector("#drop-inner").innerHTML = `
-    <span class="icon-circle">${ICON_CAMERA}</span>
-    <strong ${L("drop_title")}>${esc(t("drop_title"))}</strong>
-    <small ${L("drop_hint")}>${esc(t("drop_hint"))}</small>`;
+    <span class="icon-circle">${icon}</span>
+    <strong ${L(title)}>${esc(t(title))}</strong>
+    <small ${L(hint)}>${esc(t(hint))}</small>`;
 }
 
 async function choose(file) {
@@ -101,7 +153,7 @@ async function choose(file) {
     upload = { blob, name: "photo.jpg", previewUrl: URL.createObjectURL(blob) };
     inner.innerHTML = `<img src="${upload.previewUrl}" alt=""><span class="drop-change" ${L("drop_change")}>${esc(t("drop_change"))}</span>`;
   }
-  panel.querySelector("#go").disabled = false;
+  updateGo();
   panel.querySelector("#result").innerHTML = "";
 }
 
@@ -126,13 +178,14 @@ function shrink(file) {
 // ---------------------------------------------------------------- progress
 
 const STEPS = ["step_read", "step_match", "step_explain"];
+const MSG_STEPS = ["msg_step_read", "msg_step_links", "msg_step_flags"];
 
 // The server does all three steps in one request, so the list moves forward on a timer
 // and jumps to done as soon as the answer arrives.
-function startProgress() {
+function startProgress(steps = STEPS) {
   const list = panel.querySelector("#progress");
   list.hidden = false;
-  list.innerHTML = STEPS.map((k) => `<li><span class="dot"></span><span ${L(k)}>${esc(t(k))}</span></li>`).join("");
+  list.innerHTML = steps.map((k) => `<li><span class="dot"></span><span ${L(k)}>${esc(t(k))}</span></li>`).join("");
   const items = [...list.children];
   let i = 0;
   const mark = () => items.forEach((li, n) => {
@@ -141,7 +194,7 @@ function startProgress() {
   mark();
   const timers = [setTimeout(() => { i = 1; mark(); }, 2600), setTimeout(() => { i = 2; mark(); }, 4200)];
   return {
-    finish() { timers.forEach(clearTimeout); i = STEPS.length; mark(); },
+    finish() { timers.forEach(clearTimeout); i = steps.length; mark(); },
     hide() { timers.forEach(clearTimeout); list.hidden = true; },
   };
 }
@@ -169,24 +222,144 @@ async function analyze() {
       result.appendChild(chatCard(data)); // Ask Dalil: follow-up questions (#19)
       autoSave(result, data);
     }
+    if (data.not_supported && upload) {
+      // Not a document Dalil explains: maybe a "pay your fine" message. Check the same photo.
+      result.insertAdjacentHTML("beforeend", `<button class="btn btn-quiet again" id="try-check" ${L("msg_try_check")}>${esc(t("msg_try_check"))}</button>`);
+      result.querySelector("#try-check").addEventListener("click", () => { setMode("msg"); checkMessage(); });
+    }
   } catch (err) {
     progress.hide();
     result.innerHTML = `
       <div class="notice error" role="alert"><strong ${L("error_title")}>${esc(t("error_title"))}</strong><br><span ${L("error_hint")}>${esc(t("error_hint"))}</span>
       <br><small>${esc(err.message)}</small></div>`;
   }
-  result.insertAdjacentHTML("beforeend", `<button class="btn btn-quiet again" id="again" ${L("scan_another")}>${esc(t("scan_another"))}</button>`);
+  addAgain(result, form, "scan_another");
+}
+
+// "Scan another" / "Check another message": back to an empty form.
+function addAgain(result, form, key) {
+  result.insertAdjacentHTML("beforeend", `<button class="btn btn-quiet again" id="again" ${L(key)}>${esc(t(key))}</button>`);
   result.querySelector("#again").addEventListener("click", () => {
     result.innerHTML = "";
     form.hidden = false;
     panel.querySelector("#file").value = "";
+    panel.querySelector("#msg-text").value = "";
     if (upload?.previewUrl) URL.revokeObjectURL(upload.previewUrl);
     upload = null;
     resetDrop();
-    panel.querySelector("#go").disabled = true;
+    updateGo();
     panel.scrollIntoView({ behavior: "smooth", block: "start" });
   });
   result.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// ---------------------------------------------------------------- is this message real?
+
+async function checkMessage() {
+  const form = panel.querySelector("#scan-form");
+  const result = panel.querySelector("#result");
+  const fd = new FormData();
+  const text = panel.querySelector("#msg-text").value.trim();
+  if (text) fd.append("text", text);
+  if (upload) fd.append("file", upload.blob, upload.name);
+  fd.append("lang", panel.querySelector("#lang").value || "en");
+  form.hidden = true;
+  result.innerHTML = "";
+  const progress = startProgress(MSG_STEPS);
+  try {
+    const r = await fetch("/check-message", { method: "POST", body: fd });
+    const data = await r.json().catch(() => ({ error: `Server error ${r.status}` }));
+    if (!r.ok) throw new Error(data.error || `Server error ${r.status}`);
+    progress.finish();
+    await new Promise((res) => setTimeout(res, 350));
+    progress.hide();
+    result.innerHTML = renderCheck(data);
+  } catch (err) {
+    progress.hide();
+    result.innerHTML = `
+      <div class="notice error" role="alert"><strong ${L("msg_error_title")}>${esc(t("msg_error_title"))}</strong><br><span ${L("msg_error_hint")}>${esc(t("msg_error_hint"))}</span>
+      <br><small>${esc(err.message)}</small></div>`;
+  }
+  addAgain(result, form, "msg_check_another");
+}
+
+// Verdict -> look. The words come from i18n (code-written), never from the AI.
+const VERDICT = {
+  looks_official: { cls: "v-ok", icon: ICON_CHECK },
+  suspicious: { cls: "v-warn", icon: ICON_WARN },
+  dont_pay: { cls: "v-bad", icon: ICON_STOP },
+  unclear: { cls: "v-unclear", icon: ICON_QUESTION },
+  not_message: { cls: "v-unclear", icon: ICON_QUESTION },
+};
+
+// A web address inside text: always left-to-right, even in Arabic and Urdu.
+const addr = (value) => `<bdi dir="ltr">${esc(value)}</bdi>`;
+const fill = (text, key, html) => esc(text).replace(`{${key}}`, html);
+
+function renderCheck(d) {
+  const lang = d.language || "en";
+  const dir = RTL_LANGS.includes(lang) ? "rtl" : "ltr";
+  const tr = (key) => t(key, lang);
+  const v = VERDICT[d.verdict] ? d.verdict : "unclear";
+  const m = d.message || {};
+  const go = d.check_instead || { name: "u.ae", domain: "u.ae", url: "https://u.ae" };
+  const read = ["unclear", "not_message"].includes(v) ? null : d;
+
+  // Links are shown as text, never as clickable links: the whole point is not to open them.
+  const links = (d.links || []).map((l) => {
+    const status = l.status === "official" ? tr("link_official")
+      : l.status === "lookalike" ? (l.looks_like ? fill(tr("link_lookalike"), "domain", addr(l.looks_like)) : esc(tr("link_lookalike_plain")))
+      : esc(tr("link_not_official"));
+    const notes = (l.notes || []).map((n) => esc(tr(`note_${n}`))).join(" · ");
+    return `<li class="link-row s-${esc(l.status)}">
+        <span class="link-host" dir="ltr">${esc(l.host)}</span>
+        <span class="link-status">${l.status === "official" ? esc(status) : status}</span>
+        ${notes ? `<small>${notes}</small>` : ""}
+      </li>`;
+  }).join("");
+
+  // Warning signs: the code's own checks first (sender), then the AI's list in the answer language.
+  const flags = [];
+  const s = d.sender_check;
+  if (s && s.flag === "personal_number") flags.push(esc(tr("sender_personal_number")));
+  if (s && s.flag === "email_not_official") flags.push(fill(tr("sender_email_not_official"), "domain", addr(s.domain)));
+  for (const f of d.red_flags || []) flags.push(esc(f));
+
+  const rows = [
+    ["msg_read_sender", m.sender], ["msg_read_claims", m.claims_to_be],
+    ["msg_read_amount", m.amount_aed != null ? formatAED(m.amount_aed, lang) : ""], ["msg_read_discount", m.discount_claim],
+  ].filter(([, val]) => val);
+
+  return `
+    <article class="sheet check" dir="${dir}" lang="${esc(lang)}">
+      ${d.mock ? `<span class="mock-flag">${esc(tr("mock"))}</span>` : ""}
+      <div class="verdict ${VERDICT[v].cls}" role="status">
+        <span class="verdict-icon">${VERDICT[v].icon}</span>
+        <div><h2>${esc(tr(`v_${v}`))}</h2><p>${esc(tr(`v_${v}_sub`))}</p></div>
+      </div>
+      ${read && m.summary ? `<p class="check-summary">${esc(m.summary)}</p>` : ""}
+
+      ${v === "not_message" ? "" : `
+      <section class="check-instead">
+        <h3>${esc(tr("msg_check_instead"))}</h3>
+        <a class="btn" href="${esc(go.url)}" target="_blank" rel="noopener noreferrer">${fill(tr("msg_open_official"), "domain", addr(go.domain))}</a>
+        <p class="muted">${esc(go.name)}. ${esc(tr("msg_official_note"))}</p>
+      </section>`}
+
+      ${read ? `
+      <section class="check-section">
+        <h3>${esc(tr("msg_links"))}</h3>
+        ${links ? `<ul class="link-list">${links}</ul>` : `<p class="muted">${esc(tr("msg_no_links"))}</p>`}
+      </section>
+      <section class="check-section">
+        <h3>${esc(tr("msg_flags"))}</h3>
+        ${flags.length ? `<ul class="flag-list">${flags.map((f) => `<li>${f}</li>`).join("")}</ul>` : `<p class="muted">${esc(tr("msg_no_flags"))}</p>`}
+      </section>
+      ${rows.length ? `<details class="read"><summary>${esc(tr("msg_read_title"))}</summary>
+        <dl>${rows.map(([k, val]) => `<dt>${esc(tr(k))}</dt><dd>${esc(val)}</dd>`).join("")}</dl></details>` : ""}` : ""}
+
+      <p class="never-safe">${ICON_LOCK}<span>${esc(tr("msg_never_safe"))}</span></p>
+    </article>`;
 }
 
 // ---------------------------------------------------------------- auto-save to My documents
