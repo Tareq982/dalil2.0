@@ -3,6 +3,7 @@ import { t } from "./i18n.js";
 import { esc, formatAED, formatDate, RTL_LANGS } from "./util.js";
 import { addDocument, currentAccount, removeDocument, updateDocument } from "./store.js";
 import { openAccount } from "./account.js";
+import { chatCard } from "./chat.js";
 
 let panel;
 let upload = null; // { blob, name, previewUrl? }
@@ -142,7 +143,10 @@ async function analyze() {
     await new Promise((res) => setTimeout(res, 350));
     progress.hide();
     result.innerHTML = renderResult(data);
-    if (data.explanation) autoSave(result, data);
+    if (data.explanation) {
+      result.appendChild(chatCard(data)); // Ask Dalil: follow-up questions (#19)
+      autoSave(result, data);
+    }
   } catch (err) {
     progress.hide();
     result.innerHTML = `
@@ -189,7 +193,7 @@ async function autoSave(result, d) {
   box.id = "save-box";
   if (!saved) {
     box.innerHTML = `<p>${esc(t("save_failed"))}</p>`;
-    result.appendChild(box);
+    result.insertBefore(box, result.querySelector("#chat") || result.querySelector("#again"));
     return;
   }
   const inWeek = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
@@ -213,7 +217,7 @@ async function autoSave(result, d) {
       ${currentAccount() ? "" : `<button class="link-btn plain" id="sync-signin">${esc(t("doc_sign_in_sync"))}</button>`}
     </div>
     <p id="save-status" aria-live="polite"></p>`;
-  result.appendChild(box);
+  result.insertBefore(box, result.querySelector("#chat") || result.querySelector("#again"));
 
   box.querySelector("#undo-save").addEventListener("click", async () => {
     await removeDocument(saved.id);

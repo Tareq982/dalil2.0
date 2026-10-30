@@ -11,7 +11,7 @@ from datetime import timedelta
 
 from flask import Flask, jsonify, request, send_from_directory
 
-from . import accounts, ai, config, pipeline
+from . import accounts, ai, chat, config, pipeline
 
 app = Flask(__name__, static_folder=str(config.WEB_DIR), static_url_path="/web")
 app.json.sort_keys = False  # keep the language order from config.LANGUAGES
@@ -61,6 +61,20 @@ def analyze():
         log.warning("analyze failed: %s", e)
         return jsonify({"error": str(e)}), 502
     return jsonify(result)
+
+
+@app.post("/chat")
+def ask_dalil():
+    """Follow-up questions about a scanned document (only its non-sensitive details are sent)."""
+    data = request.get_json(silent=True) or {}
+    lang = data.get("lang") if data.get("lang") in config.LANGUAGES else "en"
+    try:
+        answer = chat.ask(data.get("fields") or {}, data.get("service_id"), data.get("messages") or [],
+                          config.LANGUAGES[lang])
+    except ai.AIError as e:
+        log.warning("chat failed: %s", e)
+        return jsonify({"error": str(e)}), 502
+    return jsonify(answer)
 
 
 if __name__ == "__main__":
