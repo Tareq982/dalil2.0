@@ -6,7 +6,7 @@ import { addDeadline } from "./store.js";
 let panel;
 let upload = null; // { blob, name, previewUrl? }
 
-const ICON_CAMERA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+const ICON_CAMERA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a2 2 0 0 1 2-2h1.7l1.4-2h5.8l1.4 2H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="13.2" r="3.4"/></svg>';
 const ICON_LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>';
 const ICON_SEAL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.4 1.8 3-.2.9 2.9 2.4 1.8-1 2.8 1 2.8-2.4 1.8-.9 2.9-3-.2L12 21l-2.4-1.8-3 .2-.9-2.9-2.4-1.8 1-2.8-1-2.8 2.4-1.8.9-2.9 3 .2z"/><path d="M8.5 12.2l2.3 2.3 4.7-4.7"/></svg>';
 const ICON_WARN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>';
@@ -61,7 +61,7 @@ export function render(el) {
 
 function resetDrop() {
   panel.querySelector("#drop-inner").innerHTML = `
-    ${ICON_CAMERA}
+    <span class="icon-circle">${ICON_CAMERA}</span>
     <strong>${esc(t("drop_title"))}</strong>
     <small>${esc(t("drop_hint"))}</small>`;
 }
@@ -202,14 +202,20 @@ function addSaveBox(result, d) {
 
 // ---------------------------------------------------------------- result
 
+// The deadline ring: full at 30+ days, empties as the deadline gets close.
 function stamp(daysLeft, tr) {
   if (daysLeft === null || daysLeft === undefined) return "";
-  const urgent = daysLeft <= 7;
+  const state = daysLeft <= 7 ? " urgent" : daysLeft <= 14 ? " soon" : "";
   let num = Math.abs(daysLeft);
   let unit = daysLeft < 0 ? tr("stamp_overdue") : daysLeft === 1 ? tr("stamp_day_left") : tr("stamp_days_left");
-  if (daysLeft === 0) { num = "!"; unit = tr("stamp_today"); }
-  return `<div class="stamp${urgent ? " urgent" : ""}" role="img" aria-label="${esc(`${num} ${unit}`)}">
-            <span><span class="num">${esc(num)}</span><span class="unit">${esc(unit)}</span></span></div>`;
+  if (daysLeft === 0) { num = "0"; unit = tr("stamp_today"); }
+  const C = 2 * Math.PI * 38;
+  const filled = daysLeft < 0 ? 1 : Math.max(0.04, Math.min(1, daysLeft / 30));
+  return `<div class="ring${state}" role="img" aria-label="${esc(`${num} ${unit}`)}">
+      <svg viewBox="0 0 92 92" aria-hidden="true"><circle class="track" cx="46" cy="46" r="38"/>
+        <circle class="bar" cx="46" cy="46" r="38" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - filled)).toFixed(1)}"/></svg>
+      <span class="center"><span><span class="num">${esc(num)}</span><span class="unit">${esc(unit)}</span></span></span>
+    </div>`;
 }
 
 function renderResult(d) {

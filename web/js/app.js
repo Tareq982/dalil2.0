@@ -19,6 +19,7 @@ function show(name) {
     if (a.dataset.tab === name) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
+  moveIndicator();
   const panel = document.getElementById(`tab-${name}`);
   if (!rendered.has(name)) {
     TABS[name].render(panel);
@@ -27,6 +28,16 @@ function show(name) {
     TABS[name].onShow(panel);
   }
 }
+
+// Slide the glass pill behind the active tab
+function moveIndicator() {
+  const active = document.querySelector('.tabs a[aria-current="page"]');
+  const pill = document.querySelector(".tab-indicator");
+  if (!active || !pill) return;
+  pill.style.width = `${active.offsetWidth}px`;
+  pill.style.transform = `translateX(${active.offsetLeft}px)`;
+}
+window.addEventListener("resize", moveIndicator);
 
 // Small count on the My deadlines tab
 function updateBadge() {
