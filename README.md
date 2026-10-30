@@ -56,6 +56,17 @@ Open **http://localhost:8000**, upload a document photo, and pick a language.
 python -m pytest
 ```
 
+## Accounts (optional)
+
+People can use Dalil without an account: saved documents then stay in that browser only. With an account (email and password), saved documents sync across every device where they sign in.
+
+- **Privacy is enforced on the server.** `app/accounts.py` keeps only an allow-list of fields: type, authority, emirate, subject, amount, dates, summary, official link and status. Everything else is dropped, including names, reference or plate numbers, ID numbers and photos.
+- **Passwords** are stored as salted scrypt hashes.
+- **"Delete my account and data"** removes everything.
+- Data is stored in `data/dalil.db` (SQLite), which git ignores.
+- Set `SECRET_KEY` in `.env` so people stay signed in when the app restarts.
+- Another device on the same Wi-Fi uses the same server, so it sees the same account.
+
 ## Project layout
 
 | Path | What | Owner |
@@ -73,11 +84,13 @@ python -m pytest
 | `web/js/app.js` | Switches tabs (`#scan`, `#deadlines`, `#services`, `#how`) | UI |
 | `web/js/i18n.js` | Every interface text, ready for translation (#16) | UI |
 | `web/js/scan.js` | Scan tab: upload, progress steps, result (#12) | UI |
-| `web/js/deadlines.js` | My deadlines tab: saved deadlines, days left, Add to calendar (#13) | UI |
-| `web/js/store.js`, `web/js/calendar.js` | Saving deadlines on the phone only; building the calendar file | UI |
+| `web/js/deadlines.js` | My documents tab: saved documents, deadlines, paid status, Add to calendar | UI |
+| `web/js/account.js` | Sign in, create account, sign out, delete account | UI |
+| `web/js/store.js`, `web/js/calendar.js` | Saving documents (this phone, or the account when signed in); building the calendar file | UI |
 | `web/js/services.js` | Services tab: the verified catalog, filters, open data used (#14) | UI |
 | `web/js/how.js` | How it works tab, placeholder for #15 | UI |
 | `app/pipeline.py` | Connects all the steps | everyone |
+| `app/accounts.py` | Accounts and synced documents (privacy allow-list) | everyone |
 | `app/ai.py` | Talks to Gemini or Claude (chosen by `AI_PROVIDER` in `.env`) | AI |
 | `samples/` | Mock documents and expected answers | Demo |
 | `tests/` | Automated checks, run with `python -m pytest` | everyone |

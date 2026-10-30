@@ -29,6 +29,11 @@ else:
 MOCK_AI = env("MOCK_AI", "0") == "1" or not AI_API_KEY
 
 PORT = int(env("PORT", "8000"))
+
+# Accounts: signs the login cookie. Set a long random value in .env so logins survive restarts;
+# without one, a random key is made at start-up (everyone is signed out when the app restarts).
+SECRET_KEY = env("SECRET_KEY") or __import__("secrets").token_hex(32)
+DB_PATH = env("DB_PATH", str(ROOT / "data" / "dalil.db"))
 MIN_CONFIDENCE = float(env("MIN_CONFIDENCE", "0.6"))
 
 DATA_DIR = ROOT / "data"
