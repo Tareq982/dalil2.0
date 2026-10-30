@@ -80,10 +80,10 @@
         "Search for the fine using your plate number, licence number or Emirates ID",
         "Check the amount shown in the app matches your fine, then pay online"
       ],
-      "source": "TAMM: Pay traffic fines (official service page). The page only loads in a browser, so it could not be checked automatically.",
+      "source": "TAMM: Pay traffic fines (official service page). Payment steps checked by hand by the team in a browser.",
       "source_url": "https://www.tamm.abudhabi/en/life-events/individual/Make-a-payment/Fines/paytrafficfines",
-      "verified": false,
-      "last_checked": "2026-10-28",
+      "verified": true,
+      "last_checked": "2026-10-30",
       "related_datasets": [
         "bayanat-cause-of-traffic-fines"
       ],
