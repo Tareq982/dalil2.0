@@ -133,7 +133,7 @@ export const STRINGS = {
     sv_error: "Couldn't load the services. Check the app is running, then refresh.",
     sv_verified: "Checked on the official page",
     sv_unverified: "Not yet checked on an official page",
-    sv_deadline_rule: "Deadlines and discounts",
+    sv_deadline_rule: "Deadline",
     sv_fee_codes: "Official fee codes",
     sv_open_data: "Open data used",
 
