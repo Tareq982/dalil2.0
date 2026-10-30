@@ -5,7 +5,7 @@ fine_dubai_redlight_deadline.png,traffic_fine,Dubai,1000,2026-11-08,dubai-traffi
 fine_dubai_redlight_deadline__cropped.jpg,traffic_fine,Dubai,none,none,dubai-traffic-fine,,Bottom half cut off: amount and deadline are not visible and must not be guessed
 fine_dubai_parking_rta.png,traffic_fine,Dubai,150,none,dubai-traffic-fine,no,RTA parking fine
 fine_dubai_overdue.png,traffic_fine,Dubai,1000,2026-10-01,dubai-traffic-fine,no,Deadline already passed: stamp should say overdue
-fine_abudhabi_speeding.png,traffic_fine,Abu Dhabi,700,none,abu-dhabi-traffic-fine,no,Early-payment discount printed; it is not a deadline
+fine_abudhabi_speeding.png,traffic_fine,Abu Dhabi,700,none,abu-dhabi-traffic-fine,no,No deadline printed
 fine_abudhabi_speeding__blurry.jpg,,,,,,yes,Very blurry photo: Dalil should refuse to guess
 fine_abudhabi_arabic_only.png,traffic_fine,Abu Dhabi,800,none,abu-dhabi-traffic-fine,no,Arabic only
 fine_abudhabi_arabic_only__photo.jpg,traffic_fine,Abu Dhabi,800,none,abu-dhabi-traffic-fine,no,Arabic only; phone photo
