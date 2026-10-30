@@ -148,8 +148,7 @@ DOCS = {
             ("Violation", "Exceeding the speed limit by not more than 40 km/h<br>تجاوز السرعة المقررة بما لا يزيد عن 40 كم/ساعة", "نوع المخالفة"),
             ("Plate number", "Abu Dhabi 13 / 55201 (sample)", "رقم اللوحة"),
             ("Fine amount", "AED 700", "قيمة المخالفة"),
-        ], "Early payment: 35% discount within 60 days of the violation, 25% within one year (serious violations excluded).",
-        "خصم 35% عند السداد خلال 60 يوماً من تاريخ المخالفة، و25% خلال سنة (باستثناء المخالفات الجسيمة)."),
+        ]),
 
     "fine_abudhabi_arabic_only": doc_ar_only(
         "شرطة أبوظبي - المرور والدوريات", "إشعار مخالفة مرورية", "مخالفة مرورية", [

@@ -26,9 +26,10 @@ def test_dubai_speeding_fine_matches_dubai_record():
 
 
 def test_abu_dhabi_fine_does_not_get_dubai_link():
-    s = catalog.match(fields(emirate="Abu Dhabi", issuing_authority="Abu Dhabi Police",
-                             keywords=["abu", "dhabi", "police", "speed"]))
-    assert s["id"] == "abu-dhabi-traffic-fine"
+    # No Abu Dhabi fine record (its details couldn't be confirmed on an official page),
+    # so Dalil must not fall back to the Dubai one.
+    assert catalog.match(fields(emirate="Abu Dhabi", issuing_authority="Abu Dhabi Police",
+                                keywords=["abu", "dhabi", "police", "speed"])) is None
 
 
 def test_sharjah_fine_with_no_record_returns_none():

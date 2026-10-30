@@ -66,40 +66,6 @@
       ]
     },
     {
-      "id": "abu-dhabi-traffic-fine",
-      "doc_type": "traffic_fine",
-      "emirate": "Abu Dhabi",
-      "authority": "Abu Dhabi Police",
-      "service_name": "Traffic Fines Payment (TAMM)",
-      "official_url": "https://www.tamm.abudhabi/en/life-events/individual/Make-a-payment/Fines/paytrafficfines",
-      "fee_aed": null,
-      "fee_note": "The amount printed on the fine. No extra service fee was found.",
-      "deadline_rule": "No payment deadline or discount is confirmed here. Check the amount in the TAMM or Abu Dhabi Police app before paying.",
-      "next_steps": [
-        "Open the TAMM or Abu Dhabi Police app or website (log in with UAE Pass)",
-        "Search for the fine using your plate number, licence number or Emirates ID",
-        "Check the amount shown in the app matches your fine, then pay online"
-      ],
-      "source": "TAMM: Pay traffic fines (official service page). The page only loads in a browser, so it could not be checked automatically.",
-      "source_url": "https://www.tamm.abudhabi/en/life-events/individual/Make-a-payment/Fines/paytrafficfines",
-      "verified": false,
-      "last_checked": "2026-10-28",
-      "related_datasets": [
-        "bayanat-cause-of-traffic-fines"
-      ],
-      "match_keywords": [
-        "abu",
-        "dhabi",
-        "police",
-        "traffic",
-        "speed",
-        "radar",
-        "fine",
-        "tamm"
-      ],
-      "items": []
-    },
-    {
       "id": "dubai-residency-notice",
       "doc_type": "visa_residency_notice",
       "emirate": "Dubai",
