@@ -20,7 +20,8 @@ Return ONLY a JSON object, all text in {language}:
   "what_it_is": "1-2 sentences: what this document is and why they received it",
   "cost": "1 sentence: how much they need to pay, or that there is no fee shown",
   "deadline": "1 sentence: by when, and how many days are left if given",
-  "next_steps": ["up to 3 short steps, the first one is the most important"]
+  "next_steps": ["up to 3 short steps, the first one is the most important"],
+  "suggested_questions": ["3 short follow-up questions this person is likely to ask next, e.g. about where to pay, instalments, what happens if late, or required documents"]
 }}"""
 
 
@@ -42,6 +43,7 @@ def explain(fields: dict, service: dict | None, days_left: int | None, language:
         "cost": _no_urls(out.get("cost", "")),
         "deadline": _no_urls(out.get("deadline", "")),
         "next_steps": [_no_urls(s) for s in steps][:3],
+        "suggested_questions": [str(q)[:120] for q in (out.get("suggested_questions") or [])][:3],
     }
 
 
@@ -70,4 +72,5 @@ def mock(fields: dict, service: dict | None, days_left: int | None) -> dict:
         "cost": f"[MOCK] The amount shown is AED {amount:g}." if amount else "[MOCK] No amount is shown.",
         "deadline": f"[MOCK] {days_left} days left." if days_left is not None else "[MOCK] No deadline is printed. Check the official link soon.",
         "next_steps": (service or {}).get("next_steps", ["Open the official website"])[:3],
+        "suggested_questions": ["Where can I pay this?", "Can I pay in instalments?", "What happens if I pay late?"],
     }

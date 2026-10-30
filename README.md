@@ -56,6 +56,16 @@ Open **http://localhost:8000**, upload a document photo, and pick a language.
 python -m pytest
 ```
 
+## Ask Dalil (chat about a scanned document)
+
+Under every result there is a chat. People can ask follow-up questions in their language: where to pay, instalments, what happens if they pay late, which documents to bring.
+
+- **Grounded first:** answers use the document's details and the matched record from `data/services.json` (looked up on the server).
+- **Live, but only official:** with `AI_PROVIDER=claude` the AI can search the web in real time, limited to official UAE government websites (`OFFICIAL_SITES` in `app/chat.py`: u.ae, rta.ae, dubaipolice.gov.ae, icp.gov.ae, gdrfad.gov.ae, dubailand.gov.ae, tamm.abudhabi...). Each answer shows the official pages it used as links. Non-official links are dropped.
+- **Private:** only the type, authority, emirate, subject, amount and dates are sent, never the photo, names, or reference, plate or ID numbers.
+- **Safe:** no legal advice, it never asks for card numbers, passwords or OTPs, and it only points to official payment channels.
+- With Gemini, or if web search is switched off for the API account, it still answers from the checked data and says live search is off. Web search costs about $10 per 1,000 searches on top of normal Claude usage (max 3 searches per question).
+
 ## Accounts (optional)
 
 People can use Dalil without an account: saved documents then stay in that browser only. With an account (email and password), saved documents sync across every device where they sign in.
@@ -78,12 +88,14 @@ People can use Dalil without an account: saved documents then stay in that brows
 | `data/services.json` | The verified service catalog | Data |
 | `data/sources.md` | Where every value came from, plus the open datasets used | Data |
 | `tools/lookup_service_prices.py` | Looks up official fees in the Dubai Government Service Prices open dataset | Data |
-| `app/main.py` | Web server and API: `/analyze`, `/services`, `/languages`, `/health` | everyone |
+| `app/main.py` | Web server and API: `/analyze`, `/chat`, `/services`, `/languages`, `/health` | everyone |
+| `app/chat.py` | Ask Dalil: follow-up chat with live search on official sites only (AI) | AI |
 | `web/index.html` | App page: header, tab bar, one `<section>` per tab | UI |
 | `web/css/app.css` | All styles. Colours and sizes are variables at the top | UI |
 | `web/js/app.js` | Switches tabs (`#scan`, `#deadlines`, `#services`, `#how`) | UI |
 | `web/js/i18n.js` | Every interface text, ready for translation (#16) | UI |
 | `web/js/scan.js` | Scan tab: upload, progress steps, result (#12) | UI |
+| `web/js/chat.js` | Ask Dalil chat card under the result (#19) | UI |
 | `web/js/deadlines.js` | My documents tab: saved documents, deadlines, paid status, Add to calendar | UI |
 | `web/js/account.js` | Sign in, create account, sign out, delete account | UI |
 | `web/js/store.js`, `web/js/calendar.js` | Saving documents (this phone, or the account when signed in); building the calendar file | UI |
