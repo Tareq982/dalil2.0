@@ -8,7 +8,7 @@ in this folder. Real documents for private testing go in `samples/private/`, whi
 
 | Type | Documents | What they test |
 |---|---|---|
-| Traffic fines | Dubai speeding, red light with deadline, RTA parking, overdue reminder; Abu Dhabi speeding (discount printed), Abu Dhabi Arabic-only; Sharjah seatbelt | Different emirates and authorities, amounts written as "1,000", a deadline that has already passed, a discount that is not a deadline, Arabic-only text, an emirate with no catalog record |
+| Traffic fines | Dubai speeding, red light with deadline, RTA parking, overdue reminder; Abu Dhabi speeding, Abu Dhabi Arabic-only; Sharjah seatbelt | Different emirates and authorities, amounts written as "1,000", a deadline that has already passed, Arabic-only text, an emirate with no catalog record |
 | Residency and visa | GDRFA Dubai expiry, ICP overstay in Sharjah, ICP cancellation in Ajman | Expiry date and grace period end as deadlines, overstay totals, federal versus Dubai matching |
 | Tenancy | Ejari certificate, Dubai unified tenancy contract (also as a **PDF**), Abu Dhabi Tawtheeq | Rent that is not an amount due, the PDF path, an emirate with no catalog record |
 | Phone photos | `__photo.jpg` versions: tilted, shadowed, noisy | Real-world photo quality |
