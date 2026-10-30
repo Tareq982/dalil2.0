@@ -100,7 +100,7 @@ People can use Dalil without an account: saved documents then stay in that brows
 | `web/js/account.js` | Sign in, create account, sign out, delete account | UI |
 | `web/js/store.js`, `web/js/calendar.js` | Saving documents (this phone, or the account when signed in); building the calendar file | UI |
 | `web/js/services.js` | Services tab: the verified catalog, filters, open data used (#14) | UI |
-| `web/js/how.js` | How it works tab, placeholder for #15 | UI |
+| `web/js/how.js` | How it works tab: the 4 steps, confidence levels, open data, privacy, what Dalil never does (#15) | UI |
 | `app/pipeline.py` | Connects all the steps | everyone |
 | `app/accounts.py` | Accounts and synced documents (privacy allow-list) | everyone |
 | `app/ai.py` | Talks to Gemini or Claude (chosen by `AI_PROVIDER` in `.env`) | AI |
