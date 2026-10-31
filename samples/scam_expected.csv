@@ -1,0 +1,18 @@
+file,verdict,check_instead,notes
+scam_sms_fine.png,dont_pay,dubaipolice.gov.ae,"Fake Dubai Police fine: 'p0lice' with a zero, .top address, 90% discount, 24-hour pressure"
+scam_sms_fine.txt,dont_pay,dubaipolice.gov.ae,Same message pasted as text
+scam_sms_salik_toll.png,dont_pay,salik.ae,Fake Salik toll: salik-toll-pay.top imitates salik.ae
+scam_sms_salik_toll__photo.jpg,dont_pay,salik.ae,Same message as a tilted phone photo
+scam_sms_salik_toll.txt,dont_pay,salik.ae,Same message pasted as text
+scam_sms_post_parcel.png,dont_pay,emiratespost.ae,"Fake parcel fee: bit.ly short link hides the address, foreign number"
+scam_sms_post_parcel.txt,dont_pay,emiratespost.ae,Same message pasted as text
+scam_sms_police_arabic.png,dont_pay,dubaipolice.gov.ae,Arabic only: dubaipolice.gov.ae.fines-pay.info starts with the real address but is NOT it
+scam_sms_police_arabic.txt,dont_pay,dubaipolice.gov.ae,Same message pasted as text
+scam_email_rta_discount.png,dont_pay,rta.ae,"Fake RTA email: 70% discount, today only, asks for card details, rta-ae-discount.com"
+scam_email_rta_discount.txt,dont_pay,rta.ae,Same email pasted as text
+scam_website_tamm_fines.png,dont_pay,tamm.abudhabi,"Fake payment website: tamm-abudhabi-fines.online, countdown, asks for card and OTP"
+scam_website_tamm_fines.txt,dont_pay,tamm.abudhabi,Same page described as text
+suspicious_sms_nol_points.png,suspicious,rta.ae,"Points offer with a non-official link, no payment asked"
+suspicious_sms_nol_points.txt,suspicious,rta.ae,Same message pasted as text
+real_sms_rta_reminder.png,looks_official,rta.ae,Real-looking reminder: only links to www.rta.ae and says to use the app. Still: pay only in the official app or site
+real_sms_rta_reminder.txt,looks_official,rta.ae,Same message pasted as text

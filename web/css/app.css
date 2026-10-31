@@ -68,7 +68,14 @@ body {
   -webkit-font-smoothing: antialiased;
   padding-bottom: calc(var(--tabbar-h) + 40px + env(safe-area-inset-bottom));
 }
-[lang="ar"], [lang="ur"], [dir="rtl"] { font-family: "Noto Sans Arabic", var(--font); letter-spacing: 0; }
+/* One font per script (issue #16). The interface language is set on <html lang>, and parts
+   written in another language (an answer, a chat reply) carry their own lang, so each part
+   picks the right font. Latin text inside falls back to --font automatically. */
+[lang="ar"], [lang="ur"] { font-family: "Noto Sans Arabic", var(--font); letter-spacing: 0; }
+[lang="hi"] { font-family: "Noto Sans Devanagari", var(--font); letter-spacing: 0; }
+[lang="bn"] { font-family: "Noto Sans Bengali", var(--font); letter-spacing: 0; }
+[lang="ml"] { font-family: "Noto Sans Malayalam", var(--font); letter-spacing: 0; }
+[lang="en"], [lang="tl"] { font-family: var(--font); }
 h1, h2, h3 { margin: 0; line-height: 1.15; }
 p { margin: 0; }
 a { color: var(--accent); }
@@ -115,6 +122,22 @@ a { color: var(--accent); }
 }
 .brand-name { font-weight: 700; font-size: 19px; letter-spacing: -0.02em; }
 .brand-name [lang="ar"] { color: var(--label-2); font-weight: 400; margin-inline-start: 4px; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+/* Interface language picker: a glass pill next to the account button */
+.lang-picker { position: relative; display: flex; align-items: center; }
+.lang-picker svg {
+  position: absolute; z-index: 1; inset-inline-start: 12px; width: 18px; height: 18px; pointer-events: none;
+  fill: none; stroke: var(--accent); stroke-width: 1.6;
+}
+.lang-picker select {
+  width: auto; max-width: 46vw; min-height: 40px; padding-block: 0; padding-inline: 36px 30px;
+  border-radius: 999px; border: 1px solid var(--glass-edge); background-color: var(--glass);
+  -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); box-shadow: var(--glass-shadow);
+  font-size: 15px; font-weight: 600; color: var(--label); cursor: pointer;
+  background-position: right 12px center; text-overflow: ellipsis;
+}
+[dir="rtl"] .lang-picker select { background-position: left 12px center; }
 
 /* ---------------------------------------------------------------- floating capsule tab bar */
 
@@ -138,6 +161,7 @@ a { color: var(--accent); }
   border-radius: 999px; transition: color 0.2s;
 }
 .tabs svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; stroke-linecap: round; }
+.tabs a > span[data-i18n] { max-width: 100%; padding: 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tabs a[aria-current="page"] { color: var(--accent); }
 .tabs a[aria-current="page"] svg { stroke-width: 2.1; }
 .tab-count {
@@ -145,6 +169,7 @@ a { color: var(--accent); }
   border-radius: 999px; background: var(--red-ring); color: #fff; font-size: 11px; font-weight: 700;
   line-height: 18px; text-align: center;
 }
+[dir="rtl"] .tab-count { left: auto; right: calc(50% + 6px); }
 
 /* ---------------------------------------------------------------- page */
 
@@ -272,6 +297,53 @@ details.read dd { margin: 0; font-weight: 600; text-align: end; word-break: brea
 .sheet .notice { box-shadow: none; border: 0; }
 .mock-flag { display: inline-block; margin-bottom: 12px; padding: 4px 12px; border-radius: 999px; background: var(--orange-tint); color: var(--orange); font-size: 12px; font-weight: 700; }
 .again { margin-top: 16px; }
+
+/* ---------------------------------------------------------------- scan: is this message real? */
+
+.mode-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-top: 10px; padding: 3px; border-radius: 12px; background: var(--field); }
+.mode-switch button {
+  min-height: 40px; padding: 6px 10px; border: 0; border-radius: 9px; background: transparent; color: var(--label);
+  font: 600 14px var(--font); cursor: pointer; line-height: 1.2;
+}
+.mode-switch button[aria-selected="true"] { background: var(--glass-strong); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); }
+textarea {
+  width: 100%; min-height: 110px; padding: 12px 16px; border: 0; border-radius: var(--r-control); resize: vertical;
+  background: var(--field); color: var(--label); font: 400 16px/1.45 var(--font);
+}
+textarea::placeholder { color: var(--label-3); }
+
+.verdict { display: flex; gap: 14px; align-items: flex-start; padding: 16px; border-radius: 20px; }
+.verdict h2 { margin: 0; padding: 0; font-size: clamp(21px, 5vw, 24px); }
+.verdict p { margin-top: 6px; font-size: 15px; }
+.verdict-icon { flex: none; width: 34px; height: 34px; }
+.verdict-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.v-bad { background: var(--red-tint); }
+.v-bad .verdict-icon, .v-bad h2 { color: var(--red); }
+.v-warn { background: var(--orange-tint); }
+.v-warn .verdict-icon, .v-warn h2 { color: var(--orange); }
+.v-ok { background: rgba(52, 199, 89, 0.14); }
+.v-ok .verdict-icon, .v-ok h2 { color: var(--green); }
+.v-unclear { background: var(--field); }
+.v-unclear .verdict-icon { color: var(--label-2); }
+.check-summary { margin-top: 14px; font-size: 16px; }
+.check-instead { margin-top: 18px; }
+.check-instead .btn { margin-top: 8px; width: 100%; }
+.check-instead .muted { margin-top: 8px; }
+.check h3 { font-size: 13px; font-weight: 600; color: var(--label-2); }
+.check-section { margin-top: 20px; }
+.link-list, .flag-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.link-row { display: grid; gap: 2px; padding: 12px 14px; border-radius: 16px; background: var(--field); border-inline-start: 4px solid var(--red-ring); }
+.link-row.s-official { border-inline-start-color: var(--green-ring); }
+.link-row.s-not_official { border-inline-start-color: var(--orange-ring); }
+.link-host { font-weight: 600; word-break: break-all; text-align: start; unicode-bidi: plaintext; }
+.link-status { font-size: 14px; color: var(--red); font-weight: 600; }
+.s-official .link-status { color: var(--green); }
+.s-not_official .link-status { color: var(--orange); }
+.link-row small { color: var(--label-2); font-size: 13px; }
+.flag-list li { display: grid; grid-template-columns: 20px 1fr; gap: 8px; font-size: 15px; }
+.flag-list li::before { content: "!"; display: grid; place-items: center; width: 20px; height: 20px; margin-top: 1px; border-radius: 50%; background: var(--orange-tint); color: var(--orange); font-weight: 700; font-size: 13px; }
+.never-safe { margin-top: 20px; padding-top: 16px; border-top: 0.5px solid var(--separator); display: flex; gap: 8px; align-items: flex-start; font-size: 14px; font-weight: 600; }
+.never-safe svg { flex: none; width: 18px; height: 18px; margin-top: 1px; fill: none; stroke: var(--accent); stroke-width: 2; }
 
 /* ---------------------------------------------------------------- save deadline */
 
@@ -421,7 +493,7 @@ dialog.account-sheet::backdrop { background: rgba(0, 0, 0, 0.28); -webkit-backdr
   font: 500 15px/1.3 var(--font); color: var(--accent); background: var(--accent-tint); border: 0;
 }
 .chat-chip:active { transform: scale(0.97); }
-.chat-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+.chat-form { display: grid; grid-template-columns: 1fr; grid-auto-flow: column; grid-auto-columns: auto; gap: 8px; align-items: center; }
 .chat-form input {
   width: 100%; min-height: 48px; padding: 12px 18px; border: 0; border-radius: 999px;
   background: var(--field); color: var(--label); font: 400 16px var(--font); -webkit-appearance: none; appearance: none;
@@ -434,6 +506,17 @@ dialog.account-sheet::backdrop { background: rgba(0, 0, 0, 0.28); -webkit-backdr
 .chat-send:not(:disabled):active { transform: scale(0.92); }
 .chat-send svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .chat-note { font-size: 12px; }
+
+/* Ask by voice: only shown in browsers that can turn speech into text */
+.chat-mic {
+  width: 44px; height: 44px; border-radius: 50%; border: 0; display: grid; place-items: center; cursor: pointer;
+  background: var(--accent-tint); color: var(--accent); transition: transform 0.15s, background 0.15s;
+}
+.chat-mic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chat-mic:active { transform: scale(0.92); }
+.chat-mic.listening { background: var(--red-ring); color: #fff; animation: listen 1.2s ease-in-out infinite; }
+@keyframes listen { 50% { box-shadow: 0 0 0 8px rgba(255, 59, 48, 0.18); } }
+.bubble .reply-lang { display: block; margin: 0 0 4px; font-size: 12px; font-weight: 600; color: var(--accent); }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ---------------------------------------------------------------- how it works */
@@ -499,7 +582,7 @@ dialog.account-sheet::backdrop { background: rgba(0, 0, 0, 0.28); -webkit-backdr
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .glass, .sheet, .drop, .progress, .save-box, .chat, .how-card, .how-stat, .deadline, details.service, .placeholder, .notice, .tabs, .chip, .account-btn, dialog.account-sheet {
+  .glass, .sheet, .drop, .progress, .save-box, .chat, .how-card, .how-stat, .deadline, details.service, .placeholder, .notice, .tabs, .chip, .account-btn, .lang-picker select, dialog.account-sheet {
     background: var(--glass-strong); -webkit-backdrop-filter: none; backdrop-filter: none;
   }
   .backdrop { display: none; }
