@@ -4,15 +4,17 @@
 "SAMPLE - NOT AN OFFICIAL DOCUMENT" watermark. Never put a real person's fine, visa or contract
 in this folder. Real documents for private testing go in `samples/private/`, which git ignores.
 
-## What's here (22 files)
+## What's here (50 documents)
+
+The set covers **all 7 emirates**: 23 traffic fines, 11 residency or visa notices, 10 tenancy contracts, 4 things Dalil must not explain, and 2 unreadable photos.
 
 | Type | Documents | What they test |
 |---|---|---|
-| Traffic fines | Dubai speeding, red light with deadline, RTA parking, overdue reminder; Abu Dhabi speeding, Abu Dhabi Arabic-only; Sharjah seatbelt | Different emirates and authorities, amounts written as "1,000", a deadline that has already passed, Arabic-only text, an emirate with no catalog record |
-| Residency and visa | GDRFA Dubai expiry, ICP overstay in Sharjah, ICP cancellation in Ajman | Expiry date and grace period end as deadlines, overstay totals, federal versus Dubai matching |
-| Tenancy | Ejari certificate, Dubai unified tenancy contract (also as a **PDF**), Abu Dhabi Tawtheeq | Rent that is not an amount due, the PDF path, an emirate with no catalog record |
+| Traffic fines (23) | **Dubai:** speeding, red light with deadline, RTA parking, overdue reminder, mobile phone, tailgating with deadline, Arabic-only parking, tinted windows, a statement of two fines. **Abu Dhabi:** speeding, red light, Arabic-only. **Sharjah:** seatbelt, speeding. **Ajman:** overtaking with deadline. **Ras Al Khaimah:** noise. **Umm Al Quwain:** expired registration | Different emirates and authorities, amounts written as "1,000", a total of two fines, black points that are not amounts, a deadline that has already passed, Arabic-only text, emirates with no catalog record (Dalil must not send them to a Dubai or Abu Dhabi page) |
+| Residency and visa (11) | GDRFA Dubai: residence expiry, visit visa expiry, overstay. ICP: overstay in Sharjah and Ras Al Khaimah, cancellation in Ajman and Fujairah, renewal reminder in Abu Dhabi, Arabic-only expiry in Sharjah | Expiry date and grace period end as deadlines, an issue date that is not a deadline, overstay totals, federal versus Dubai matching |
+| Tenancy (10) | Ejari certificate (new, renewal, Arabic only), Dubai unified contract (residential, also as a **PDF**, and commercial), Abu Dhabi Tawtheeq, Sharjah lease | Rent that is not an amount due, the PDF path, emirates with no catalog record |
 | Phone photos | `__photo.jpg` versions: tilted, shadowed, noisy | Real-world photo quality |
-| Hard cases | `__blurry.jpg`, `__cropped.jpg` (bottom half missing), a cafe receipt, a scam text message | Dalil must refuse to guess, must not invent missing values, and must not treat a scam as a real fine |
+| Hard cases | Two `__blurry.jpg` and two `__cropped.jpg` (bottom half missing), a cafe receipt, a utility bill, two scam text messages | Dalil must refuse to guess, must not invent missing values, and must not explain a scam or an unsupported document as a real fine |
 
 The correct answer for each file is in `expected.csv`:
 - An empty cell means the field isn't scored.

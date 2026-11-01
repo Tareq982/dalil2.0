@@ -21,3 +21,31 @@ tenancy_contract_dubai_unified.pdf,tenancy_contract,Dubai,,none,dubai-tenancy-co
 tenancy_abudhabi_tawtheeq.png,tenancy_contract,Abu Dhabi,,none,none,,No Abu Dhabi tenancy record in the catalog
 not_a_document_receipt.png,other,,,,none,yes,Cafe receipt: not an official document
 scam_sms_fine.png,other,,,,none,yes,Scam text message with a fake link: must not be treated as a real fine (see #18)
+fine_dubai_mobile_phone.png,traffic_fine,Dubai,800,none,dubai-traffic-fine,no,Mobile phone while driving; 4 black points (not an amount)
+fine_dubai_mobile_phone__photo.jpg,traffic_fine,Dubai,800,none,dubai-traffic-fine,no,Phone photo
+fine_dubai_tailgating.png,traffic_fine,Dubai,400,2026-11-20,dubai-traffic-fine,no,Deadline printed
+fine_dubai_tailgating__cropped.jpg,traffic_fine,Dubai,none,none,dubai-traffic-fine,,Only the top is visible: amount and deadline must not be guessed
+fine_dubai_parking_arabic_only.png,traffic_fine,Dubai,200,none,dubai-traffic-fine,no,RTA parking fine in Arabic only
+fine_dubai_tinted_windows.png,traffic_fine,Dubai,1500,none,dubai-traffic-fine,no,Amount written as 1,500
+fine_dubai_statement_two_fines.png,traffic_fine,Dubai,800,none,dubai-traffic-fine,no,Two fines (300 + 500): the amount due is the total
+fine_abudhabi_redlight.png,traffic_fine,Abu Dhabi,1000,none,abu-dhabi-traffic-fine,no,Red light; 12 black points (not an amount)
+fine_sharjah_speeding.png,traffic_fine,Sharjah,600,none,none,no,No Sharjah fine record: must not use the Dubai or Abu Dhabi page
+fine_sharjah_speeding__photo.jpg,traffic_fine,Sharjah,600,none,none,no,Phone photo
+fine_ajman_overtaking.png,traffic_fine,Ajman,600,2026-11-30,none,no,Ajman: no record; deadline printed
+fine_rak_noise.png,traffic_fine,Ras Al Khaimah,2000,none,none,no,Ras Al Khaimah: no record; amount written as 2,000
+fine_uaq_expired_registration.png,traffic_fine,Umm Al Quwain,500,none,none,no,Umm Al Quwain: no record
+residency_dubai_visit_visa_expiry.png,visa_residency_notice,Dubai,none,2026-12-05,dubai-residency-notice,no,Visit visa: expiry date is the deadline
+residency_dubai_overstay.png,visa_residency_notice,Dubai,400,none,dubai-residency-notice,no,Overstay 8 days x AED 50
+residency_dubai_expiry__blurry.jpg,,,,,,yes,Very blurry photo: Dalil should refuse to guess
+residency_abudhabi_renewal_reminder.png,visa_residency_notice,Abu Dhabi,none,2026-11-30,federal-residency-notice,no,ICP in Abu Dhabi: federal record
+residency_rak_overstay.png,visa_residency_notice,Ras Al Khaimah,1000,none,federal-residency-notice,no,Overstay 20 days x AED 50; issue date is not a deadline
+residency_rak_overstay__photo.jpg,visa_residency_notice,Ras Al Khaimah,1000,none,federal-residency-notice,no,Phone photo
+residency_sharjah_expiry_arabic_only.png,visa_residency_notice,Sharjah,none,2026-12-20,federal-residency-notice,no,Arabic only
+residency_fujairah_cancellation.png,visa_residency_notice,Fujairah,none,2026-12-25,federal-residency-notice,no,Grace period end is the deadline
+ejari_certificate_dubai_renewal.png,tenancy_contract,Dubai,,none,dubai-tenancy-contract,no,Renewal; annual rent is not an amount due
+ejari_certificate_dubai_renewal__photo.jpg,tenancy_contract,Dubai,,none,dubai-tenancy-contract,no,Phone photo
+tenancy_contract_dubai_commercial.png,tenancy_contract,Dubai,,none,dubai-tenancy-contract,no,Commercial shop contract
+ejari_certificate_dubai_arabic_only.png,tenancy_contract,Dubai,,none,dubai-tenancy-contract,no,Arabic only
+tenancy_sharjah_contract.png,tenancy_contract,Sharjah,,none,none,,No Sharjah tenancy record
+not_a_document_utility_bill.png,other,,,,none,yes,Utility bill: not a document type Dalil explains
+scam_sms_salik_toll.png,other,,,,none,yes,Scam text message: must not be explained as a real fine
