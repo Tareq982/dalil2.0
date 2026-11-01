@@ -146,3 +146,12 @@ def test_readable_tenancy_contract_without_reference_or_amount_is_explained(monk
     monkeypatch.setattr(pipeline.extract, "extract", lambda data, media: contract)
     r = pipeline.analyze(b"x", "image/png", "en")
     assert "explanation" in r and r["service_id"] == "dubai-tenancy-contract"
+
+
+def test_clear_document_without_a_record_is_medium_not_refused():
+    from app import safety
+    clear = {"doc_type": "traffic_fine", "emirate": "Sharjah", "amount_aed": 600, "readable": True, "confidence": 0.84}
+    assert safety.overall_confidence(clear, None) == 0.75
+    assert safety.level(safety.overall_confidence(clear, None)) == 1  # Medium: explained, with a "check it" level
+    unsure = dict(clear, confidence=0.5)
+    assert safety.level(safety.overall_confidence(unsure, None)) == 2  # still refused when the reading itself is unsure
