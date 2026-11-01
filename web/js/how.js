@@ -84,7 +84,7 @@ export function render(el) {
     <section class="how-card" aria-labelledby="how-privacy-title">
       <h2 id="how-privacy-title"><span class="h-icon">${ICONS.lock}</span>${esc(t("how_privacy_title"))}</h2>
       <ul class="ticks">
-        ${["how_priv_photo", "how_priv_saved", "how_priv_device", "how_priv_chat"].map((k) => `<li>${esc(t(k))}</li>`).join("")}
+        ${["how_priv_photo", "how_priv_saved", "how_priv_device", "how_priv_chat", "how_priv_stats"].map((k) => `<li>${esc(t(k))}</li>`).join("")}
       </ul>
     </section>
 
@@ -95,7 +95,8 @@ export function render(el) {
       </ul>
     </section>
 
-    <p class="how-limits notice">${esc(t("how_limits"))}</p>`;
+    <p class="how-limits notice">${esc(t("how_limits"))}</p>
+    <p class="how-stats-link"><a class="how-link" href="/stats" ${'data-i18n="how_stats_link"'}>${esc(t("how_stats_link"))}</a></p>`;
 
   loadStats(el);
 }

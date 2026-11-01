@@ -52,11 +52,12 @@ def analyze(data: bytes, media_type: str, lang: str = "en") -> dict:
     return result
 
 
-def explain_checked(fields: dict, service: dict | None, days_left: int | None, lang: str) -> tuple[dict, str]:
+def explain_checked(fields: dict, service: dict | None, days_left: int | None, lang: str,
+                    simple: bool = False) -> tuple[dict, str]:
     """Explain, then check every number against the data (issue #20). Returns (explanation, outcome)."""
     language = config.LANGUAGES[lang]
     public = explain._public(service)  # exactly what the AI was shown
-    text = explain.explain(fields, service, days_left, language)
+    text = explain.explain(fields, service, days_left, language, simple=simple)
     bad = checks.unsupported(text, fields, public, days_left)
     if not bad:
         checks.record("passed")
@@ -65,7 +66,7 @@ def explain_checked(fields: dict, service: dict | None, days_left: int | None, l
     warning = (f"WARNING: your previous answer used these numbers that are NOT in DATA: {', '.join(bad)}. "
                "Write the answer again using only numbers that appear in DATA. If a fee, discount or date "
                "is not in DATA, don't mention a number for it: say to check the official link.")
-    text = explain.explain(fields, service, days_left, language, warning=warning)
+    text = explain.explain(fields, service, days_left, language, warning=warning, simple=simple)
     still = checks.unsupported(text, fields, public, days_left)
     if not still:
         checks.record("retried", bad)

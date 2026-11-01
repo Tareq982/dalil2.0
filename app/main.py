@@ -11,7 +11,7 @@ from datetime import timedelta
 
 from flask import Flask, jsonify, request, send_from_directory
 
-from . import accounts, ai, chat, checks, config, langdetect, pipeline, scamcheck
+from . import accounts, ai, catalog, chat, checks, config, langdetect, pipeline, scamcheck, stats
 
 app = Flask(__name__, static_folder=str(config.WEB_DIR), static_url_path="/web")
 app.json.sort_keys = False  # keep the language order from config.LANGUAGES
@@ -61,7 +61,51 @@ def analyze():
     except ai.AIError as e:
         log.warning("analyze failed: %s", e)
         return jsonify({"error": str(e)}), 502
+    outcome = "not_supported" if result.get("not_supported") else "fallback" if result.get("fallback") else "explained"
+    stats.record("scan", (result.get("fields") or {}).get("doc_type"), result.get("language"), outcome,
+                 result.get("number_check"))
     return jsonify(result)
+
+
+@app.post("/simplify")
+def simplify():
+    """'Explain it simpler': the same facts, rewritten in very easy words, number-checked again.
+    Only the non-sensitive details are accepted; the service is looked up here, not trusted from the browser."""
+    data = request.get_json(silent=True) or {}
+    lang = data.get("lang") if data.get("lang") in config.LANGUAGES else "en"
+    raw = data.get("fields") if isinstance(data.get("fields"), dict) else {}
+    fields = {k: raw.get(k) for k in chat.DOC_FIELDS + ["key_points"] if raw.get(k) not in (None, "")}
+    service = next((s for s in catalog.load() if s["id"] == data.get("service_id")), None)
+    try:
+        explanation, outcome = pipeline.explain_checked(
+            fields, service, pipeline.days_until(fields.get("deadline_date")), lang, simple=True)
+    except ai.AIError as e:
+        log.warning("simplify failed: %s", e)
+        return jsonify({"error": str(e)}), 502
+    stats.record("simpler", fields.get("doc_type"), lang, outcome)
+    return jsonify({"language": lang, "explanation": explanation, "number_check": outcome})
+
+
+@app.post("/event")
+def event():
+    """Anonymous taps: thumbs up/down ("feedback") and "Send to family" ("share"). Nothing personal."""
+    data = request.get_json(silent=True) or {}
+    kind = data.get("kind")
+    if kind not in ("feedback", "share"):
+        return jsonify({"error": "Unknown event."}), 400
+    outcome = ("yes" if data.get("helpful") else "no") if kind == "feedback" else None
+    stats.record(kind, data.get("doc_type"), data.get("lang"), outcome)
+    return jsonify({"ok": True})
+
+
+@app.get("/stats")
+def stats_page():
+    return send_from_directory(config.WEB_DIR, "stats.html")
+
+
+@app.get("/api/stats")
+def stats_data():
+    return jsonify(stats.summary())
 
 
 @app.post("/check-message")
@@ -75,10 +119,12 @@ def check_message():
     if not text.strip() and not (upload and upload[0]):
         return jsonify({"error": "Add a photo or screenshot of the message, or paste its text."}), 400
     try:
-        return jsonify(scamcheck.check(text=text, file=upload, lang=lang))
+        result = scamcheck.check(text=text, file=upload, lang=lang)
     except ai.AIError as e:
         log.warning("check-message failed: %s", e)
         return jsonify({"error": str(e)}), 502
+    stats.record("message", None, result.get("language"), result.get("verdict"))
+    return jsonify(result)
 
 
 @app.post("/chat")
@@ -97,6 +143,7 @@ def ask_dalil():
         log.warning("chat failed: %s", e)
         return jsonify({"error": str(e)}), 502
     answer["language"] = lang  # the app labels the reply and sets its direction with this
+    stats.record("chat", (data.get("fields") or {}).get("doc_type"), lang, "searched" if answer.get("searched") else "answered")
     return jsonify(answer)
 
 

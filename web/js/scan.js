@@ -7,6 +7,7 @@ import { addDocument, currentAccount, removeDocument, updateDocument } from "./s
 import { openAccount } from "./account.js";
 import { chatCard } from "./chat.js";
 import { listenButton, stopSpeaking } from "./speak.js";
+import { addResultActions } from "./actions.js";
 
 let panel;
 let upload = null; // { blob, name, previewUrl? }
@@ -220,6 +221,7 @@ async function analyze() {
     progress.hide();
     result.innerHTML = renderResult(data);
     addListen(result, data); // read aloud (#17)
+    addResultActions(result, data); // Explain it simpler, Send to family, Was this clear?
     if (data.explanation) {
       result.appendChild(chatCard(data)); // Ask Dalil: follow-up questions (#19)
       autoSave(result, data);
