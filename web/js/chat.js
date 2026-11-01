@@ -11,7 +11,8 @@ const MAX_QUESTIONS = 12;
 const ICON_SEND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
 const ICON_MIC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>';
 // Speech-to-text built into the browser (Chrome, Edge, Safari). Where it's missing, no mic button.
-const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+// Browsers only allow the microphone on https or localhost (not http://192.168.x.x on a phone).
+const Recognition = window.isSecureContext ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
 const ICON_CHAT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-4 3v-3H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M8 10h8M8 13h5"/></svg>';
 
 // Builds the chat card for one result and returns the element.

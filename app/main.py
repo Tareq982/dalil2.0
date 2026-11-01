@@ -11,7 +11,7 @@ from datetime import timedelta
 
 from flask import Flask, jsonify, request, send_from_directory
 
-from . import accounts, ai, chat, config, langdetect, pipeline, scamcheck
+from . import accounts, ai, chat, checks, config, langdetect, pipeline, scamcheck
 
 app = Flask(__name__, static_folder=str(config.WEB_DIR), static_url_path="/web")
 app.json.sort_keys = False  # keep the language order from config.LANGUAGES
@@ -34,7 +34,8 @@ def index():
 
 @app.get("/health")
 def health():
-    return {"ok": True, "mock_ai": config.MOCK_AI, "provider": config.AI_PROVIDER, "model": config.AI_MODEL}
+    return {"ok": True, "mock_ai": config.MOCK_AI, "provider": config.AI_PROVIDER, "model": config.AI_MODEL,
+            "number_check": dict(checks.COUNTS)}  # passed / retried / template since the server started
 
 
 @app.get("/languages")

@@ -16,7 +16,7 @@ import argparse
 import csv
 import sys
 import time
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
 
@@ -97,6 +97,7 @@ def main():
                 "got_amount": fl.get("amount_aed"), "got_deadline": fl.get("deadline_date"),
                 "got_service": result.get("service_id"), "got_fallback": bool(result.get("fallback")),
                 "confidence": result.get("confidence"),
+                "number_check": result.get("number_check", ""),
                 "explanation": (result.get("explanation") or {}).get("what_it_is", result.get("fallback", "")),
                 "expected_doc_type": r["doc_type"],
             }
@@ -123,6 +124,11 @@ def main():
     times = [x["seconds"] for x in records if not x["error"]]
     if times:
         lines += ["", f"Average time per document: {sum(times) / len(times):.1f} s. Errors: {sum(1 for x in records if x['error'])}."]
+    checked = Counter(x["number_check"] for x in records if x["number_check"])
+    if checked:
+        lines += ["", "Number check (#20): " + ", ".join(f"{k} {v}" for k, v in sorted(checked.items()))
+                  + " (passed = every number was in the data; retried = fixed on a second try; "
+                  "template = shown as a plain data-only version)."]
     summary = "\n".join(lines)
     print("\n" + summary)
 

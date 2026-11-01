@@ -6,6 +6,7 @@ import { esc, formatAED, formatDate, RTL_LANGS } from "./util.js";
 import { addDocument, currentAccount, removeDocument, updateDocument } from "./store.js";
 import { openAccount } from "./account.js";
 import { chatCard } from "./chat.js";
+import { listenButton, stopSpeaking } from "./speak.js";
 
 let panel;
 let upload = null; // { blob, name, previewUrl? }
@@ -218,6 +219,7 @@ async function analyze() {
     await new Promise((res) => setTimeout(res, 350));
     progress.hide();
     result.innerHTML = renderResult(data);
+    addListen(result, data); // read aloud (#17)
     if (data.explanation) {
       result.appendChild(chatCard(data)); // Ask Dalil: follow-up questions (#19)
       autoSave(result, data);
@@ -240,6 +242,7 @@ async function analyze() {
 function addAgain(result, form, key) {
   result.insertAdjacentHTML("beforeend", `<button class="btn btn-quiet again" id="again" ${L(key)}>${esc(t(key))}</button>`);
   result.querySelector("#again").addEventListener("click", () => {
+    stopSpeaking();
     result.innerHTML = "";
     form.hidden = false;
     panel.querySelector("#file").value = "";
@@ -430,6 +433,23 @@ async function autoSave(result, d) {
   });
 }
 
+// ---------------------------------------------------------------- read aloud (#17)
+
+// Reads what's on the card, in the answer language: the explanation, or the "can't read it" message.
+function addListen(result, d) {
+  const sheet = result.querySelector(".sheet");
+  if (!sheet) return;
+  const lang = d.language || "en";
+  const tr = (key) => t(key, lang);
+  const text = (sel) => [...sheet.querySelectorAll(sel)].map((el) => el.textContent.trim()).filter(Boolean);
+  listenButton(sheet.querySelector(".listen-slot"), lang, () => {
+    if (!d.explanation) return [...text("h2"), ...text(".notice")].join("\n");
+    const steps = text(".steps li").map((s, i) => `${i + 1}. ${s}`);
+    return [...text("h2"), ...text(".explain > div:nth-child(1)"), ...text(".explain > div:nth-child(2)"),
+            tr("h_steps") + ".", ...steps].join("\n");
+  }, { listen: tr("listen"), stop: tr("listen_stop") });
+}
+
 // ---------------------------------------------------------------- result
 
 // The deadline ring: full at 30+ days, empties as the deadline gets close.
@@ -475,13 +495,15 @@ function renderResult(d) {
 
   let body;
   if (d.fallback) {
-    body = `<h2>${esc(kindLine)}</h2><p class="notice">${esc(d.fallback)}</p>`;
+    body = `<h2>${esc(kindLine)}</h2><div class="listen-slot"></div><p class="notice">${esc(d.fallback)}</p>`;
   } else {
     const e = d.explanation || {};
     body = `
       ${stamp(d.days_left, tr)}
       <p class="doc-kind">${esc(kindLine)}</p>
       <h2>${esc(e.what_it_is)}</h2>
+      <div class="listen-slot"></div>
+      ${d.number_check === "template" ? `<p class="check-note">${esc(tr("number_check_template"))}</p>` : ""}
       ${facts}
       <div class="explain">
         <div><h3>${esc(tr("h_cost"))}</h3><p>${esc(e.cost)}</p></div>
