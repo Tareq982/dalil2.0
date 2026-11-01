@@ -90,7 +90,10 @@ def overall_confidence(fields: dict, service: dict | None) -> float:
     if fields.get("doc_type") in NEEDS_KEY_DETAILS and not any(fields.get(k) for k in KEY_DETAILS):
         return 0.0
     if service is None:
-        c *= 0.7
+        # No checked official service (e.g. a Sharjah fine): show at most "Medium", so people
+        # double-check. But a clearly read document is still explained: multiplying here used to
+        # push clear fines from emirates without a record below MIN_CONFIDENCE (seen in the 50-doc test).
+        c = min(c, 0.75)
     return round(c, 2)
 
 
