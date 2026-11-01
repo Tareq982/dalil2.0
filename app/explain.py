@@ -25,11 +25,23 @@ Return ONLY a JSON object, all text in {language}:
 }}"""
 
 
+SIMPLE = """
+
+EXTRA SIMPLE: this person found the first explanation hard to follow. Write for someone who reads
+at a very basic level: sentences of at most 10 words, everyday words only, no legal or official
+terms (or explain them in a few words), one idea per sentence. Keep every fact and number exactly
+as in DATA."""
+
+
 def explain(fields: dict, service: dict | None, days_left: int | None, language: str,
-            warning: str | None = None) -> dict:
-    """warning: set by the number check (app/checks.py) when a first answer used numbers not in DATA."""
+            warning: str | None = None, simple: bool = False) -> dict:
+    """warning: set by the number check (app/checks.py) when a first answer used numbers not in DATA.
+    simple: the "Explain it simpler" button, for a much easier version of the same facts."""
     if config.MOCK_AI:
-        return mock(fields, service, days_left)
+        out = mock(fields, service, days_left)
+        if simple:
+            out = {k: (v.replace("[MOCK]", "[MOCK simpler]") if isinstance(v, str) else v) for k, v in out.items()}
+        return out
 
     data = {
         "document": fields,
@@ -40,7 +52,8 @@ def explain(fields: dict, service: dict | None, days_left: int | None, language:
     if warning:
         text += "\n\n" + warning
     # Non-Latin scripts (Malayalam, Bengali, Urdu...) need many more tokens for the same text
-    out = ai.ask_json(SYSTEM.format(language=language), text, max_tokens=2500)
+    system = SYSTEM.format(language=language) + (SIMPLE if simple else "")
+    out = ai.ask_json(system, text, max_tokens=2500)
     steps = out.get("next_steps") or []
     return {
         "what_it_is": _no_urls(out.get("what_it_is", "")),

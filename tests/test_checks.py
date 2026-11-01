@@ -56,7 +56,7 @@ def ai_explanations(monkeypatch):
 
     def install(*answers):
         it = iter(answers)
-        monkeypatch.setattr(explain, "explain", lambda f, s, d, lang, warning=None: (calls.append(warning), next(it))[1])
+        monkeypatch.setattr(explain, "explain", lambda f, s, d, lang, warning=None, simple=False: (calls.append(warning), next(it))[1])
         return calls
     return install
 

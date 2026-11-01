@@ -17,6 +17,10 @@ photo ──► extract.py ──► catalog.py ──► explain.py ──► s
 - **Responsible AI:** shows its confidence, refuses to guess below `MIN_CONFIDENCE`, always links the official source, and gives no legal advice.
 - **Number check, the AI writes and code checks (`app/checks.py`):** every amount, date and number in the explanation must appear in the data the AI was given (the document's details, the matched official service, days left). If one doesn't, the AI gets one more try with a warning; if it still invents a number, Dalil shows a plain version built only from the data. `/health` shows how often each case happened (`number_check`), and `tools/run_samples.py` reports it too.
 - **Read aloud:** a Listen button reads the explanation in the answer language with the phone's own voices (`web/js/speak.js`). It only shows when the device has a voice for that language.
+- **Explain it simpler:** one tap rewrites the explanation in very easy words (same facts, number-checked again). `POST /simplify`, only non-sensitive details accepted.
+- **Send to family:** shares the plain explanation and the official link through the phone's share sheet (or copies it). Never the photo or reference number.
+- **Was this clear?** Thumbs up or down under every explanation.
+- **Usage numbers at `/stats`:** anonymous counts only (document type, language, result, number check, thumbs, scam-check verdicts), stored in `data/dalil.db` by `app/stats.py`. No photos, text, names, reference numbers, accounts or IP addresses. Tests use their own empty database (`tests/conftest.py`), so running them never adds fake numbers.
 - **No storage:** photos stay in memory for one request.
 
 ## Quick start
