@@ -25,7 +25,9 @@ Return ONLY a JSON object, all text in {language}:
 }}"""
 
 
-def explain(fields: dict, service: dict | None, days_left: int | None, language: str) -> dict:
+def explain(fields: dict, service: dict | None, days_left: int | None, language: str,
+            warning: str | None = None) -> dict:
+    """warning: set by the number check (app/checks.py) when a first answer used numbers not in DATA."""
     if config.MOCK_AI:
         return mock(fields, service, days_left)
 
@@ -35,6 +37,8 @@ def explain(fields: dict, service: dict | None, days_left: int | None, language:
         "days_left_until_deadline": days_left,
     }
     text = "DATA:\n" + json.dumps(data, ensure_ascii=False, indent=2)
+    if warning:
+        text += "\n\n" + warning
     # Non-Latin scripts (Malayalam, Bengali, Urdu...) need many more tokens for the same text
     out = ai.ask_json(SYSTEM.format(language=language), text, max_tokens=2500)
     steps = out.get("next_steps") or []

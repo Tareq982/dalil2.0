@@ -15,6 +15,8 @@ photo ──► extract.py ──► catalog.py ──► explain.py ──► s
 
 - **Grounded:** fees, deadline rules and links come from `data/services.json`, built from open data and official pages, never from the AI's memory.
 - **Responsible AI:** shows its confidence, refuses to guess below `MIN_CONFIDENCE`, always links the official source, and gives no legal advice.
+- **Number check, the AI writes and code checks (`app/checks.py`):** every amount, date and number in the explanation must appear in the data the AI was given (the document's details, the matched official service, days left). If one doesn't, the AI gets one more try with a warning; if it still invents a number, Dalil shows a plain version built only from the data. `/health` shows how often each case happened (`number_check`), and `tools/run_samples.py` reports it too.
+- **Read aloud:** a Listen button reads the explanation in the answer language with the phone's own voices (`web/js/speak.js`). It only shows when the device has a voice for that language.
 - **No storage:** photos stay in memory for one request.
 
 ## Quick start

@@ -178,7 +178,7 @@ export const STRINGS = {
     how_step_explain: "Explain",
     how_step_explain_text: "The AI explains it in your language using only those facts: what it is, how much, by when, and what to do next.",
     how_step_check: "Safety check",
-    how_step_check_text: "Code adds the confidence level, the source and the official link. If the paper can't be read clearly, or isn't a real official document, Dalil stops instead of guessing.",
+    how_step_check_text: "Code adds the confidence level, the source and the official link. If the paper can't be read clearly, or isn't a real official document, Dalil stops instead of guessing. It also checks that every number the AI wrote is in the data.",
     how_step_ask: "Ask follow-up questions",
     how_step_ask_text: "Ask Dalil about paying, deadlines or next steps. It answers from the same checked data and can search the web live, but only official UAE government websites, and shows the pages it used.",
     how_key: "AI does the reading and the writing. Plain code decides the facts and the safety rules, so they can be checked.",
@@ -209,6 +209,9 @@ export const STRINGS = {
     how_never_pay: "Take payments. You always pay in the official app or website",
     how_never_guess: "Guess when it isn't sure",
     how_limits: "Dalil is a guide, not a government service. It explains traffic fines, residency and visa notices, and tenancy contracts, with the most detail for Dubai. Always confirm on the official link before you pay.",
+    listen: "Listen",
+    listen_stop: "Stop",
+    number_check_template: "Dalil couldn't confirm every number in the AI's explanation, so this is a simple version made only from your document."
   },
 
   // Result labels in each answer language, so a whole answer reads in one language.
@@ -352,7 +355,7 @@ export const STRINGS = {
       "how_step_explain": "الشرح",
       "how_step_explain_text": "يشرح الذكاء الاصطناعي المستند بلغتك مستخدماً هذه المعلومات فقط: ما هو، وكم المبلغ، وحتى متى، وماذا تفعل بعد ذلك.",
       "how_step_check": "فحص الأمان",
-      "how_step_check_text": "تضيف البرمجة مستوى الثقة والمصدر والرابط الرسمي. إذا لم تكن الورقة مقروءة بوضوح، أو لم تكن مستنداً رسمياً حقيقياً، يتوقف دليل بدلاً من التخمين.",
+      "how_step_check_text": "تضيف البرمجة مستوى الثقة والمصدر والرابط الرسمي. إذا لم تكن الورقة مقروءة بوضوح، أو لم تكن مستنداً رسمياً حقيقياً، يتوقف دليل بدلاً من التخمين. كما تتحقق من أن كل رقم كتبه الذكاء الاصطناعي موجود في البيانات.",
       "how_step_ask": "اطرح أسئلة إضافية",
       "how_step_ask_text": "اسأل دليل عن الدفع أو المواعيد أو الخطوات التالية. يجيب من البيانات الموثقة نفسها، ويمكنه البحث مباشرة على الإنترنت، لكن في المواقع الحكومية الرسمية في الإمارات فقط، ويعرض الصفحات التي استخدمها.",
       "how_key": "الذكاء الاصطناعي يقرأ ويكتب. أما الحقائق وقواعد الأمان فتحددها برمجة بسيطة يمكن التحقق منها.",
@@ -382,7 +385,10 @@ export const STRINGS = {
       "how_never_card": "طلب أرقام البطاقات أو كلمات المرور أو رموز التحقق أو أرقام الهوية",
       "how_never_pay": "استلام المدفوعات. أنت تدفع دائماً في التطبيق أو الموقع الرسمي",
       "how_never_guess": "التخمين عندما لا يكون متأكداً",
-      "how_limits": "دليل مرشد، وليس خدمة حكومية. يشرح المخالفات المرورية وإشعارات الإقامة والتأشيرة وعقود الإيجار، مع أكبر قدر من التفاصيل لدبي. تأكد دائماً من الرابط الرسمي قبل الدفع."
+      "how_limits": "دليل مرشد، وليس خدمة حكومية. يشرح المخالفات المرورية وإشعارات الإقامة والتأشيرة وعقود الإيجار، مع أكبر قدر من التفاصيل لدبي. تأكد دائماً من الرابط الرسمي قبل الدفع.",
+      "listen": "استمع",
+      "listen_stop": "إيقاف",
+      "number_check_template": "لم يتمكن دليل من التأكد من كل رقم في شرح الذكاء الاصطناعي، لذلك هذه نسخة مبسطة مأخوذة من مستندك فقط."
   },
   hi: {
       "kind_traffic_fine": "ट्रैफ़िक जुर्माना",
@@ -523,7 +529,7 @@ export const STRINGS = {
       "how_step_explain": "समझाना",
       "how_step_explain_text": "AI सिर्फ़ इन्हीं तथ्यों से आपकी भाषा में समझाता है: यह क्या है, कितना देना है, कब तक, और आगे क्या करना है।",
       "how_step_check": "सुरक्षा जाँच",
-      "how_step_check_text": "कोड विश्वास स्तर, स्रोत और आधिकारिक लिंक जोड़ता है। अगर कागज़ साफ़ नहीं पढ़ा जा सकता, या असली आधिकारिक दस्तावेज़ नहीं है, तो दलील अंदाज़ा लगाने के बजाय रुक जाता है।",
+      "how_step_check_text": "कोड विश्वास स्तर, स्रोत और आधिकारिक लिंक जोड़ता है। अगर कागज़ साफ़ नहीं पढ़ा जा सकता, या असली आधिकारिक दस्तावेज़ नहीं है, तो दलील अंदाज़ा लगाने के बजाय रुक जाता है। यह भी जाँचता है कि AI का लिखा हर अंक डेटा में है।",
       "how_step_ask": "आगे के सवाल पूछें",
       "how_step_ask_text": "दलील से भुगतान, अंतिम तारीख या अगले कदमों के बारे में पूछें। यह उसी जाँचे हुए डेटा से जवाब देता है और लाइव वेब खोज भी कर सकता है, लेकिन सिर्फ़ UAE की आधिकारिक सरकारी वेबसाइटों पर, और इस्तेमाल किए गए पेज दिखाता है।",
       "how_key": "पढ़ने और लिखने का काम AI करता है। तथ्य और सुरक्षा नियम साधारण कोड तय करता है, ताकि उन्हें जाँचा जा सके।",
@@ -553,7 +559,10 @@ export const STRINGS = {
       "how_never_card": "कार्ड नंबर, पासवर्ड, OTP या ID नंबर माँगना",
       "how_never_pay": "भुगतान लेना। आप हमेशा आधिकारिक ऐप या वेबसाइट पर भुगतान करते हैं",
       "how_never_guess": "निश्चित न होने पर अंदाज़ा लगाना",
-      "how_limits": "दलील एक गाइड है, सरकारी सेवा नहीं। यह ट्रैफ़िक जुर्माने, रेज़िडेंसी और वीज़ा नोटिस, और किराया अनुबंध समझाता है, सबसे ज़्यादा जानकारी दुबई के लिए है। भुगतान से पहले हमेशा आधिकारिक लिंक पर पुष्टि करें।"
+      "how_limits": "दलील एक गाइड है, सरकारी सेवा नहीं। यह ट्रैफ़िक जुर्माने, रेज़िडेंसी और वीज़ा नोटिस, और किराया अनुबंध समझाता है, सबसे ज़्यादा जानकारी दुबई के लिए है। भुगतान से पहले हमेशा आधिकारिक लिंक पर पुष्टि करें।",
+      "listen": "सुनें",
+      "listen_stop": "रोकें",
+      "number_check_template": "दलील AI के जवाब का हर अंक पक्का नहीं कर सका, इसलिए यह केवल आपके दस्तावेज़ से बना सरल रूप है।"
   },
   ur: {
       "kind_traffic_fine": "ٹریفک جرمانہ",
@@ -694,7 +703,7 @@ export const STRINGS = {
       "how_step_explain": "سمجھانا",
       "how_step_explain_text": "AI صرف انہی حقائق سے آپ کی زبان میں سمجھاتا ہے: یہ کیا ہے، کتنی رقم، کب تک، اور آگے کیا کرنا ہے۔",
       "how_step_check": "حفاظتی جانچ",
-      "how_step_check_text": "کوڈ اعتماد کی سطح، ماخذ اور سرکاری لنک شامل کرتا ہے۔ اگر کاغذ صاف نہیں پڑھا جا سکتا، یا اصلی سرکاری دستاویز نہیں ہے، تو دلیل اندازہ لگانے کے بجائے رک جاتا ہے۔",
+      "how_step_check_text": "کوڈ اعتماد کی سطح، ماخذ اور سرکاری لنک شامل کرتا ہے۔ اگر کاغذ صاف نہیں پڑھا جا سکتا، یا اصلی سرکاری دستاویز نہیں ہے، تو دلیل اندازہ لگانے کے بجائے رک جاتا ہے۔ یہ بھی چیک کرتا ہے کہ AI کا لکھا ہر نمبر ڈیٹا میں موجود ہے۔",
       "how_step_ask": "مزید سوال پوچھیں",
       "how_step_ask_text": "دلیل سے ادائیگی، آخری تاریخ یا اگلے قدم کے بارے میں پوچھیں۔ یہ اسی تصدیق شدہ ڈیٹا سے جواب دیتا ہے اور براہ راست ویب پر تلاش بھی کر سکتا ہے، لیکن صرف متحدہ عرب امارات کی سرکاری ویب سائٹس پر، اور استعمال شدہ صفحات دکھاتا ہے۔",
       "how_key": "پڑھنے اور لکھنے کا کام AI کرتا ہے۔ حقائق اور حفاظتی قواعد سادہ کوڈ طے کرتا ہے، تاکہ انہیں جانچا جا سکے۔",
@@ -724,7 +733,10 @@ export const STRINGS = {
       "how_never_card": "کارڈ نمبر، پاس ورڈ، OTP یا شناختی نمبر مانگنا",
       "how_never_pay": "ادائیگی لینا۔ آپ ہمیشہ سرکاری ایپ یا ویب سائٹ پر ادائیگی کرتے ہیں",
       "how_never_guess": "یقین نہ ہونے پر اندازہ لگانا",
-      "how_limits": "دلیل ایک رہنما ہے، سرکاری سروس نہیں۔ یہ ٹریفک جرمانے، رہائش اور ویزا نوٹس، اور کرایہ داری کے معاہدے سمجھاتا ہے، سب سے زیادہ تفصیل دبئی کے لیے ہے۔ ادائیگی سے پہلے ہمیشہ سرکاری لنک پر تصدیق کریں۔"
+      "how_limits": "دلیل ایک رہنما ہے، سرکاری سروس نہیں۔ یہ ٹریفک جرمانے، رہائش اور ویزا نوٹس، اور کرایہ داری کے معاہدے سمجھاتا ہے، سب سے زیادہ تفصیل دبئی کے لیے ہے۔ ادائیگی سے پہلے ہمیشہ سرکاری لنک پر تصدیق کریں۔",
+      "listen": "سنیں",
+      "listen_stop": "روکیں",
+      "number_check_template": "دلیل AI کی وضاحت کا ہر نمبر تصدیق نہیں کر سکا، اس لیے یہ صرف آپ کی دستاویز سے بنا سادہ ورژن ہے۔"
   },
   tl: {
       "kind_traffic_fine": "Multa sa trapiko",
@@ -865,7 +877,7 @@ export const STRINGS = {
       "how_step_explain": "Ipaliwanag",
       "how_step_explain_text": "Ipinapaliwanag ito ng AI sa iyong wika gamit lang ang mga impormasyong iyon: ano ito, magkano, hanggang kailan, at ano ang susunod na gagawin.",
       "how_step_check": "Safety check",
-      "how_step_check_text": "Idinadagdag ng code ang antas ng katiyakan, ang pinagmulan at ang opisyal na link. Kung hindi malinaw na mabasa ang papel, o hindi ito tunay na opisyal na dokumento, humihinto si Dalil sa halip na manghula.",
+      "how_step_check_text": "Idinadagdag ng code ang antas ng katiyakan, ang pinagmulan at ang opisyal na link. Kung hindi malinaw na mabasa ang papel, o hindi ito tunay na opisyal na dokumento, humihinto si Dalil sa halip na manghula. Sinusuri rin nito na nasa datos ang bawat numerong isinulat ng AI.",
       "how_step_ask": "Magtanong pa",
       "how_step_ask_text": "Tanungin si Dalil tungkol sa pagbabayad, deadline o susunod na hakbang. Sumasagot ito mula sa parehong nasuring datos at puwedeng maghanap nang live sa web, pero sa mga opisyal na website lang ng gobyerno ng UAE, at ipinapakita ang mga pahinang ginamit.",
       "how_key": "AI ang bumabasa at sumusulat. Simpleng code ang nagpapasya sa mga impormasyon at sa mga patakaran sa kaligtasan, para masuri ang mga ito.",
@@ -895,7 +907,10 @@ export const STRINGS = {
       "how_never_card": "Humingi ng card number, password, OTP o ID number",
       "how_never_pay": "Tumanggap ng bayad. Palagi kang magbabayad sa opisyal na app o website",
       "how_never_guess": "Manghula kapag hindi sigurado",
-      "how_limits": "Gabay si Dalil, hindi serbisyo ng gobyerno. Ipinapaliwanag nito ang mga multa sa trapiko, abiso sa residency at visa, at kontrata sa pag-upa, na pinakadetalyado para sa Dubai. Laging kumpirmahin sa opisyal na link bago magbayad."
+      "how_limits": "Gabay si Dalil, hindi serbisyo ng gobyerno. Ipinapaliwanag nito ang mga multa sa trapiko, abiso sa residency at visa, at kontrata sa pag-upa, na pinakadetalyado para sa Dubai. Laging kumpirmahin sa opisyal na link bago magbayad.",
+      "listen": "Pakinggan",
+      "listen_stop": "Itigil",
+      "number_check_template": "Hindi makumpirma ni Dalil ang bawat numero sa paliwanag ng AI, kaya ito ay simpleng bersyon mula lamang sa iyong dokumento."
   },
   bn: {
       "kind_traffic_fine": "ট্রাফিক জরিমানা",
@@ -1036,7 +1051,7 @@ export const STRINGS = {
       "how_step_explain": "ব্যাখ্যা",
       "how_step_explain_text": "AI শুধু সেই তথ্য দিয়েই আপনার ভাষায় বুঝিয়ে দেয়: এটা কী, কত টাকা, কবের মধ্যে, আর এরপর কী করবেন।",
       "how_step_check": "নিরাপত্তা যাচাই",
-      "how_step_check_text": "কোড নির্ভরযোগ্যতার মাত্রা, উৎস ও সরকারি লিংক যোগ করে। কাগজটি পরিষ্কার পড়া না গেলে, বা আসল সরকারি নথি না হলে, দলিল অনুমান না করে থেমে যায়।",
+      "how_step_check_text": "কোড নির্ভরযোগ্যতার মাত্রা, উৎস ও সরকারি লিংক যোগ করে। কাগজটি পরিষ্কার পড়া না গেলে, বা আসল সরকারি নথি না হলে, দলিল অনুমান না করে থেমে যায়। AI-এর লেখা প্রতিটি সংখ্যা তথ্যে আছে কিনা সেটাও যাচাই করে।",
       "how_step_ask": "আরও প্রশ্ন করুন",
       "how_step_ask_text": "টাকা দেওয়া, শেষ তারিখ বা পরের ধাপ নিয়ে দলিলকে জিজ্ঞাসা করুন। এটি একই যাচাই করা তথ্য থেকে উত্তর দেয় এবং সরাসরি ওয়েবে খুঁজতে পারে, তবে শুধু আমিরাতের সরকারি ওয়েবসাইটে, এবং যে পাতাগুলো ব্যবহার করেছে তা দেখায়।",
       "how_key": "পড়া ও লেখার কাজ করে AI। তথ্য ও নিরাপত্তার নিয়ম ঠিক করে সাধারণ কোড, যাতে সেগুলো যাচাই করা যায়।",
@@ -1066,7 +1081,10 @@ export const STRINGS = {
       "how_never_card": "কার্ড নম্বর, পাসওয়ার্ড, OTP বা আইডি নম্বর চাওয়া",
       "how_never_pay": "টাকা নেওয়া। আপনি সবসময় সরকারি অ্যাপ বা ওয়েবসাইটে টাকা দেন",
       "how_never_guess": "নিশ্চিত না হলে অনুমান করা",
-      "how_limits": "দলিল একটি গাইড, সরকারি সেবা নয়। এটি ট্রাফিক জরিমানা, রেসিডেন্সি ও ভিসা নোটিশ, এবং ভাড়ার চুক্তি বুঝিয়ে দেয়, সবচেয়ে বেশি তথ্য দুবাইয়ের জন্য। টাকা দেওয়ার আগে সবসময় সরকারি লিংকে নিশ্চিত করুন।"
+      "how_limits": "দলিল একটি গাইড, সরকারি সেবা নয়। এটি ট্রাফিক জরিমানা, রেসিডেন্সি ও ভিসা নোটিশ, এবং ভাড়ার চুক্তি বুঝিয়ে দেয়, সবচেয়ে বেশি তথ্য দুবাইয়ের জন্য। টাকা দেওয়ার আগে সবসময় সরকারি লিংকে নিশ্চিত করুন।",
+      "listen": "শুনুন",
+      "listen_stop": "থামান",
+      "number_check_template": "দলিল AI-এর ব্যাখ্যার প্রতিটি সংখ্যা নিশ্চিত করতে পারেনি, তাই এটি শুধু আপনার কাগজ থেকে তৈরি একটি সহজ সংস্করণ।"
   },
   ml: {
       "kind_traffic_fine": "ട്രാഫിക് പിഴ",
@@ -1207,7 +1225,7 @@ export const STRINGS = {
       "how_step_explain": "വിശദീകരണം",
       "how_step_explain_text": "ആ വിവരങ്ങൾ മാത്രം ഉപയോഗിച്ച് AI നിങ്ങളുടെ ഭാഷയിൽ വിശദീകരിക്കുന്നു: ഇത് എന്താണ്, എത്ര തുക, എപ്പോഴേക്ക്, ഇനി എന്ത് ചെയ്യണം.",
       "how_step_check": "സുരക്ഷാ പരിശോധന",
-      "how_step_check_text": "കോഡ് വിശ്വാസ്യതാ നില, ഉറവിടം, ഔദ്യോഗിക ലിങ്ക് എന്നിവ ചേർക്കുന്നു. പേപ്പർ വ്യക്തമായി വായിക്കാനായില്ലെങ്കിലോ യഥാർത്ഥ ഔദ്യോഗിക രേഖ അല്ലെങ്കിലോ, ഊഹിക്കുന്നതിന് പകരം ദലീൽ നിർത്തുന്നു.",
+      "how_step_check_text": "കോഡ് വിശ്വാസ്യതാ നില, ഉറവിടം, ഔദ്യോഗിക ലിങ്ക് എന്നിവ ചേർക്കുന്നു. പേപ്പർ വ്യക്തമായി വായിക്കാനായില്ലെങ്കിലോ യഥാർത്ഥ ഔദ്യോഗിക രേഖ അല്ലെങ്കിലോ, ഊഹിക്കുന്നതിന് പകരം ദലീൽ നിർത്തുന്നു. AI എഴുതിയ ഓരോ സംഖ്യയും ഡേറ്റയിലുണ്ടോ എന്നും പരിശോധിക്കുന്നു.",
       "how_step_ask": "കൂടുതൽ ചോദ്യങ്ങൾ ചോദിക്കൂ",
       "how_step_ask_text": "പണമടയ്ക്കൽ, അവസാന തീയതി, അടുത്ത നടപടികൾ എന്നിവയെക്കുറിച്ച് ദലീലിനോട് ചോദിക്കൂ. അതേ പരിശോധിച്ച വിവരങ്ങളിൽ നിന്ന് മറുപടി നൽകും, വെബിൽ നേരിട്ട് തിരയുകയും ചെയ്യും, പക്ഷേ യുഎഇയുടെ ഔദ്യോഗിക സർക്കാർ വെബ്സൈറ്റുകളിൽ മാത്രം, ഉപയോഗിച്ച പേജുകൾ കാണിക്കുകയും ചെയ്യും.",
       "how_key": "വായിക്കുന്നതും എഴുതുന്നതും AI ആണ്. വിവരങ്ങളും സുരക്ഷാ നിയമങ്ങളും തീരുമാനിക്കുന്നത് ലളിതമായ കോഡാണ്, അതിനാൽ അവ പരിശോധിക്കാനാകും.",
@@ -1237,7 +1255,10 @@ export const STRINGS = {
       "how_never_card": "കാർഡ് നമ്പർ, പാസ്‌വേഡ്, OTP, ഐഡി നമ്പർ എന്നിവ ചോദിക്കുക",
       "how_never_pay": "പണം സ്വീകരിക്കുക. നിങ്ങൾ എപ്പോഴും ഔദ്യോഗിക ആപ്പിലോ വെബ്സൈറ്റിലോ ആണ് പണമടയ്ക്കുന്നത്",
       "how_never_guess": "ഉറപ്പില്ലാത്തപ്പോൾ ഊഹിക്കുക",
-      "how_limits": "ദലീൽ ഒരു വഴികാട്ടിയാണ്, സർക്കാർ സേവനമല്ല. ട്രാഫിക് പിഴകൾ, റെസിഡൻസി, വിസ അറിയിപ്പുകൾ, വാടക കരാറുകൾ എന്നിവ വിശദീകരിക്കുന്നു, ഏറ്റവും കൂടുതൽ വിവരങ്ങൾ ദുബായിക്കാണ്. പണമടയ്ക്കുന്നതിന് മുമ്പ് എപ്പോഴും ഔദ്യോഗിക ലിങ്കിൽ ഉറപ്പാക്കൂ."
+      "how_limits": "ദലീൽ ഒരു വഴികാട്ടിയാണ്, സർക്കാർ സേവനമല്ല. ട്രാഫിക് പിഴകൾ, റെസിഡൻസി, വിസ അറിയിപ്പുകൾ, വാടക കരാറുകൾ എന്നിവ വിശദീകരിക്കുന്നു, ഏറ്റവും കൂടുതൽ വിവരങ്ങൾ ദുബായിക്കാണ്. പണമടയ്ക്കുന്നതിന് മുമ്പ് എപ്പോഴും ഔദ്യോഗിക ലിങ്കിൽ ഉറപ്പാക്കൂ.",
+      "listen": "കേൾക്കുക",
+      "listen_stop": "നിർത്തുക",
+      "number_check_template": "AI നൽകിയ വിശദീകരണത്തിലെ എല്ലാ സംഖ്യകളും ദലീലിന് ഉറപ്പാക്കാനായില്ല, അതിനാൽ ഇത് നിങ്ങളുടെ രേഖയിൽ നിന്ന് മാത്രം തയ്യാറാക്കിയ ലളിതമായ പതിപ്പാണ്."
   },
 };
 
