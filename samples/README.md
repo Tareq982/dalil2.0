@@ -19,6 +19,26 @@ The correct answer for each file is in `expected.csv`:
 - `none` means Dalil must **not** find a value, for example when no deadline is printed or the catalog has no matching service.
 - `expect_fallback` set to `yes` means Dalil should say it can't read the document.
 
+## Mock messages for "Is this message real?"
+
+Fictional scam and real-looking messages: SMS, an email and a fake payment website. Each one is a
+`.png` screenshot to upload and a `.txt` to paste. The scam links are made-up addresses that imitate
+official ones. Never add a real scam link or someone's real message.
+
+| File | Should say | Tests |
+|---|---|---|
+| `scam_sms_fine` | Don't pay | `p0lice` with a zero, 90% discount, 24-hour pressure |
+| `scam_sms_salik_toll` (+ `__photo.jpg`) | Don't pay | `salik-toll-pay.top` imitates salik.ae |
+| `scam_sms_post_parcel` | Don't pay | A `bit.ly` short link hides the address, foreign number |
+| `scam_sms_police_arabic` | Don't pay | Arabic only; `dubaipolice.gov.ae.fines-pay.info` starts with the real address but isn't it |
+| `scam_email_rta_discount` | Don't pay | Fake RTA email, 70% off today only, asks for card details |
+| `scam_website_tamm_fines` | Don't pay | Fake payment page asking for card and OTP |
+| `suspicious_sms_nol_points` | Suspicious | A non-official link with no payment asked |
+| `real_sms_rta_reminder` | Looks official | Only links to `www.rta.ae` (still: pay in the app) |
+
+Expected results are in `scam_expected.csv`. Score them with `python tools/run_scam_samples.py`.
+To change them, edit `tools/make_scam_samples.py` and run it (needs Playwright, like below).
+
 ## Run the test
 
 With an AI key in `.env`:

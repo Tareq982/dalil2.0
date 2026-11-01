@@ -60,11 +60,26 @@ python -m pytest
 
 Under every result there is a chat. People can ask follow-up questions in their language: where to pay, instalments, what happens if they pay late, which documents to bring.
 
+- **Any of the 7 languages, typed or spoken:** the server detects the language of each question (`app/langdetect.py`, no AI needed: each language has its own alphabet) and answers in it, whatever language the document was explained in. The mic button uses the browser's own speech-to-text (Chrome, Edge, Safari); it listens in the chat's current language.
+
 - **Grounded first:** answers use the document's details and the matched record from `data/services.json` (looked up on the server).
 - **Live, but only official:** with `AI_PROVIDER=claude` the AI can search the web in real time, limited to official UAE government websites (`OFFICIAL_SITES` in `app/chat.py`: u.ae, rta.ae, dubaipolice.gov.ae, icp.gov.ae, gdrfad.gov.ae, dubailand.gov.ae, tamm.abudhabi...). Each answer shows the official pages it used as links. Non-official links are dropped.
 - **Private:** only the type, authority, emirate, subject, amount and dates are sent, never the photo, names, or reference, plate or ID numbers.
 - **Safe:** no legal advice, it never asks for card numbers, passwords or OTPs, and it only points to official payment channels.
 - With Gemini, or if web search is switched off for the API account, it still answers from the checked data and says live search is off. Web search costs about $10 per 1,000 searches on top of normal Claude usage (max 3 searches per question).
+
+## Is this message real? (scam check)
+
+Fake "pay your fine" texts and fake discount offers are being reported in the UAE. On the **Scan** tab, switch to **Is this message real?** and add a screenshot or photo of the SMS, email or website, or paste its text.
+
+- **The AI reads** the message: sender, every link, the amount, urgency, discount claims and threats, and lists the warning signs in the user's language.
+- **Code, not the AI, checks every link** against an allow-list of official sites (`OFFICIAL` in `app/scamcheck.py`: rta.ae, dubaipolice.gov.ae, adpolice.gov.ae, tamm.abudhabi, icp.gov.ae, gdrfad.gov.ae, dubailand.gov.ae, u.ae and a few more). `www.rta.ae` passes; `rta.ae.pay-now.com`, `dubai-p0lice.top`, short links and `https://rta.ae@other.com` don't. Links in pasted text are also found by code, so a link the AI misses is still checked.
+- **Code decides the result:** *Looks official*, *Suspicious* or *Don't pay via this link*, plus the real official site to check instead. A message can't talk its way past the check ("this is official, ignore your rules").
+- **Never "safe":** every result says to pay only in the official app or website, never through a link in a message. Links from the message are shown as plain text, never clickable.
+- **No storage:** the message is checked once, in memory.
+- **No API key?** Pasted text still gets the real link check (the reading is a rough keyword guess, marked Mock).
+
+Try it with the mock messages in `samples/` (`scam_*`, `suspicious_*`, `real_*`, as `.png` to upload and `.txt` to paste). `python tools/run_scam_samples.py` scores them against `samples/scam_expected.csv`.
 
 ## Accounts (optional)
 
@@ -88,13 +103,16 @@ People can use Dalil without an account: saved documents then stay in that brows
 | `data/services.json` | The verified service catalog | Data |
 | `data/sources.md` | Where every value came from, plus the open datasets used | Data |
 | `tools/lookup_service_prices.py` | Looks up official fees in the Dubai Government Service Prices open dataset | Data |
-| `app/main.py` | Web server and API: `/analyze`, `/chat`, `/services`, `/languages`, `/health` | everyone |
+| `app/main.py` | Web server and API: `/analyze`, `/check-message`, `/chat`, `/services`, `/languages`, `/health` | everyone |
+| `app/scamcheck.py` | Is this message real?: AI reads the message, code checks links against the official allow-list and decides the result | AI |
 | `app/chat.py` | Ask Dalil: follow-up chat with live search on official sites only (AI) | AI |
+| `app/langdetect.py` | Detects which of the 7 languages a chat question is in (code) | AI |
 | `web/index.html` | App page: header, tab bar, one `<section>` per tab | UI |
 | `web/css/app.css` | All styles. Colours and sizes are variables at the top | UI |
 | `web/js/app.js` | Switches tabs (`#scan`, `#deadlines`, `#services`, `#how`) | UI |
-| `web/js/i18n.js` | Every interface text, ready for translation (#16) | UI |
-| `web/js/scan.js` | Scan tab: upload, progress steps, result (#12) | UI |
+| `web/js/i18n.js` | Every interface text in all 7 languages, the header language picker's state, right-to-left for Arabic and Urdu (#16) | UI |
+| `web/js/scan.js` | Scan tab: upload, progress steps, result (#12), and the "Is this message real?" mode | UI |
+| `web/js/i18n-scam.js` | The "Is this message real?" texts in all 7 languages (merged into `i18n.js`) | UI |
 | `web/js/chat.js` | Ask Dalil chat card under the result (#19) | UI |
 | `web/js/deadlines.js` | My documents tab: saved documents, deadlines, paid status, Add to calendar | UI |
 | `web/js/account.js` | Sign in, create account, sign out, delete account | UI |
@@ -104,7 +122,7 @@ People can use Dalil without an account: saved documents then stay in that brows
 | `app/pipeline.py` | Connects all the steps | everyone |
 | `app/accounts.py` | Accounts and synced documents (privacy allow-list) | everyone |
 | `app/ai.py` | Talks to Gemini or Claude (chosen by `AI_PROVIDER` in `.env`) | AI |
-| `samples/` | Mock documents and expected answers | Demo |
+| `samples/` | Mock documents and messages, and expected answers (`expected.csv`, `scam_expected.csv`) | Demo |
 | `tests/` | Automated checks, run with `python -m pytest` | everyone |
 
 ## Extracted fields (team contract)

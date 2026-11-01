@@ -9,10 +9,14 @@ export function esc(value) {
 
 export const RTL_LANGS = ["ar", "ur"];
 
-const LOCALES = { en: "en-GB", ar: "ar-AE", hi: "hi-IN", ur: "ur-PK", tl: "fil-PH", bn: "bn-BD", ml: "ml-IN" };
+// Full locale per language: used for dates and amounts, and by the microphone in Ask Dalil.
+export const LOCALES = { en: "en-GB", ar: "ar-AE", hi: "hi-IN", ur: "ur-PK", tl: "fil-PH", bn: "bn-BD", ml: "ml-IN" };
+
+// The interface language (set on <html lang> by i18n.js), used when no language is given.
+const uiLang = () => document.documentElement.lang || "en";
 
 // "2026-11-19" -> "19 Nov 2026" in the reader's language, with the same digits as the paper.
-export function formatDate(iso, lang = "en") {
+export function formatDate(iso, lang = uiLang()) {
   if (!iso) return "";
   const d = new Date(`${iso}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
@@ -25,12 +29,12 @@ export function formatDate(iso, lang = "en") {
   }
 }
 
-export function formatAED(amount, lang = "en") {
+export function formatAED(amount, lang = uiLang()) {
   if (amount === null || amount === undefined || amount === "") return "";
   const n = Number(amount);
   if (Number.isNaN(n)) return String(amount);
   try {
-    return `AED ${new Intl.NumberFormat(lang, { maximumFractionDigits: 2 }).format(n)}`;
+    return `AED ${new Intl.NumberFormat(LOCALES[lang] || lang, { maximumFractionDigits: 2, numberingSystem: "latn" }).format(n)}`;
   } catch {
     return `AED ${n}`;
   }

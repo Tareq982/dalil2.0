@@ -8,10 +8,15 @@ import { openAccount } from "./account.js";
 
 let panel;
 
+let listening = false;
+
 export function render(el) {
   panel = el;
   draw();
-  window.addEventListener("dalil:documents-changed", () => { if (!panel.hidden) draw(); });
+  if (!listening) { // render() runs again when the language changes: only listen once
+    listening = true;
+    window.addEventListener("dalil:documents-changed", () => { if (!panel.hidden) draw(); });
+  }
 }
 
 export function onShow() {

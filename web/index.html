@@ -8,25 +8,33 @@
 <title>Dalil</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<!-- One font per script. The browser only downloads the ones the page actually shows. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/web/css/app.css">
 </head>
 <body>
   <div class="backdrop" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   <header class="topbar">
-    <a class="brand" href="#scan" aria-label="Dalil home">
+    <a class="brand" href="#scan" aria-label="Dalil home" data-i18n-aria="brand_home">
       <span class="brand-mark" aria-hidden="true">د</span>
-      <span class="brand-name">Dalil <span lang="ar">دليل</span></span>
+      <span class="brand-name" dir="ltr"><span lang="en">Dalil</span> <span lang="ar">دليل</span></span>
     </a>
-    <!-- Interface language picker goes here (issue #16) -->
-    <button class="account-btn" id="account-btn" type="button" aria-label="Sign in"></button>
+    <div class="topbar-actions">
+      <!-- Interface language (issue #16): options come from LANGUAGES in web/js/i18n.js -->
+      <div class="lang-picker">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.3 2.4 3.4 5.2 3.4 8.5s-1.1 6.1-3.4 8.5c-2.3-2.4-3.4-5.2-3.4-8.5s1.1-6.1 3.4-8.5z"/></svg>
+        <label class="visually-hidden" for="ui-lang" data-i18n="ui_language">Language</label>
+        <select id="ui-lang"></select>
+      </div>
+      <button class="account-btn" id="account-btn" type="button" aria-label="Sign in"></button>
+    </div>
   </header>
 
   <!-- Account sheet: web/js/account.js -->
   <dialog class="account-sheet" id="account-dialog"></dialog>
 
   <!-- Floating glass tab bar. Each tab is a <section> below. -->
-  <nav class="tabs" aria-label="Main">
+  <nav class="tabs" aria-label="Main" data-i18n-aria="nav_main">
     <span class="tab-indicator" aria-hidden="true"></span>
     <a href="#scan" data-tab="scan">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a2 2 0 0 1 2-2h1.7l1.4-2h5.8l1.4 2H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="13.2" r="3.4"/></svg>

@@ -11,7 +11,7 @@ from datetime import timedelta
 
 from flask import Flask, jsonify, request, send_from_directory
 
-from . import accounts, ai, chat, config, pipeline
+from . import accounts, ai, chat, config, langdetect, pipeline, scamcheck
 
 app = Flask(__name__, static_folder=str(config.WEB_DIR), static_url_path="/web")
 app.json.sort_keys = False  # keep the language order from config.LANGUAGES
@@ -63,17 +63,39 @@ def analyze():
     return jsonify(result)
 
 
+@app.post("/check-message")
+def check_message():
+    """'Is this message real?': a photo/screenshot of an SMS, email or website, or its pasted text.
+    The AI reads it; code checks every link against the official allow-list (app/scamcheck.py)."""
+    file = request.files.get("file")
+    text = request.form.get("text", "")
+    lang = request.form.get("lang", "en")
+    upload = (file.read(), file.mimetype) if file else None  # kept in memory only, never saved
+    if not text.strip() and not (upload and upload[0]):
+        return jsonify({"error": "Add a photo or screenshot of the message, or paste its text."}), 400
+    try:
+        return jsonify(scamcheck.check(text=text, file=upload, lang=lang))
+    except ai.AIError as e:
+        log.warning("check-message failed: %s", e)
+        return jsonify({"error": str(e)}), 502
+
+
 @app.post("/chat")
 def ask_dalil():
     """Follow-up questions about a scanned document (only its non-sensitive details are sent)."""
     data = request.get_json(silent=True) or {}
-    lang = data.get("lang") if data.get("lang") in config.LANGUAGES else "en"
+    messages = data.get("messages") or []
+    # Answer in the language of the question (typed or spoken). If it can't be told
+    # (e.g. "ok?"), keep the language the browser sent: the chat's current language.
+    question = next((str(m.get("content", "")) for m in reversed(messages)
+                     if isinstance(m, dict) and m.get("role") == "user"), "")
+    lang = langdetect.detect(question) or (data.get("lang") if data.get("lang") in config.LANGUAGES else "en")
     try:
-        answer = chat.ask(data.get("fields") or {}, data.get("service_id"), data.get("messages") or [],
-                          config.LANGUAGES[lang])
+        answer = chat.ask(data.get("fields") or {}, data.get("service_id"), messages, config.LANGUAGES[lang])
     except ai.AIError as e:
         log.warning("chat failed: %s", e)
         return jsonify({"error": str(e)}), 502
+    answer["language"] = lang  # the app labels the reply and sets its direction with this
     return jsonify(answer)
 
 

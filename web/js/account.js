@@ -24,6 +24,12 @@ function updateButton() {
   btn.setAttribute("aria-label", email ? `${t("acc_signed_in_as")} ${email}` : t("acc_sign_in"));
 }
 
+// Called when the interface language changes: re-label the button and the open sheet.
+export function refreshAccount() {
+  updateButton();
+  if (dialog?.open) draw();
+}
+
 export function openAccount() {
   draw();
   if (!dialog.open) dialog.showModal();
