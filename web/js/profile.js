@@ -1,7 +1,9 @@
-// "For you" + "About you" on the My documents tab (personalization).
-// The person answers a few optional questions; plain rules on the server (app/personal.py)
-// match them to the checked services and apply the official rules for their situation,
-// for example the grace period for their residence type.
+// Personalization.
+// - "About you": a few optional answers, edited in the My profile panel (the person button,
+//   top right), together with the account. Never names or ID numbers.
+// - "For you": on the My documents tab. Plain rules on the server (app/personal.py) match the
+//   answers to the checked services and apply the official rules for this person, for example
+//   the grace period for their residence type.
 import { getLanguage, t } from "./i18n.js";
 import { esc } from "./util.js";
 import { getProfile, saveProfile } from "./store.js";
@@ -14,21 +16,21 @@ const HOME = ["rent", "own", "other"];
 const fill = (text, values) => Object.entries(values).reduce((s, [k, v]) => s.replace(`{${k}}`, v), text);
 const has = (p) => Object.keys(p || {}).length > 0;
 
-export function sectionsHtml() {
+// Asks the My profile panel to open (account.js listens), without the two modules importing each other
+export function openProfilePanel() {
+  window.dispatchEvent(new CustomEvent("dalil:open-profile"));
+}
+
+// ---------------------------------------------------------------- About you (in the My profile panel)
+
+export function aboutYouHtml() {
   const p = getProfile();
   const opt = (value, label, current) => `<option value="${esc(value)}"${value === current ? " selected" : ""}>${esc(label)}</option>`;
   return `
-    <section class="foryou-wrap" aria-labelledby="foryou-title">
-      <h2 class="section-title" id="foryou-title">${esc(t("foryou_title"))}</h2>
-      <p class="muted">${esc(t("foryou_lede"))}</p>
-      <div id="foryou" class="foryou" aria-live="polite"></div>
-    </section>
-
-    <details class="profile glass" id="profile"${has(p) ? "" : " open"}>
-      <summary><span><strong>${esc(t("profile_title"))}</strong>
-        <span class="muted profile-sum">${esc(summary(p))}</span></span></summary>
+    <section class="about-you" aria-labelledby="about-title">
+      <h3 class="panel-section" id="about-title">${esc(t("profile_title"))}</h3>
+      <p class="muted">${esc(t("profile_lede"))}</p>
       <form id="profile-form" class="profile-form" autocomplete="off">
-        <p class="muted">${esc(t("profile_lede"))}</p>
         <label class="field-label" for="pf-emirate">${esc(t("profile_emirate"))}</label>
         <select id="pf-emirate">${opt("", t("profile_choose"), p.emirate)}${EMIRATES.map(([en, ar]) => opt(en, `${en} · ${ar}`, p.emirate)).join("")}</select>
         <label class="field-label" for="pf-residence">${esc(t("profile_residence"))}</label>
@@ -39,22 +41,18 @@ export function sectionsHtml() {
         <select id="pf-home">${opt("", t("profile_choose"), p.home)}${HOME.map((h) => opt(h, t(`home_${h}`), p.home)).join("")}</select>
         <label class="check-row" for="pf-drives"><input type="checkbox" id="pf-drives"${p.drives ? " checked" : ""}><span>${esc(t("profile_drives"))}</span></label>
         <div class="profile-actions">
-          <button class="btn small" type="submit">${esc(t("profile_save"))}</button>
+          <button class="btn small" type="submit" id="pf-save">${esc(t("profile_save"))}</button>
           <button class="link-btn plain" type="button" id="pf-clear">${esc(t("profile_clear"))}</button>
-          <span class="muted" id="pf-status" aria-live="polite"></span>
         </div>
+        <p class="ok-note" id="pf-status" aria-live="polite"></p>
       </form>
-    </details>`;
+    </section>`;
 }
 
-function summary(p) {
-  if (!has(p)) return "";
-  return [p.emirate, p.residence ? t(`res_${p.residence}`) : "", p.drives ? t("profile_drives") : ""].filter(Boolean).join(" · ");
-}
-
-export function wire(panel) {
-  const form = panel.querySelector("#profile-form");
+export function wireAboutYou(root) {
+  const form = root.querySelector("#profile-form");
   if (!form) return;
+  const status = root.querySelector("#pf-status");
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const ok = await saveProfile({
@@ -64,19 +62,55 @@ export function wire(panel) {
       home: form.querySelector("#pf-home").value,
       drives: form.querySelector("#pf-drives").checked,
     });
-    // saving redraws the tab (dalil:documents-changed); show the result on the new form
-    const status = document.querySelector("#pf-status");
-    if (status) status.textContent = ok ? t("profile_saved") : t("save_failed");
+    status.className = ok ? "ok-note" : "form-error";
+    status.textContent = ok ? t("profile_saved_foryou") : t("save_failed");
   });
-  panel.querySelector("#pf-clear").addEventListener("click", () => saveProfile({}));
+  root.querySelector("#pf-clear").addEventListener("click", async () => {
+    await saveProfile({});
+    form.reset();
+    form.querySelectorAll("select").forEach((s) => { s.value = ""; });
+    form.querySelector("#pf-expiry").value = "";
+    status.className = "ok-note";
+    status.textContent = t("profile_cleared");
+  });
+}
+
+export function profileSummary(p = getProfile()) {
+  if (!has(p)) return "";
+  return [p.emirate, p.residence ? t(`res_${p.residence}`) : "", p.drives ? t("profile_drives") : ""].filter(Boolean).join(" · ");
+}
+
+// ---------------------------------------------------------------- For you (My documents tab)
+
+export function forYouHtml() {
+  const p = getProfile();
+  return `
+    <section class="foryou-wrap" aria-labelledby="foryou-title">
+      <div class="foryou-head">
+        <h2 class="section-title" id="foryou-title">${esc(t("foryou_title"))}</h2>
+        ${has(p) ? `<button class="link-btn plain" type="button" id="foryou-edit">${esc(t("foryou_edit"))}</button>` : ""}
+      </div>
+      <p class="muted">${esc(has(p) ? profileSummary(p) : t("foryou_lede"))}</p>
+      <div id="foryou" class="foryou" aria-live="polite"></div>
+    </section>`;
+}
+
+export function wireForYou(panel) {
+  panel.querySelector("#foryou-edit")?.addEventListener("click", openProfilePanel);
   loadForYou(panel);
 }
 
 async function loadForYou(panel) {
   const box = panel.querySelector("#foryou");
+  if (!box) return;
   const p = getProfile();
   if (!has(p)) {
-    box.innerHTML = `<p class="foryou-empty">${esc(t("foryou_empty"))}</p>`;
+    box.innerHTML = `
+      <div class="fy-card glass fy-start">
+        <p class="fy-text">${esc(t("foryou_empty"))}</p>
+        <button class="btn small" type="button" id="foryou-start">${esc(t("foryou_start"))}</button>
+      </div>`;
+    box.querySelector("#foryou-start").addEventListener("click", openProfilePanel);
     return;
   }
   try {
@@ -115,12 +149,12 @@ function card(c) {
     </article>`;
 }
 
-// For "Find a service": the profile goes with the question, so Dalil can skip what it already knows
+// ---------------------------------------------------------------- used by Find a service
+
 export function profileForFind() {
   return getProfile();
 }
 
-// Used by the Find a service result: "For your residence type: 90 days of grace period"
 export function personalNote(personal, lang) {
   return personal && personal.grace_days ? fill(t("find_personal", lang), { n: personal.grace_days }) : "";
 }

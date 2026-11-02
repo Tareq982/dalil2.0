@@ -250,7 +250,7 @@ export const STRINGS = {
     dl_saved_title: "Saved documents",
     foryou_title: "For you",
     foryou_lede: "Services that apply to you, from what you told Dalil and the official rules.",
-    foryou_empty: "Tell Dalil a little about yourself (below) to see the services and rules that apply to you.",
+    foryou_empty: "Tell Dalil a little about yourself to see the services and rules that apply to you.",
     foryou_none: "Dalil hasn't checked services for your situation yet. Your saved documents are below.",
     foryou_residency: "Your residence permit",
     foryou_days_left: "Expires in {n} days",
@@ -284,7 +284,12 @@ export const STRINGS = {
     profile_save: "Save",
     profile_saved: "Saved",
     profile_clear: "Clear my answers",
-    find_personal: "For your residence type: {n} days of grace period after expiry (official rule)."
+    find_personal: "For your residence type: {n} days of grace period after expiry (official rule).",
+    profile_panel: "My profile",
+    foryou_edit: "Edit",
+    foryou_start: "Tell Dalil about you",
+    profile_saved_foryou: "Saved. Your services are under For you on My documents.",
+    profile_cleared: "Your answers were cleared."
   },
 
   // Result labels in each answer language, so a whole answer reads in one language.
@@ -500,7 +505,7 @@ export const STRINGS = {
       "dl_saved_title": "المستندات المحفوظة",
       "foryou_title": "مخصص لك",
       "foryou_lede": "الخدمات التي تنطبق عليك، بناءً على ما أخبرت به دليل والقواعد الرسمية.",
-      "foryou_empty": "أخبر دليل قليلاً عن نفسك (بالأسفل) لترى الخدمات والقواعد التي تنطبق عليك.",
+      "foryou_empty": "أخبر دليل قليلاً عن نفسك لترى الخدمات والقواعد التي تنطبق عليك.",
       "foryou_none": "لم يتحقق دليل بعد من خدمات تناسب وضعك. مستنداتك المحفوظة بالأسفل.",
       "foryou_residency": "تصريح إقامتك",
       "foryou_days_left": "ينتهي بعد {n} يوم",
@@ -534,7 +539,12 @@ export const STRINGS = {
       "profile_save": "حفظ",
       "profile_saved": "تم الحفظ",
       "profile_clear": "امسح إجاباتي",
-      "find_personal": "حسب نوع إقامتك: مهلة سماح {n} يوماً بعد الانتهاء (قاعدة رسمية)."
+      "find_personal": "حسب نوع إقامتك: مهلة سماح {n} يوماً بعد الانتهاء (قاعدة رسمية).",
+      "profile_panel": "ملفي",
+      "foryou_edit": "تعديل",
+      "foryou_start": "أخبر دليل عنك",
+      "profile_saved_foryou": "تم الحفظ. خدماتك في قسم «مخصص لك» في مستنداتي.",
+      "profile_cleared": "تم مسح إجاباتك."
   },
   hi: {
       "kind_traffic_fine": "ट्रैफ़िक जुर्माना",
@@ -747,7 +757,7 @@ export const STRINGS = {
       "dl_saved_title": "सहेजे गए दस्तावेज़",
       "foryou_title": "आपके लिए",
       "foryou_lede": "वे सेवाएँ जो आप पर लागू होती हैं, आपकी दी गई जानकारी और आधिकारिक नियमों के आधार पर।",
-      "foryou_empty": "नीचे अपने बारे में थोड़ा बताइए, ताकि आप पर लागू सेवाएँ और नियम दिखें।",
+      "foryou_empty": "अपने बारे में थोड़ा बताइए, ताकि आप पर लागू सेवाएँ और नियम दिखें।",
       "foryou_none": "दलील ने अभी आपकी स्थिति के लिए सेवाएँ नहीं जाँची हैं। आपके सहेजे गए दस्तावेज़ नीचे हैं।",
       "foryou_residency": "आपका रेज़िडेंस परमिट",
       "foryou_days_left": "{n} दिन में खत्म",
@@ -781,7 +791,12 @@ export const STRINGS = {
       "profile_save": "सहेजें",
       "profile_saved": "सहेजा गया",
       "profile_clear": "मेरे जवाब मिटाएँ",
-      "find_personal": "आपके रेज़िडेंस प्रकार के लिए: खत्म होने के बाद {n} दिन की छूट अवधि (आधिकारिक नियम)।"
+      "find_personal": "आपके रेज़िडेंस प्रकार के लिए: खत्म होने के बाद {n} दिन की छूट अवधि (आधिकारिक नियम)।",
+      "profile_panel": "मेरी प्रोफ़ाइल",
+      "foryou_edit": "बदलें",
+      "foryou_start": "दलील को अपने बारे में बताएँ",
+      "profile_saved_foryou": "सहेजा गया। आपकी सेवाएँ मेरे दस्तावेज़ में «आपके लिए» में हैं।",
+      "profile_cleared": "आपके जवाब मिटा दिए गए।"
   },
   ur: {
       "kind_traffic_fine": "ٹریفک جرمانہ",
@@ -994,7 +1009,7 @@ export const STRINGS = {
       "dl_saved_title": "محفوظ دستاویزات",
       "foryou_title": "آپ کے لیے",
       "foryou_lede": "وہ سروسز جو آپ پر لاگو ہوتی ہیں، آپ کی بتائی گئی معلومات اور سرکاری قواعد کے مطابق۔",
-      "foryou_empty": "نیچے اپنے بارے میں تھوڑا بتائیں تاکہ آپ پر لاگو سروسز اور قواعد نظر آئیں۔",
+      "foryou_empty": "اپنے بارے میں تھوڑا بتائیں تاکہ آپ پر لاگو سروسز اور قواعد نظر آئیں۔",
       "foryou_none": "دلیل نے ابھی آپ کی صورتحال کے لیے سروسز چیک نہیں کیں۔ آپ کی محفوظ دستاویزات نیچے ہیں۔",
       "foryou_residency": "آپ کا رہائشی پرمٹ",
       "foryou_days_left": "{n} دن میں ختم",
@@ -1028,7 +1043,12 @@ export const STRINGS = {
       "profile_save": "محفوظ کریں",
       "profile_saved": "محفوظ ہو گیا",
       "profile_clear": "میرے جوابات مٹائیں",
-      "find_personal": "آپ کی رہائش کی قسم کے لیے: ختم ہونے کے بعد {n} دن کی مہلت (سرکاری قاعدہ)۔"
+      "find_personal": "آپ کی رہائش کی قسم کے لیے: ختم ہونے کے بعد {n} دن کی مہلت (سرکاری قاعدہ)۔",
+      "profile_panel": "میری پروفائل",
+      "foryou_edit": "ترمیم",
+      "foryou_start": "دلیل کو اپنے بارے میں بتائیں",
+      "profile_saved_foryou": "محفوظ ہو گیا۔ آپ کی سروسز میری دستاویزات میں «آپ کے لیے» میں ہیں۔",
+      "profile_cleared": "آپ کے جوابات مٹا دیے گئے۔"
   },
   tl: {
       "kind_traffic_fine": "Multa sa trapiko",
@@ -1241,7 +1261,7 @@ export const STRINGS = {
       "dl_saved_title": "Mga naka-save na dokumento",
       "foryou_title": "Para sa iyo",
       "foryou_lede": "Mga serbisyong para sa iyo, batay sa sinabi mo kay Dalil at sa opisyal na mga patakaran.",
-      "foryou_empty": "Magkuwento ng kaunti tungkol sa iyo (sa ibaba) para makita ang mga serbisyo at patakarang para sa iyo.",
+      "foryou_empty": "Magkuwento ng kaunti tungkol sa iyo para makita ang mga serbisyo at patakarang para sa iyo.",
       "foryou_none": "Hindi pa na-check ni Dalil ang mga serbisyo para sa sitwasyon mo. Nasa ibaba ang mga naka-save mong dokumento.",
       "foryou_residency": "Ang residence permit mo",
       "foryou_days_left": "Mag-e-expire sa {n} araw",
@@ -1275,7 +1295,12 @@ export const STRINGS = {
       "profile_save": "I-save",
       "profile_saved": "Na-save",
       "profile_clear": "Burahin ang mga sagot ko",
-      "find_personal": "Para sa uri ng residence mo: {n} araw na grace period pagkatapos mag-expire (opisyal na patakaran)."
+      "find_personal": "Para sa uri ng residence mo: {n} araw na grace period pagkatapos mag-expire (opisyal na patakaran).",
+      "profile_panel": "Aking profile",
+      "foryou_edit": "I-edit",
+      "foryou_start": "Magkuwento tungkol sa iyo",
+      "profile_saved_foryou": "Na-save. Nasa Para sa iyo sa Mga dokumento ko ang mga serbisyo mo.",
+      "profile_cleared": "Nabura na ang mga sagot mo."
   },
   bn: {
       "kind_traffic_fine": "ট্রাফিক জরিমানা",
@@ -1488,7 +1513,7 @@ export const STRINGS = {
       "dl_saved_title": "সংরক্ষিত কাগজ",
       "foryou_title": "আপনার জন্য",
       "foryou_lede": "যে সেবাগুলো আপনার জন্য প্রযোজ্য, আপনি দলিলকে যা বলেছেন আর সরকারি নিয়ম অনুযায়ী।",
-      "foryou_empty": "নিচে নিজের সম্পর্কে একটু বলুন, তাহলে আপনার জন্য প্রযোজ্য সেবা ও নিয়ম দেখতে পাবেন।",
+      "foryou_empty": "নিজের সম্পর্কে একটু বলুন, তাহলে আপনার জন্য প্রযোজ্য সেবা ও নিয়ম দেখতে পাবেন।",
       "foryou_none": "দলিল এখনও আপনার অবস্থার জন্য সেবা যাচাই করেনি। আপনার সংরক্ষিত কাগজ নিচে আছে।",
       "foryou_residency": "আপনার রেসিডেন্স পারমিট",
       "foryou_days_left": "{n} দিনে শেষ হবে",
@@ -1522,7 +1547,12 @@ export const STRINGS = {
       "profile_save": "সংরক্ষণ করুন",
       "profile_saved": "সংরক্ষিত হয়েছে",
       "profile_clear": "আমার উত্তর মুছুন",
-      "find_personal": "আপনার রেসিডেন্সের ধরন অনুযায়ী: শেষ হওয়ার পর {n} দিনের গ্রেস পিরিয়ড (সরকারি নিয়ম)।"
+      "find_personal": "আপনার রেসিডেন্সের ধরন অনুযায়ী: শেষ হওয়ার পর {n} দিনের গ্রেস পিরিয়ড (সরকারি নিয়ম)।",
+      "profile_panel": "আমার প্রোফাইল",
+      "foryou_edit": "বদলান",
+      "foryou_start": "দলিলকে আপনার কথা বলুন",
+      "profile_saved_foryou": "সংরক্ষিত। আপনার সেবাগুলো আমার কাগজে «আপনার জন্য» অংশে আছে।",
+      "profile_cleared": "আপনার উত্তর মুছে ফেলা হয়েছে।"
   },
   ml: {
       "kind_traffic_fine": "ട്രാഫിക് പിഴ",
@@ -1735,7 +1765,7 @@ export const STRINGS = {
       "dl_saved_title": "സേവ് ചെയ്ത രേഖകൾ",
       "foryou_title": "നിങ്ങൾക്കായി",
       "foryou_lede": "നിങ്ങൾ ദലീലിനോട് പറഞ്ഞതും ഔദ്യോഗിക നിയമങ്ങളും അനുസരിച്ച് നിങ്ങൾക്ക് ബാധകമായ സേവനങ്ങൾ.",
-      "foryou_empty": "നിങ്ങൾക്ക് ബാധകമായ സേവനങ്ങളും നിയമങ്ങളും കാണാൻ താഴെ നിങ്ങളെക്കുറിച്ച് അൽപ്പം പറയൂ.",
+      "foryou_empty": "നിങ്ങൾക്ക് ബാധകമായ സേവനങ്ങളും നിയമങ്ങളും കാണാൻ നിങ്ങളെക്കുറിച്ച് അൽപ്പം പറയൂ.",
       "foryou_none": "നിങ്ങളുടെ സാഹചര്യത്തിനുള്ള സേവനങ്ങൾ ദലീൽ ഇതുവരെ പരിശോധിച്ചിട്ടില്ല. സേവ് ചെയ്ത രേഖകൾ താഴെയുണ്ട്.",
       "foryou_residency": "നിങ്ങളുടെ റെസിഡൻസ് പെർമിറ്റ്",
       "foryou_days_left": "{n} ദിവസത്തിനുള്ളിൽ തീരും",
@@ -1769,7 +1799,12 @@ export const STRINGS = {
       "profile_save": "സേവ് ചെയ്യുക",
       "profile_saved": "സേവ് ചെയ്തു",
       "profile_clear": "എന്റെ ഉത്തരങ്ങൾ മായ്ക്കുക",
-      "find_personal": "നിങ്ങളുടെ റെസിഡൻസ് തരത്തിന്: കാലാവധി തീർന്നശേഷം {n} ദിവസത്തെ ഗ്രേസ് പീരിയഡ് (ഔദ്യോഗിക നിയമം)."
+      "find_personal": "നിങ്ങളുടെ റെസിഡൻസ് തരത്തിന്: കാലാവധി തീർന്നശേഷം {n} ദിവസത്തെ ഗ്രേസ് പീരിയഡ് (ഔദ്യോഗിക നിയമം).",
+      "profile_panel": "എന്റെ പ്രൊഫൈൽ",
+      "foryou_edit": "മാറ്റുക",
+      "foryou_start": "നിങ്ങളെക്കുറിച്ച് ദലീലിനോട് പറയൂ",
+      "profile_saved_foryou": "സേവ് ചെയ്തു. നിങ്ങളുടെ സേവനങ്ങൾ എന്റെ രേഖകളിലെ «നിങ്ങൾക്കായി» ഭാഗത്തുണ്ട്.",
+      "profile_cleared": "നിങ്ങളുടെ ഉത്തരങ്ങൾ മായ്ച്ചു."
   },
 };
 

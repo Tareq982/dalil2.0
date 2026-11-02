@@ -97,14 +97,14 @@ a { color: var(--accent); }
 
 /* ---------------------------------------------------------------- glass material */
 
-.glass, .sheet, .drop, .progress, .save-box, .chat, .how-card, .how-stat, .fy-card, .profile, .deadline, details.service, .placeholder, .notice, .tabs {
+.glass, .sheet, .drop, .progress, .save-box, .chat, .how-card, .how-stat, .fy-card, .deadline, details.service, .placeholder, .notice, .tabs {
   background: var(--glass);
   -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
   border: 1px solid var(--glass-edge);
   box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-edge);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass, .sheet, .drop, .progress, .save-box, .chat, .how-card, .how-stat, .fy-card, .profile, .deadline, details.service, .placeholder, .notice, .tabs { background: var(--glass-strong); }
+  .glass, .sheet, .drop, .progress, .save-box, .chat, .how-card, .how-stat, .fy-card, .deadline, details.service, .placeholder, .notice, .tabs { background: var(--glass-strong); }
 }
 
 /* ---------------------------------------------------------------- top bar */
@@ -581,14 +581,15 @@ dialog.account-sheet::backdrop { background: rgba(0, 0, 0, 0.28); -webkit-backdr
 .fy-text { font-size: 15px; color: var(--label); }
 .fy-source { font-size: 12px; }
 .fy-card .btn { justify-self: start; width: auto; }
-.profile { margin-top: 16px; border-radius: var(--r-card); }
-.profile summary { list-style: none; cursor: pointer; padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.profile summary::-webkit-details-marker { display: none; }
-.profile summary > span { display: grid; gap: 2px; min-width: 0; }
-.profile-sum { overflow-wrap: anywhere; }
-.profile-form { padding: 0 18px 18px; display: grid; }
-.profile-form .field-label { margin: 14px 4px 6px; }
+.foryou-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.fy-start { justify-items: start; }
+.panel-section { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; margin-top: 4px; }
+.panel-rule { border: 0; border-top: 0.5px solid var(--separator); margin: 8px 0 2px; width: 100%; }
+.about-you { display: grid; gap: 4px; }
+.profile-form { display: grid; }
+.profile-form .field-label { margin: 12px 4px 6px; }
 .check-row { display: flex; gap: 10px; align-items: center; margin-top: 16px; font-size: 16px; }
+.account-sheet .profile-actions .btn { margin-top: 0; }
 .check-row input { width: 22px; height: 22px; accent-color: var(--accent); }
 .profile-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 18px; }
 .personal-note { margin-top: 12px; padding: 10px 14px; border-radius: 14px; background: var(--accent-tint); font-size: 15px; color: var(--label); }
@@ -656,7 +657,7 @@ dialog.account-sheet::backdrop { background: rgba(0, 0, 0, 0.28); -webkit-backdr
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .glass, .sheet, .drop, .progress, .save-box, .chat, .how-card, .how-stat, .fy-card, .profile, .deadline, details.service, .placeholder, .notice, .tabs, .chip, .account-btn, .lang-picker select, dialog.account-sheet {
+  .glass, .sheet, .drop, .progress, .save-box, .chat, .how-card, .how-stat, .fy-card, .deadline, details.service, .placeholder, .notice, .tabs, .chip, .account-btn, .lang-picker select, dialog.account-sheet {
     background: var(--glass-strong); -webkit-backdrop-filter: none; backdrop-filter: none;
   }
   .backdrop { display: none; }

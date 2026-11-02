@@ -72,10 +72,10 @@ The third mode on the Scan tab. People describe what they need in their own word
 
 ## Personalization: About you and For you
 
-On the **My documents** tab people can answer a few optional questions: where they live, their residence type (worded like the official ICP categories), when their residence expires, whether they drive and whether they rent. It's kept on the phone, or in the account when signed in (`/api/profile`). Never names or ID numbers: the server keeps only allowed values (`app/personal.py`).
+In the **My profile** panel (the person button, top right) people can answer a few optional questions: where they live, their residence type (worded like the official ICP categories), when their residence expires, whether they drive and whether they rent. It's kept on the phone, or in the account when signed in (`/api/profile`). Never names or ID numbers: the server keeps only allowed values (`app/personal.py`).
 
 - **Eligibility data:** `services.json` stores official rules per service, for example the ICP grace periods by residence type (180 / 90 / 60 / 30 days) and GDRFA Dubai's 60 days for sponsored residents.
-- **Personalization algorithm:** plain rules (no AI) match the profile to the checked services and apply those rules. **For you** shows the services that apply, most urgent first (a residence expiring within 30 days), with the person's own grace period and the official link (`POST /for-you`).
+- **Personalization algorithm:** plain rules (no AI) match the profile to the checked services and apply those rules. **For you** (on the My documents tab) shows the services that apply, most urgent first (a residence expiring within 30 days), with the person's own grace period and the official link (`POST /for-you`).
 - **Find a service** gets the profile too, so it skips questions it can already answer and adds "for your residence type: N days of grace period".
 - Where the data has no rule for someone's category, Dalil says to check the official page and never guesses a number.
 
