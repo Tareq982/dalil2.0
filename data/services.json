@@ -160,7 +160,13 @@
             "grace"
           ]
         }
-      ]
+      ],
+      "eligibility": {
+        "grace_days": {
+          "sponsored": 60
+        },
+        "source": "GDRFA Dubai: Renewing a residence permit for the private sector (official page, checked 2026-10-28)"
+      }
     },
     {
       "id": "federal-residency-notice",
@@ -204,7 +210,18 @@
             "violation"
           ]
         }
-      ]
+      ],
+      "eligibility": {
+        "grace_days": {
+          "golden": 180,
+          "graduate": 180,
+          "skilled": 90,
+          "owner": 90,
+          "sponsored": 60,
+          "other": 30
+        },
+        "source": "ICP: Renewal of residency permits (official page, checked 2026-10-28)"
+      }
     },
     {
       "id": "dubai-tenancy-contract",

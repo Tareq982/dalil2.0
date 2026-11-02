@@ -84,6 +84,10 @@ def db() -> sqlite3.Connection:
                 email TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
                 created_at REAL NOT NULL);
+            CREATE TABLE IF NOT EXISTS profiles (
+                user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                data TEXT NOT NULL,
+                updated_at REAL NOT NULL);
             CREATE TABLE IF NOT EXISTS documents (
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 id TEXT NOT NULL,
@@ -209,6 +213,27 @@ def save_documents():
         saved.append(doc)
     db().commit()
     return jsonify(saved)
+
+
+# ---------------------------------------------------------------- profile (personalization)
+
+@bp.get("/profile")
+@signed_in
+def get_profile():
+    row = db().execute("SELECT data FROM profiles WHERE user_id = ?", (session["user_id"],)).fetchone()
+    return jsonify(json.loads(row["data"]) if row else {})
+
+
+@bp.post("/profile")
+@signed_in
+def save_profile():
+    """Only the allowed answers are kept (personal.clean): never names or ID numbers."""
+    from .personal import clean as clean_profile
+    profile = clean_profile(request.get_json(silent=True))
+    db().execute("INSERT OR REPLACE INTO profiles (user_id, data, updated_at) VALUES (?, ?, ?)",
+                 (session["user_id"], json.dumps(profile), time.time()))
+    db().commit()
+    return jsonify(profile)
 
 
 @bp.delete("/documents/<doc_id>")

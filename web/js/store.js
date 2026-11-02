@@ -7,6 +7,8 @@
 const KEY = "dalil.deadlines"; // older versions saved here; kept so nothing is lost
 let account = null;              // signed-in email, or null
 let remote = [];                 // the account's documents, when signed in
+let remoteProfile = {};          // the account's "About you" answers, when signed in
+const PROFILE_KEY = "dalil.profile";
 
 function emit() {
   window.dispatchEvent(new CustomEvent("dalil:documents-changed"));
@@ -52,7 +54,10 @@ export function currentAccount() {
 export async function initAccount() {
   try {
     account = (await api("/api/me")).email || null;
-    if (account) remote = await api("/api/documents");
+    if (account) {
+      remote = await api("/api/documents");
+      remoteProfile = await api("/api/profile").catch(() => ({}));
+    }
   } catch {
     account = null;
   }
@@ -69,6 +74,12 @@ export async function signIn(mode, email, password) {
     writeLocal([]);
   }
   remote = await api("/api/documents");
+  // move this phone's "About you" answers into the account, unless the account already has some
+  remoteProfile = await api("/api/profile").catch(() => ({}));
+  const localProfile = readLocalProfile();
+  if (!Object.keys(remoteProfile).length && Object.keys(localProfile).length) {
+    remoteProfile = await api("/api/profile", { method: "POST", body: localProfile }).catch(() => localProfile);
+  }
   emit();
   return local.length;
 }
@@ -77,6 +88,7 @@ export async function signOut() {
   await api("/api/logout", { method: "POST", body: {} });
   account = null;
   remote = [];
+  remoteProfile = {};
   emit();
 }
 
@@ -84,7 +96,40 @@ export async function deleteAccount() {
   await api("/api/account", { method: "DELETE" });
   account = null;
   remote = [];
+  remoteProfile = {};
   emit();
+}
+
+// ---------------------------------------------------------------- "About you" (personalization)
+// A few optional answers (emirate, residence type, expiry date, drives, home). Never names or
+// ID numbers; the server keeps only allowed values (app/personal.py).
+
+function readLocalProfile() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}");
+    return p && typeof p === "object" && !Array.isArray(p) ? p : {};
+  } catch {
+    return {};
+  }
+}
+
+export function getProfile() {
+  return account ? { ...remoteProfile } : readLocalProfile();
+}
+
+export async function saveProfile(profile) {
+  const clean = Object.fromEntries(Object.entries(profile).filter(([, v]) => v !== "" && v !== null && v !== undefined && v !== false));
+  if (account) {
+    try {
+      remoteProfile = await api("/api/profile", { method: "POST", body: clean });
+    } catch {
+      return false;
+    }
+  } else {
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify(clean)); } catch { return false; }
+  }
+  emit();
+  return true;
 }
 
 // ---------------------------------------------------------------- documents

@@ -5,6 +5,7 @@ import { esc, formatAED, formatDate, RTL_LANGS } from "./util.js";
 import { currentAccount, daysUntil, removeDocument, sortedDocuments, updateDocument } from "./store.js";
 import { downloadICS } from "./calendar.js";
 import { openAccount } from "./account.js";
+import { sectionsHtml as profileSections, wire as wireProfile } from "./profile.js";
 
 let panel;
 
@@ -68,6 +69,8 @@ function draw() {
         ? `<p><strong>${esc(t("doc_synced"))}</strong> ${esc(email)}</p><p class="muted">${esc(t("doc_synced_hint"))}</p>`
         : `<p>${esc(t("doc_local"))}</p><button class="btn btn-quiet small" id="doc-signin">${esc(t("doc_sign_in_sync"))}</button>`}
     </div>
+    ${profileSections()}
+    <h2 class="section-title">${esc(t("dl_saved_title"))}</h2>
     ${items.length ? `<ul class="deadline-list">${items.map(card).join("")}</ul>` : `
       <div class="placeholder">
         <p>${esc(t("dl_empty"))}</p>
@@ -75,6 +78,7 @@ function draw() {
       </div>`}`;
 
   panel.querySelector("#doc-signin")?.addEventListener("click", openAccount);
+  wireProfile(panel);
   panel.querySelectorAll(".deadline").forEach((li) => {
     const item = items.find((d) => d.id === li.dataset.id);
     li.querySelector('[data-action="calendar"]')?.addEventListener("click", () => {

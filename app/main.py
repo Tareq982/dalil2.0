@@ -11,7 +11,7 @@ from datetime import timedelta
 
 from flask import Flask, jsonify, request, send_from_directory
 
-from . import accounts, ai, catalog, chat, checks, config, finder, langdetect, pipeline, scamcheck, stats
+from . import accounts, ai, catalog, chat, checks, config, finder, langdetect, personal, pipeline, scamcheck, stats
 
 app = Flask(__name__, static_folder=str(config.WEB_DIR), static_url_path="/web")
 app.json.sort_keys = False  # keep the language order from config.LANGUAGES
@@ -109,12 +109,18 @@ def event():
     return jsonify({"ok": True})
 
 
+@app.post("/for-you")
+def for_you():
+    """The services that apply to this person, from their optional profile (app/personal.py)."""
+    return jsonify(personal.for_you((request.get_json(silent=True) or {}).get("profile")))
+
+
 @app.post("/find")
 def find_service():
     """Find a service with no document: the person describes what they need (app/finder.py)."""
     data = request.get_json(silent=True) or {}
     try:
-        result = finder.find(data.get("text", ""), data.get("lang", "en"), data.get("answer"))
+        result = finder.find(data.get("text", ""), data.get("lang", "en"), data.get("answer"), data.get("profile"))
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except ai.AIError as e:
