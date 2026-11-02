@@ -10,6 +10,7 @@ import { chatCard } from "./chat.js";
 import { listenButton, stopSpeaking } from "./speak.js";
 import { addResultActions } from "./actions.js";
 import { renderFound, renderQuestion } from "./find.js";
+import { profileForFind } from "./profile.js";
 
 let panel;
 let upload = null; // { blob, name, previewUrl? }
@@ -309,7 +310,7 @@ async function findService(answer = null) {
   const progress = startProgress(FIND_STEPS);
   try {
     const r = await fetch("/find", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: lastNeed, answer, lang }) });
+      body: JSON.stringify({ text: lastNeed, answer, lang, profile: profileForFind() }) });
     const data = await r.json().catch(() => ({ error: `Server error ${r.status}` }));
     if (!r.ok) throw new Error(data.error || `Server error ${r.status}`);
     progress.finish();
