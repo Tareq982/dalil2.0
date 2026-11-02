@@ -155,3 +155,24 @@ def test_clear_document_without_a_record_is_medium_not_refused():
     assert safety.level(safety.overall_confidence(clear, None)) == 1  # Medium: explained, with a "check it" level
     unsure = dict(clear, confidence=0.5)
     assert safety.level(safety.overall_confidence(unsure, None)) == 2  # still refused when the reading itself is unsure
+
+
+# ---- screenshots of official apps and websites (most fines are seen this way)
+
+def test_screenshot_of_the_official_website_is_explained(monkeypatch):
+    monkeypatch.setattr(extract, "extract", lambda data, media: fields(web_address="https://www.dubaipolice.gov.ae/wps/portal/home/services/fines"))
+    r = pipeline.analyze(b"x", "image/png", "en")
+    assert "explanation" in r and r["fields"]["doc_type"] == "traffic_fine"
+
+
+def test_screenshot_of_an_app_with_no_address_is_explained(monkeypatch):
+    monkeypatch.setattr(extract, "extract", lambda data, media: fields(web_address=None))
+    assert "explanation" in pipeline.analyze(b"x", "image/png", "en")
+
+
+@pytest.mark.parametrize("address", ["http://dubai-p0lice-fines.top/pay", "dubaipolice.gov.ae.fines-pay.info",
+                                     "https://tamm-abudhabi-fines.online", "https://rta.ae@evil.example/pay"])
+def test_screenshot_of_a_fake_website_is_not_explained(monkeypatch, address):
+    monkeypatch.setattr(extract, "extract", lambda data, media: fields(web_address=address))
+    r = pipeline.analyze(b"x", "image/png", "en")
+    assert r.get("not_supported") and "explanation" not in r

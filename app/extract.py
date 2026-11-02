@@ -22,6 +22,7 @@ Return ONLY a JSON object, no other text, with exactly these keys:
   "key_points": [string],                       // up to 5 short facts in English, copied from the document
   "keywords": [string],                         // up to 8 lowercase English words useful for matching a service
   "document_language": "ar" | "en" | "mixed" | "other",
+  "web_address": string or null,                // for a screenshot of a website: the address shown in the address bar or on the page, copied exactly; else null
   "readable": true | false,                     // false if blurry, cut off, or not a document
   "confidence": number between 0 and 1          // how sure you are about doc_type AND the key fields
 }}
@@ -33,14 +34,17 @@ Document types (decide from what the document IS, not from words it mentions):
 - tenancy_contract: a tenancy or lease contract, an Ejari registration certificate, a Tawtheeq lease
   (Dubai Land Department, a municipality, a landlord). Still a tenancy contract when it is a PDF or
   when it mentions Ejari or registration.
-- other: anything else, including text messages, emails, chats, receipts, adverts and screenshots of
-  websites, even if they mention a fine or the police.
+- A screenshot of an official government app or website (for example Dubai Police, RTA, TAMM, ICP,
+  GDRFA, Dubai REST) that shows the reader's fine, notice or contract counts as that document type.
+  Most people see their fines this way, not on paper.
+- other: anything else, including text messages, emails, chats, receipts, adverts, and websites or
+  apps that are not an official government service, even if they mention a fine or the police.
 
 Rules:
 - Copy values exactly as printed. Never invent a value: use null if it is not visible.
 - Rent in a tenancy contract is NOT an amount due: use amount_aed null and put the rent in key_points.
 - Do not include personal data such as names, Emirates ID, passport or phone numbers.
-- If it is not an official document, set doc_type "other".
+- If it is not an official document or official government screen, set doc_type "other".
 - Set readable false if the photo is too blurry, dark or cut off to read the key details
   (reference number, amounts, dates) with certainty. Never guess a detail you can't read clearly."""
 
@@ -57,6 +61,7 @@ MOCK_FIELDS = {
     "key_points": ["Speed camera violation", "Vehicle plate shown on fine"],
     "keywords": ["speed", "radar", "traffic", "fine", "dubai", "police"],
     "document_language": "mixed",
+    "web_address": None,
     "readable": True,
     "confidence": 0.9,
 }
@@ -78,6 +83,7 @@ def normalise(fields: dict) -> dict:
     out["key_points"] = [str(x) for x in (out["key_points"] or [])][:5]
     out["keywords"] = [str(x).lower() for x in (out["keywords"] or [])][:8]
     out["readable"] = bool(out["readable"])
+    out["web_address"] = str(out["web_address"]).strip()[:300] if out["web_address"] else None
     try:
         out["confidence"] = max(0.0, min(1.0, float(out["confidence"] or 0)))
     except (TypeError, ValueError):

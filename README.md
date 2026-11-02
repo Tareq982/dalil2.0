@@ -148,6 +148,7 @@ People can use Dalil without an account: saved documents then stay in that brows
 | `key_points` | list of up to 5 strings | |
 | `keywords` | list of up to 8 lowercase words, used for matching | `["speed","radar"]` |
 | `document_language` | `ar` / `en` / `mixed` / `other` | `mixed` |
+| `web_address` | string or null: the address shown in a website screenshot. Code checks it against the official list; a non-official site is never explained | `null` |
 | `readable` | bool | `true` |
 | `confidence` | 0–1 | `0.9` |
 

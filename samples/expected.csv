@@ -49,3 +49,4 @@ ejari_certificate_dubai_arabic_only.png,tenancy_contract,Dubai,,none,dubai-tenan
 tenancy_sharjah_contract.png,tenancy_contract,Sharjah,,none,none,,No Sharjah tenancy record
 not_a_document_utility_bill.png,other,,,,none,yes,Utility bill: not a document type Dalil explains
 scam_sms_salik_toll.png,other,,,,none,yes,Scam text message: must not be explained as a real fine
+scam_website_tamm_fines.png,other,,,,none,yes,"Fake fines website that looks official: the address is not an official site, so it must not be explained"
