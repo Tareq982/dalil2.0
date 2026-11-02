@@ -94,7 +94,7 @@ export function addResultActions(result, d) {
     const helpful = b.dataset.helpful === "1";
     fb.querySelectorAll("[data-helpful]").forEach((x) => { x.disabled = true; x.setAttribute("aria-pressed", String(x === b)); });
     fb.querySelector(".thanks").textContent = tr(helpful ? "fb_thanks_yes" : "fb_thanks_no");
-    event({ kind: "feedback", helpful, doc_type: f.doc_type, lang });
+    event({ kind: "feedback", helpful, doc_type: f.doc_type, service_id: d.service_id, lang });
   }));
 }
 
@@ -119,12 +119,14 @@ function shareText(d, tr) {
   const kind = tr(`kind_${f.doc_type || "other"}`);
   const head = f.issuing_authority ? tr("kind_line").replace("{kind}", kind).replace("{authority}", f.issuing_authority) : kind;
   const link = (d.footer || {}).link;
+  const help = (d.service || {}).help; // so a family member helping can call the right office
   return [
     head, e.what_it_is, "",
     `${tr("h_cost")}: ${e.cost}`,
     `${tr("h_deadline")}: ${e.deadline}`,
     `${tr("h_steps")}:`, ...(e.next_steps || []).map((s, i) => `${i + 1}. ${s}`),
     ...(link ? ["", `${tr("open_official")}: ${link}`] : []),
+    ...(help && help.phone ? [`${tr("help_title")} ${help.name}: ${help.phone}`] : []),
     "", tr("share_footer"),
   ].join("\n");
 }

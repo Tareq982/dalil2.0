@@ -98,6 +98,8 @@ def event():
     outcome = detail = None
     if kind == "feedback":
         outcome = "yes" if data.get("helpful") else "no"
+        # which checked service the answer used, so its owner can see what isn't clear
+        detail = data.get("service_id") if data.get("service_id") in {s["id"] for s in catalog.load()} else None
     elif kind == "open_official":
         outcome = data.get("source") if data.get("source") in ("scan", "find", "documents") else None
         try:
@@ -128,7 +130,7 @@ def find_service():
         return jsonify({"error": str(e)}), 502
     outcome = "matched" if result["service_id"] else "question" if result["question"] else "none"
     doc_type = next((s["doc_type"] for s in catalog.load() if s["id"] == result["service_id"]), None)
-    stats.record("find", doc_type, result["language"], outcome)
+    stats.record("find", doc_type, result["language"], outcome, result.get("topic"))
     return jsonify(result)
 
 

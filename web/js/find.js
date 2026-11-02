@@ -3,6 +3,7 @@
 import { t } from "./i18n.js";
 import { esc, formatDate, RTL_LANGS } from "./util.js";
 import { personalNote } from "./profile.js";
+import { helpHtml, staleHtml } from "./help.js";
 
 const ICON_SEAL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.4 1.8 3-.2.9 2.9 2.4 1.8-1 2.8 1 2.8-2.4 1.8-.9 2.9-3-.2L12 21l-2.4-1.8-3 .2-.9-2.9-2.4-1.8 1-2.8-1-2.8 2.4-1.8.9-2.9 3 .2z"/><path d="M8.5 12.2l2.3 2.3 4.7-4.7"/></svg>';
 const ICON_WARN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>';
@@ -52,7 +53,8 @@ export function renderFound(d) {
       <p class="doc-kind">${esc(s.service_name)} · ${esc(s.authority)}</p>
       <h2>${esc(e.what_it_is)}</h2>
       <div class="listen-slot"></div>
-      ${d.personal ? `<p class="personal-note">${esc(personalNote(d.personal, lang))}</p>` : ""}
+      ${d.personal ? `<p class="personal-note">${esc(personalNote(d.personal, lang, s.authority))}</p>` : ""}
+      ${staleHtml(s, lang)}
       ${d.number_check === "template" ? `<p class="check-note">${esc(tr("number_check_template"))}</p>` : ""}
       <div class="explain">
         <div><h3>${esc(tr("h_cost"))}</h3><p>${esc(e.cost)}</p></div>
@@ -61,6 +63,7 @@ export function renderFound(d) {
           <ol class="steps">${e.next_steps.map((x) => `<li><span>${esc(x)}</span></li>`).join("")}</ol></div>` : ""}
       </div>
       <a class="btn" data-official="find" href="${esc(d.link)}" target="_blank" rel="noopener">${esc(tr("open_official"))}</a>
+      ${helpHtml(s, lang)}
       <div class="trust">
         ${s.verified
           ? `<p class="seal">${ICON_SEAL}<span>${esc(tr("verified"))}${s.last_checked ? ` (${esc(formatDate(s.last_checked, lang))})` : ""}</span></p>`

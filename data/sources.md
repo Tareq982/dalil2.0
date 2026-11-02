@@ -21,6 +21,18 @@ Still open:
 - **Dubai early-payment discount.** The official RTA page lists none, and no official Dubai Police announcement was found. Dalil therefore says there is no listed discount and tells the user to check the amount in the app. Don't claim a Dubai discount in the pitch.
 - **Speeding fine amounts** (Gulf News scale). These are media figures, so `fine_aed` stays `null`. The amount printed on the fine is what the user pays anyway.
 
+## Human help: call centres (checked 2026-11-02)
+
+The "Talk to a person" line on each answer (the `help` field in `data/services.json`). Each number was read on a government website.
+
+| Record id | Number | Official source |
+|---|---|---|
+| dubai-traffic-fine | RTA call centre **800 90 90** | [RTA: Contact us](https://www.rta.ae/wps/portal/rta/ae/home/about-rta/contactus) ("Call Centre agents: 800 90 90") |
+| abu-dhabi-traffic-fine | Abu Dhabi Government Contact Centre **800 555** | [Department of Culture and Tourism Abu Dhabi: Contact us](https://dct.gov.ae/en/contact.us.aspx) ("Abu Dhabi Government Contact Center 800555"); the same number is on [ADDED's contact page](https://added.gov.ae/en/contact-us/ded) with a contact@tamm.abudhabi email |
+| dubai-residency-notice | Amer call centre (GDRFA Dubai) **800 5111** | [GDRFA Dubai news: Amer call centre](https://www.gdrfad.gov.ae/en/node/2046) ("toll-free number inside the country 8005111") |
+| federal-residency-notice | ICP call centre **600 522222** | [ICP: Contact us](https://icp.gov.ae/en/contact-us/) ("Call Center 600522222") |
+| dubai-tenancy-contract | Dubai Land Department **800 4488** | [DLD: Contact us](https://www.dubailand.gov.ae/en/contact-us) |
+
 ## Open datasets (for the 20% open-data score)
 
 These are real datasets on official UAE open-data portals. Each one has a job in Dalil.

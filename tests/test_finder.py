@@ -81,3 +81,51 @@ def test_targets_discovery_time_and_adoption():
     t = c.get("/api/stats").get_json()["targets"]
     assert t["median_seconds_to_official"] == 40.0 and t["timed"] == 2
     assert t["answers"] == 2 and t["opened_official"] == 3 and t["marked_paid"] == 1
+
+
+# ---------------------------------------------------------------- learning loop + human help
+
+def test_a_need_with_no_service_is_counted_by_topic_only(monkeypatch):
+    from app import config
+    from app.main import app
+    import sqlite3
+    monkeypatch.setattr(config, "MOCK_AI", True)
+    client = app.test_client()
+    r = client.post("/find", json={"text": "I need a birth certificate for my new baby, my name is Sara", "lang": "en"}).get_json()
+    assert r["service_id"] is None and r["topic"] == "family"
+    owners = client.get("/api/stats").get_json()["owners"]
+    assert owners["unmet_needs_by_topic"] == {"family": 1}
+    rows = sqlite3.connect(config.DB_PATH).execute("SELECT * FROM events").fetchall()
+    assert not any("Sara" in str(v) or "baby" in str(v) for row in rows for v in row)  # never the text
+
+
+def test_an_unknown_topic_from_the_ai_becomes_other(monkeypatch):
+    from app import config, finder
+    monkeypatch.setattr(config, "MOCK_AI", False)
+    monkeypatch.setattr(finder, "_ask", lambda *a, **k: {"service_id": None, "topic": "<script>", "what_it_is": "Not checked yet."})
+    assert finder.find("something odd", "en")["topic"] == "other"
+
+
+def test_found_services_carry_the_official_call_centre(monkeypatch):
+    from app import config, finder
+    monkeypatch.setattr(config, "MOCK_AI", True)
+    r = finder.find("my residence visa in Dubai expires", "en")
+    assert r["service_id"] == "dubai-residency-notice"
+    assert r["service"]["help"]["phone"] == "800 5111" and "topic" not in r
+
+
+def test_every_checked_service_has_a_person_to_call():
+    from app import catalog
+    for s in catalog.load():
+        h = s["help"]
+        assert h["phone"] and h["name"] and h["page"].startswith("https://") and h["source"] and h["last_checked"]
+
+
+def test_thumbs_down_is_counted_per_service_for_its_owner():
+    from app.main import app
+    client = app.test_client()
+    client.post("/event", json={"kind": "feedback", "helpful": False, "service_id": "dubai-tenancy-contract"})
+    client.post("/event", json={"kind": "feedback", "helpful": True, "service_id": "dubai-tenancy-contract"})
+    client.post("/event", json={"kind": "feedback", "helpful": False, "service_id": "not-a-service"})
+    o = client.get("/api/stats").get_json()["owners"]
+    assert o["not_clear_by_service"] == {"dubai-tenancy-contract": 1} and o["clear_by_service"] == {"dubai-tenancy-contract": 1}

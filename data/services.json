@@ -63,7 +63,14 @@
             "parked"
           ]
         }
-      ]
+      ],
+      "help": {
+        "name": "RTA call centre",
+        "phone": "800 90 90",
+        "page": "https://www.rta.ae/wps/portal/rta/ae/home/about-rta/contactus",
+        "source": "RTA Contact us page (official)",
+        "last_checked": "2026-11-02"
+      }
     },
     {
       "id": "abu-dhabi-traffic-fine",
@@ -97,7 +104,14 @@
         "fine",
         "tamm"
       ],
-      "items": []
+      "items": [],
+      "help": {
+        "name": "Abu Dhabi Government Contact Centre",
+        "phone": "800 555",
+        "page": "https://www.tamm.abudhabi/",
+        "source": "Abu Dhabi Government Contact Center, listed on dct.gov.ae (official)",
+        "last_checked": "2026-11-02"
+      }
     },
     {
       "id": "dubai-residency-notice",
@@ -166,6 +180,13 @@
           "sponsored": 60
         },
         "source": "GDRFA Dubai: Renewing a residence permit for the private sector (official page, checked 2026-10-28)"
+      },
+      "help": {
+        "name": "Amer call centre (GDRFA Dubai)",
+        "phone": "800 5111",
+        "page": "https://www.gdrfad.gov.ae/en",
+        "source": "GDRFA Dubai news page on the Amer call centre (official)",
+        "last_checked": "2026-11-02"
       }
     },
     {
@@ -221,6 +242,13 @@
           "other": 30
         },
         "source": "ICP: Renewal of residency permits (official page, checked 2026-10-28)"
+      },
+      "help": {
+        "name": "ICP call centre",
+        "phone": "600 522222",
+        "page": "https://icp.gov.ae/en/contact-us/",
+        "source": "ICP Contact us page (official)",
+        "last_checked": "2026-11-02"
       }
     },
     {
@@ -262,7 +290,14 @@
         "land",
         "department"
       ],
-      "items": []
+      "items": [],
+      "help": {
+        "name": "Dubai Land Department call centre",
+        "phone": "800 4488",
+        "page": "https://www.dubailand.gov.ae/en/contact-us",
+        "source": "DLD Contact us page (official)",
+        "last_checked": "2026-11-02"
+      }
     }
   ]
 }
