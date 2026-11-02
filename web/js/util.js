@@ -39,3 +39,12 @@ export function formatAED(amount, lang = uiLang()) {
     return `AED ${n}`;
   }
 }
+
+// A checked service with its names in the answer language (data/services.json "names"),
+// falling back to English. The official link, fees and rules stay the same.
+export function localService(service, lang) {
+  if (!service) return service;
+  const n = (service.names || {})[lang] || {};
+  const help = service.help ? { ...service.help, name: n.help || service.help.name } : service.help;
+  return { ...service, service_name: n.service_name || service.service_name, authority: n.authority || service.authority, help };
+}

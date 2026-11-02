@@ -1,6 +1,6 @@
 // Services tab (issue #14): the verified catalog from data/services.json, via GET /services.
 import { getLanguage, t } from "./i18n.js";
-import { esc, formatAED, formatDate } from "./util.js";
+import { esc, formatAED, formatDate, localService } from "./util.js";
 import { helpHtml } from "./help.js";
 
 // Open datasets referenced by "related_datasets" in services.json (details in data/sources.md).
@@ -58,7 +58,8 @@ function draw() {
   panel.querySelector("#service-list").innerHTML = `<div class="service-list">${shown.map(card).join("")}</div>`;
 }
 
-function card(s) {
+function card(raw) {
+  const s = localService(raw, getLanguage());
   const where = s.emirate || t("sv_all_emirates");
   const fee = [s.fee_aed != null ? formatAED(s.fee_aed) : "", s.fee_note].filter(Boolean).join(". ");
   const datasets = (s.related_datasets || []).map((id) => DATASETS[id] || id);

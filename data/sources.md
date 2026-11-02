@@ -33,6 +33,10 @@ The "Talk to a person" line on each answer (the `help` field in `data/services.j
 | federal-residency-notice | ICP call centre **600 522222** | [ICP: Contact us](https://icp.gov.ae/en/contact-us/) ("Call Center 600522222") |
 | dubai-tenancy-contract | Dubai Land Department **800 4488** | [DLD: Contact us](https://www.dubailand.gov.ae/en/contact-us) |
 
+## Service names in other languages
+
+`names` in `data/services.json` holds each service's name, authority and call-centre name in the other app languages (shown on answers, For you, the Services tab and in "Talk to a person"). The Arabic authority names are the entities' official Arabic names (for example الهيئة الاتحادية للهوية والجنسية والجمارك وأمن المنافذ, دائرة الأراضي والأملاك في دبي). The rest were translated by Claude and need a native speaker's check (issue #9). Tagalog keeps the English authority names, as they are used in the UAE. Links, fees and rules are the same in every language.
+
 ## Open datasets (for the 20% open-data score)
 
 These are real datasets on official UAE open-data portals. Each one has a job in Dalil.

@@ -3,13 +3,13 @@
 // tied to a checked service shows that authority's official call centre (data/services.json,
 // "help", each number read on a government website, see data/sources.md).
 import { t } from "./i18n.js";
-import { esc } from "./util.js";
+import { esc, localService } from "./util.js";
 
 const ICON_PHONE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>';
 const STALE_DAYS = 90;
 
 export function helpHtml(service, lang) {
-  const h = service && service.help;
+  const h = service && localService(service, lang).help;
   if (!h || !h.phone) return "";
   const tr = (key) => t(key, lang);
   const tel = h.phone.replace(/[^\d+]/g, "");

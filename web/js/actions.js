@@ -1,7 +1,7 @@
 // Under an explanation: "Explain it simpler", "Send to family", and "Was this clear?" thumbs.
 // Only the non-sensitive summary is ever shared or sent: never the photo or reference number.
 import { t } from "./i18n.js";
-import { esc } from "./util.js";
+import { esc, localService } from "./util.js";
 import { stopSpeaking } from "./speak.js";
 
 const SAFE_FIELDS = ["doc_type", "emirate", "issuing_authority", "subject", "amount_aed", "issue_date", "deadline_date", "key_points"];
@@ -119,7 +119,7 @@ function shareText(d, tr) {
   const kind = tr(`kind_${f.doc_type || "other"}`);
   const head = f.issuing_authority ? tr("kind_line").replace("{kind}", kind).replace("{authority}", f.issuing_authority) : kind;
   const link = (d.footer || {}).link;
-  const help = (d.service || {}).help; // so a family member helping can call the right office
+  const help = (localService(d.service, d.language || "en") || {}).help; // so a family member helping can call the right office
   return [
     head, e.what_it_is, "",
     `${tr("h_cost")}: ${e.cost}`,

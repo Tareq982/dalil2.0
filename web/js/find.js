@@ -1,7 +1,7 @@
 // "Find a service" results (no document needed). Same card look as an explained document,
 // so Listen and the chat work the same way. Every fact shown came from the checked catalog.
 import { t } from "./i18n.js";
-import { esc, formatDate, RTL_LANGS } from "./util.js";
+import { esc, formatDate, localService, RTL_LANGS } from "./util.js";
 import { personalNote } from "./profile.js";
 import { helpHtml, staleHtml } from "./help.js";
 
@@ -35,7 +35,7 @@ export function renderFound(d) {
   const dir = RTL_LANGS.includes(lang) ? "rtl" : "ltr";
   const tr = (key) => t(key, lang);
   const e = d.explanation || {};
-  const s = d.service;
+  const s = localService(d.service, lang);
   if (!s) {
     return `
       <article class="sheet" dir="${dir}" lang="${esc(lang)}">
