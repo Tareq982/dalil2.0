@@ -4,9 +4,12 @@
 
 Nothing is written to disk: the file bytes live only in memory for this request.
 """
+import logging
 from datetime import date
 
-from . import catalog, checks, config, explain, extract, safety
+from . import catalog, checks, config, explain, extract, safety, scamcheck
+
+log = logging.getLogger("dalil")
 
 
 def days_until(deadline: str | None) -> int | None:
@@ -22,6 +25,7 @@ def analyze(data: bytes, media_type: str, lang: str = "en") -> dict:
     lang = lang if lang in config.LANGUAGES else "en"
 
     fields = extract.extract(data, media_type)
+    fields = trust_screenshot(fields)
     service = catalog.match(fields)
     conf = safety.overall_confidence(fields, service)
     footer = safety.footer(lang, conf, service)
@@ -50,6 +54,19 @@ def analyze(data: bytes, media_type: str, lang: str = "en") -> dict:
     result["days_left"] = days_left
     result["explanation"], result["number_check"] = explain_checked(fields, service, days_left, lang)
     return result
+
+
+def trust_screenshot(fields: dict) -> dict:
+    """A screenshot of an official app or website is fine; one of any other website is not.
+
+    The AI says whether it saw a web address; plain code decides whether that address is an
+    official government site (the same allow-list as "Is this message real?"). So a fake
+    "pay your fine" page that looks official is never explained as a real fine."""
+    address = fields.get("web_address")
+    if address and fields.get("doc_type") != "other" and scamcheck.check_link(address)["status"] != "official":
+        log.warning("screenshot from a non-official website (%s): not explained", address)
+        fields = dict(fields, doc_type="other")
+    return fields
 
 
 def explain_checked(fields: dict, service: dict | None, days_left: int | None, lang: str,
