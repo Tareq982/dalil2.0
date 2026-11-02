@@ -1,6 +1,7 @@
 // Scan tab (issue #12): photo in -> marked-up explanation out.
-// Two modes: "Explain a document" (/analyze) and "Is this message real?" (/check-message):
-// a screenshot or pasted text of a "pay your fine" SMS, email or website, checked before paying.
+// Three modes: "Explain a document" (/analyze), "Is this message real?" (/check-message):
+// a screenshot or pasted text of a "pay your fine" SMS, email or website, checked before paying,
+// and "Find a service" (/find): describe a need in your own words, no document needed.
 import { getLanguage, LANGUAGES, t } from "./i18n.js";
 import { esc, formatAED, formatDate, RTL_LANGS } from "./util.js";
 import { addDocument, currentAccount, removeDocument, updateDocument } from "./store.js";
@@ -8,19 +9,23 @@ import { openAccount } from "./account.js";
 import { chatCard } from "./chat.js";
 import { listenButton, stopSpeaking } from "./speak.js";
 import { addResultActions } from "./actions.js";
+import { renderFound, renderQuestion } from "./find.js";
 
 let panel;
 let upload = null; // { blob, name, previewUrl? }
-let mode = "doc"; // "doc" = explain a document, "msg" = is this message real?
+let mode = "doc"; // "doc" = explain a document, "msg" = is this message real?, "find" = find a service
+let askedAt = 0; // when the person tapped Explain / Check / Find: used to time "discovery" (see /stats)
+let lastNeed = ""; // the need typed in Find a service, kept for the follow-up question
 
-// Texts that change with the mode: element id -> [key in doc mode, key in msg mode]
+// Texts that change with the mode: element id -> [key in doc mode, msg mode, find mode]
 const MODE_TEXT = {
-  "scan-title": ["scan_title", "msg_title"],
-  "scan-lede": ["scan_lede", "msg_lede"],
-  "lang-label": ["answer_language", "msg_answer_language"],
-  "go": ["explain_button", "msg_button"],
-  "privacy-text": ["privacy", "msg_privacy"],
+  "scan-title": ["scan_title", "msg_title", "find_title"],
+  "scan-lede": ["scan_lede", "msg_lede", "find_lede"],
+  "lang-label": ["answer_language", "msg_answer_language", "answer_language"],
+  "go": ["explain_button", "msg_button", "find_button"],
+  "privacy-text": ["privacy", "msg_privacy", "find_privacy"],
 };
+const MODES = ["doc", "msg", "find"];
 
 const ICON_CAMERA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a2 2 0 0 1 2-2h1.7l1.4-2h5.8l1.4 2H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="13.2" r="3.4"/></svg>';
 const ICON_LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>';
@@ -41,6 +46,7 @@ export function render(el) {
     <div class="mode-switch" role="tablist" aria-label="Scan">
       <button type="button" role="tab" data-mode="doc" aria-selected="true" ${L("mode_doc")}>${esc(t("mode_doc"))}</button>
       <button type="button" role="tab" data-mode="msg" aria-selected="false" ${L("mode_msg")}>${esc(t("mode_msg"))}</button>
+      <button type="button" role="tab" data-mode="find" aria-selected="false" ${L("mode_find")}>${esc(t("mode_find"))}</button>
     </div>
     <h1 id="scan-title" ${L("scan_title")}>${esc(t("scan_title"))}</h1>
     <p class="lede" id="scan-lede" ${L("scan_lede")}>${esc(t("scan_lede"))}</p>
@@ -55,6 +61,15 @@ export function render(el) {
         <label class="field-label" for="msg-text" ${L("msg_paste_label")}>${esc(t("msg_paste_label"))}</label>
         <textarea id="msg-text" rows="4" maxlength="4000" dir="auto" data-i18n-placeholder="msg_paste_placeholder"
           placeholder="${esc(t("msg_paste_placeholder"))}"></textarea>
+      </div>
+
+      <div id="find-box" hidden>
+        <label class="field-label" for="find-text" ${L("find_label")}>${esc(t("find_label"))}</label>
+        <textarea id="find-text" rows="3" maxlength="500" dir="auto" data-i18n-placeholder="find_placeholder"
+          placeholder="${esc(t("find_placeholder"))}"></textarea>
+        <div class="chat-chips find-examples">
+          ${["find_ex1", "find_ex2", "find_ex3"].map((k) => `<button type="button" class="chat-chip" data-example="${k}" ${L(k)}>${esc(t(k))}</button>`).join("")}
+        </div>
       </div>
 
       <label class="field-label" for="lang" id="lang-label" ${L("answer_language")}>${esc(t("answer_language"))}</label>
@@ -96,8 +111,24 @@ export function render(el) {
     e.preventDefault(); drop.classList.remove("dragging");
     if (e.dataTransfer.files[0]) choose(e.dataTransfer.files[0]);
   });
-  panel.querySelector("#go").addEventListener("click", () => (mode === "msg" ? checkMessage() : analyze()));
+  panel.querySelector("#go").addEventListener("click", () => (mode === "msg" ? checkMessage() : mode === "find" ? findService() : analyze()));
   panel.querySelector("#msg-text").addEventListener("input", updateGo);
+  panel.querySelector("#find-text").addEventListener("input", updateGo);
+  panel.querySelectorAll("[data-example]").forEach((b) => b.addEventListener("click", () => {
+    panel.querySelector("#find-text").value = t(b.dataset.example);
+    updateGo();
+  }));
+  // Opening the official service after an answer: the "access" step the challenge measures.
+  // Sent once per answer, with the seconds since the person asked (anonymous, see /stats).
+  panel.querySelector("#result").addEventListener("click", (e) => {
+    const link = e.target.closest("a[data-official]");
+    const result = panel.querySelector("#result");
+    if (!link || result.dataset.opened) return;
+    result.dataset.opened = "1";
+    fetch("/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
+      kind: "open_official", source: link.dataset.official, seconds: askedAt ? (performance.now() - askedAt) / 1000 : null,
+      lang: panel.querySelector("#lang").value || "en" }) }).catch(() => {});
+  });
   panel.querySelectorAll(".mode-switch button").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
 }
 
@@ -105,7 +136,7 @@ export function render(el) {
 function setMode(next) {
   if (next === mode) return;
   mode = next;
-  const i = mode === "msg" ? 1 : 0;
+  const i = MODES.indexOf(mode);
   panel.querySelectorAll(".mode-switch button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.mode === mode)));
   for (const [id, keys] of Object.entries(MODE_TEXT)) {
     const el = panel.querySelector(`#${id}`);
@@ -113,6 +144,8 @@ function setMode(next) {
     el.textContent = t(keys[i]);
   }
   panel.querySelector("#paste-box").hidden = mode !== "msg";
+  panel.querySelector("#find-box").hidden = mode !== "find";
+  panel.querySelector("#drop").hidden = mode === "find";
   panel.querySelector("#scan-form").hidden = false;
   panel.querySelector("#result").innerHTML = "";
   if (!upload) resetDrop();
@@ -121,6 +154,7 @@ function setMode(next) {
 
 function updateGo() {
   const text = panel.querySelector("#msg-text").value.trim();
+  if (mode === "find") { panel.querySelector("#go").disabled = !panel.querySelector("#find-text").value.trim(); return; }
   panel.querySelector("#go").disabled = !(upload || (mode === "msg" && text));
 }
 
@@ -181,6 +215,7 @@ function shrink(file) {
 
 const STEPS = ["step_read", "step_match", "step_explain"];
 const MSG_STEPS = ["msg_step_read", "msg_step_links", "msg_step_flags"];
+const FIND_STEPS = ["find_step_1", "find_step_2", "find_step_3"];
 
 // The server does all three steps in one request, so the list moves forward on a timer
 // and jumps to done as soon as the answer arrives.
@@ -207,6 +242,8 @@ async function analyze() {
   const lang = panel.querySelector("#lang").value || "en";
   form.hidden = true;
   result.innerHTML = "";
+  delete result.dataset.opened;
+  askedAt = performance.now();
   const progress = startProgress();
 
   const fd = new FormData();
@@ -249,6 +286,7 @@ function addAgain(result, form, key) {
     form.hidden = false;
     panel.querySelector("#file").value = "";
     panel.querySelector("#msg-text").value = "";
+    panel.querySelector("#find-text").value = "";
     if (upload?.previewUrl) URL.revokeObjectURL(upload.previewUrl);
     upload = null;
     resetDrop();
@@ -256,6 +294,51 @@ function addAgain(result, form, key) {
     panel.scrollIntoView({ behavior: "smooth", block: "start" });
   });
   result.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// ---------------------------------------------------------------- find a service (no document)
+
+async function findService(answer = null) {
+  const form = panel.querySelector("#scan-form");
+  const result = panel.querySelector("#result");
+  const lang = panel.querySelector("#lang").value || "en";
+  if (!answer) { lastNeed = panel.querySelector("#find-text").value.trim(); askedAt = performance.now(); }
+  form.hidden = true;
+  result.innerHTML = "";
+  delete result.dataset.opened;
+  const progress = startProgress(FIND_STEPS);
+  try {
+    const r = await fetch("/find", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: lastNeed, answer, lang }) });
+    const data = await r.json().catch(() => ({ error: `Server error ${r.status}` }));
+    if (!r.ok) throw new Error(data.error || `Server error ${r.status}`);
+    progress.finish();
+    await new Promise((res) => setTimeout(res, 300));
+    progress.hide();
+    if (data.question) {
+      result.innerHTML = renderQuestion(data);
+      result.querySelectorAll("[data-answer]").forEach((b) => b.addEventListener("click", () => findService(b.dataset.answer)));
+      result.querySelector("#find-answer-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const v = result.querySelector("#find-answer").value.trim();
+        if (v) findService(v);
+      });
+    } else {
+      result.innerHTML = renderFound(data);
+      addListen(result, data);
+      if (data.service_id) {
+        const s = data.service || {};
+        result.appendChild(chatCard({ language: data.language, service_id: data.service_id,
+          fields: { issuing_authority: s.authority }, explanation: data.explanation }));
+      }
+    }
+  } catch (err) {
+    progress.hide();
+    result.innerHTML = `
+      <div class="notice error" role="alert"><strong ${L("find_error")}>${esc(t("find_error"))}</strong>
+      <br><small>${esc(err.message)}</small></div>`;
+  }
+  addAgain(result, form, "find_again");
 }
 
 // ---------------------------------------------------------------- is this message real?
@@ -270,6 +353,8 @@ async function checkMessage() {
   fd.append("lang", panel.querySelector("#lang").value || "en");
   form.hidden = true;
   result.innerHTML = "";
+  delete result.dataset.opened;
+  askedAt = performance.now();
   const progress = startProgress(MSG_STEPS);
   try {
     const r = await fetch("/check-message", { method: "POST", body: fd });
@@ -540,7 +625,7 @@ function renderResult(d) {
     <article class="sheet" dir="${dir}" lang="${esc(lang)}">
       ${d.mock ? `<span class="mock-flag">${esc(tr("mock"))}</span>` : ""}
       ${body}
-      ${foot.link ? `<a class="btn" href="${esc(foot.link)}" target="_blank" rel="noopener">${esc(tr("open_official"))}</a>` : ""}
+      ${foot.link ? `<a class="btn" data-official="scan" href="${esc(foot.link)}" target="_blank" rel="noopener">${esc(tr("open_official"))}</a>` : ""}
       ${trust}
       ${read}
     </article>`;

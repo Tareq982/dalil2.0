@@ -88,8 +88,13 @@ function draw() {
         url: item.official_url,
       });
     });
-    li.querySelector('[data-action="paid"]')?.addEventListener("click", () =>
-      updateDocument(item.id, { status: item.status === "paid" ? "open" : "paid" }));
+    li.querySelector('[data-action="paid"]')?.addEventListener("click", () => {
+      const nowPaid = item.status !== "paid";
+      updateDocument(item.id, { status: nowPaid ? "paid" : "open" });
+      // anonymous count for the "service adoption" target on /stats
+      if (nowPaid) fetch("/event", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind: "paid", doc_type: item.kind, lang: item.answer_lang }) }).catch(() => {});
+    });
     li.querySelector('[data-action="remove"]').addEventListener("click", () => removeDocument(item.id));
   });
 }
