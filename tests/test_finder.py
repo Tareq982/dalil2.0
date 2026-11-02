@@ -129,3 +129,11 @@ def test_thumbs_down_is_counted_per_service_for_its_owner():
     client.post("/event", json={"kind": "feedback", "helpful": False, "service_id": "not-a-service"})
     o = client.get("/api/stats").get_json()["owners"]
     assert o["not_clear_by_service"] == {"dubai-tenancy-contract": 1} and o["clear_by_service"] == {"dubai-tenancy-contract": 1}
+
+
+def test_every_service_has_names_in_each_language_it_lists():
+    from app import catalog, config
+    for s in catalog.load():
+        assert set(s["names"]) <= set(config.LANGUAGES) and "ar" in s["names"]
+        ar = s["names"]["ar"]
+        assert ar["service_name"] and ar["authority"] and ar["help"]

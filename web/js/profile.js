@@ -5,7 +5,7 @@
 //   answers to the checked services and apply the official rules for this person, for example
 //   the grace period for their residence type.
 import { getLanguage, t } from "./i18n.js";
-import { esc } from "./util.js";
+import { esc, localService } from "./util.js";
 import { getProfile, saveProfile } from "./store.js";
 import { helpHtml } from "./help.js";
 
@@ -124,7 +124,7 @@ async function loadForYou(panel) {
 }
 
 function card(c) {
-  const s = c.service || {};
+  const s = localService(c.service || {}, getLanguage());
   let title = "", text = "", badge = "";
   if (c.reason === "residency") {
     title = t("foryou_residency");

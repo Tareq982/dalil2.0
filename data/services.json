@@ -70,6 +70,36 @@
         "page": "https://www.rta.ae/wps/portal/rta/ae/home/about-rta/contactus",
         "source": "RTA Contact us page (official)",
         "last_checked": "2026-11-02"
+      },
+      "names": {
+        "ar": {
+          "service_name": "دفع مخالفات المركبات (هيئة الطرق والمواصلات)",
+          "authority": "شرطة دبي / هيئة الطرق والمواصلات",
+          "help": "مركز اتصال هيئة الطرق والمواصلات"
+        },
+        "hi": {
+          "service_name": "वाहन जुर्माना भुगतान (RTA)",
+          "authority": "दुबई पुलिस / RTA",
+          "help": "RTA कॉल सेंटर"
+        },
+        "ur": {
+          "service_name": "گاڑی کے جرمانوں کی ادائیگی (RTA)",
+          "authority": "دبئی پولیس / RTA",
+          "help": "RTA کال سینٹر"
+        },
+        "tl": {
+          "service_name": "Pagbabayad ng multa ng sasakyan (RTA)"
+        },
+        "bn": {
+          "service_name": "যানবাহনের জরিমানা পরিশোধ (RTA)",
+          "authority": "দুবাই পুলিশ / RTA",
+          "help": "RTA কল সেন্টার"
+        },
+        "ml": {
+          "service_name": "വാഹന പിഴ അടയ്ക്കൽ (RTA)",
+          "authority": "ദുബായ് പോലീസ് / RTA",
+          "help": "RTA കോൾ സെന്റർ"
+        }
       }
     },
     {
@@ -111,6 +141,36 @@
         "page": "https://www.tamm.abudhabi/",
         "source": "Abu Dhabi Government Contact Center, listed on dct.gov.ae (official)",
         "last_checked": "2026-11-02"
+      },
+      "names": {
+        "ar": {
+          "service_name": "دفع المخالفات المرورية (تم)",
+          "authority": "شرطة أبوظبي",
+          "help": "مركز اتصال حكومة أبوظبي"
+        },
+        "hi": {
+          "service_name": "ट्रैफ़िक जुर्माना भुगतान (TAMM)",
+          "authority": "अबू धाबी पुलिस",
+          "help": "अबू धाबी सरकार संपर्क केंद्र"
+        },
+        "ur": {
+          "service_name": "ٹریفک جرمانوں کی ادائیگی (TAMM)",
+          "authority": "ابوظبی پولیس",
+          "help": "ابوظبی حکومت کا رابطہ مرکز"
+        },
+        "tl": {
+          "service_name": "Pagbabayad ng multa sa trapiko (TAMM)"
+        },
+        "bn": {
+          "service_name": "ট্রাফিক জরিমানা পরিশোধ (TAMM)",
+          "authority": "আবুধাবি পুলিশ",
+          "help": "আবুধাবি সরকারের যোগাযোগ কেন্দ্র"
+        },
+        "ml": {
+          "service_name": "ട്രാഫിക് പിഴ അടയ്ക്കൽ (TAMM)",
+          "authority": "അബുദാബി പോലീസ്",
+          "help": "അബുദാബി സർക്കാർ കോൺടാക്റ്റ് സെന്റർ"
+        }
       }
     },
     {
@@ -187,6 +247,36 @@
         "page": "https://www.gdrfad.gov.ae/en",
         "source": "GDRFA Dubai news page on the Amer call centre (official)",
         "last_checked": "2026-11-02"
+      },
+      "names": {
+        "ar": {
+          "service_name": "تجديد تصريح الإقامة للقطاع الخاص",
+          "authority": "الإدارة العامة للهوية وشؤون الأجانب - دبي",
+          "help": "مركز اتصال آمر (الإدارة العامة للهوية وشؤون الأجانب - دبي)"
+        },
+        "hi": {
+          "service_name": "रेज़िडेंस परमिट नवीनीकरण (निजी क्षेत्र), GDRFA दुबई",
+          "authority": "GDRFA दुबई",
+          "help": "आमेर कॉल सेंटर (GDRFA दुबई)"
+        },
+        "ur": {
+          "service_name": "رہائشی پرمٹ کی تجدید (نجی شعبہ)، GDRFA دبئی",
+          "authority": "GDRFA دبئی",
+          "help": "آمر کال سینٹر (GDRFA دبئی)"
+        },
+        "tl": {
+          "service_name": "Pag-renew ng residence permit (pribadong sektor), GDRFA Dubai"
+        },
+        "bn": {
+          "service_name": "রেসিডেন্স পারমিট নবায়ন (বেসরকারি খাত), GDRFA দুবাই",
+          "authority": "GDRFA দুবাই",
+          "help": "আমের কল সেন্টার (GDRFA দুবাই)"
+        },
+        "ml": {
+          "service_name": "റെസിഡൻസ് പെർമിറ്റ് പുതുക്കൽ (സ്വകാര്യ മേഖല), GDRFA ദുബായ്",
+          "authority": "GDRFA ദുബായ്",
+          "help": "ആമർ കോൾ സെന്റർ (GDRFA ദുബായ്)"
+        }
       }
     },
     {
@@ -249,6 +339,36 @@
         "page": "https://icp.gov.ae/en/contact-us/",
         "source": "ICP Contact us page (official)",
         "last_checked": "2026-11-02"
+      },
+      "names": {
+        "ar": {
+          "service_name": "تجديد تصاريح الإقامة",
+          "authority": "الهيئة الاتحادية للهوية والجنسية والجمارك وأمن المنافذ",
+          "help": "مركز اتصال الهيئة الاتحادية للهوية والجنسية"
+        },
+        "hi": {
+          "service_name": "रेज़िडेंसी परमिट नवीनीकरण (ICP)",
+          "authority": "ICP (संघीय पहचान, नागरिकता, सीमा शुल्क और बंदरगाह सुरक्षा प्राधिकरण)",
+          "help": "ICP कॉल सेंटर"
+        },
+        "ur": {
+          "service_name": "رہائشی پرمٹ کی تجدید (ICP)",
+          "authority": "ICP (شناخت، شہریت، کسٹمز اور بندرگاہ سیکیورٹی کی وفاقی اتھارٹی)",
+          "help": "ICP کال سینٹر"
+        },
+        "tl": {
+          "service_name": "Pag-renew ng residency permit (ICP)"
+        },
+        "bn": {
+          "service_name": "রেসিডেন্সি পারমিট নবায়ন (ICP)",
+          "authority": "ICP (পরিচয়, নাগরিকত্ব, শুল্ক ও বন্দর নিরাপত্তা বিষয়ক ফেডারেল কর্তৃপক্ষ)",
+          "help": "ICP কল সেন্টার"
+        },
+        "ml": {
+          "service_name": "റെസിഡൻസി പെർമിറ്റ് പുതുക്കൽ (ICP)",
+          "authority": "ICP (ഐഡന്റിറ്റി, പൗരത്വം, കസ്റ്റംസ്, പോർട്ട് സുരക്ഷ എന്നിവയ്ക്കുള്ള ഫെഡറൽ അതോറിറ്റി)",
+          "help": "ICP കോൾ സെന്റർ"
+        }
       }
     },
     {
@@ -297,6 +417,36 @@
         "page": "https://www.dubailand.gov.ae/en/contact-us",
         "source": "DLD Contact us page (official)",
         "last_checked": "2026-11-02"
+      },
+      "names": {
+        "ar": {
+          "service_name": "تسجيل / تجديد عقد الإيجار (إيجاري)",
+          "authority": "دائرة الأراضي والأملاك في دبي (إيجاري)",
+          "help": "مركز اتصال دائرة الأراضي والأملاك"
+        },
+        "hi": {
+          "service_name": "किरायानामा पंजीकरण / नवीनीकरण (Ejari)",
+          "authority": "दुबई लैंड डिपार्टमेंट (Ejari)",
+          "help": "दुबई लैंड डिपार्टमेंट कॉल सेंटर"
+        },
+        "ur": {
+          "service_name": "کرایہ نامے کی رجسٹریشن / تجدید (Ejari)",
+          "authority": "دبئی لینڈ ڈیپارٹمنٹ (Ejari)",
+          "help": "دبئی لینڈ ڈیپارٹمنٹ کال سینٹر"
+        },
+        "tl": {
+          "service_name": "Pagrehistro / pag-renew ng kontrata sa upa (Ejari)"
+        },
+        "bn": {
+          "service_name": "ভাড়ার চুক্তি নিবন্ধন / নবায়ন (Ejari)",
+          "authority": "দুবাই ল্যান্ড ডিপার্টমেন্ট (Ejari)",
+          "help": "দুবাই ল্যান্ড ডিপার্টমেন্ট কল সেন্টার"
+        },
+        "ml": {
+          "service_name": "വാടക കരാർ രജിസ്റ്റർ / പുതുക്കൽ (Ejari)",
+          "authority": "ദുബായ് ലാൻഡ് ഡിപ്പാർട്ട്മെന്റ് (Ejari)",
+          "help": "ദുബായ് ലാൻഡ് ഡിപ്പാർട്ട്മെന്റ് കോൾ സെന്റർ"
+        }
       }
     }
   ]

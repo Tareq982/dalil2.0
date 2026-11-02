@@ -98,5 +98,5 @@ def service_summary(service: dict | None) -> dict | None:
     if not service:
         return None
     keep = ["id", "service_name", "authority", "official_url", "verified", "last_checked",
-            "source", "legal_basis", "fee_aed", "fee_note", "help"]
+            "source", "legal_basis", "fee_aed", "fee_note", "help", "names"]
     return {k: service.get(k) for k in keep}
