@@ -28,19 +28,70 @@ function bars(title, counts, names = {}, note = "") {
   return `<section class="how-card"><h2>${esc(title)}</h2>${note ? `<p class="how-intro">${esc(note)}</p>` : ""}${body}</section>`;
 }
 
-// The challenge's two targets, measured in the app: time to discover the right service, and adoption
-function targetsHtml(t) {
-  const secs = t.median_seconds_to_official;
-  const time = secs == null ? "–" : secs < 90 ? `${Math.round(secs)} s` : `${(secs / 60).toFixed(1)} min`;
-  const rate = t.adoption_rate == null ? "–" : `${Math.round(t.adoption_rate * 100)}%`;
-  return `<section class="how-card"><h2>Challenge targets</h2>
-    <p class="how-intro">Discovery time: from asking Dalil (a photo, a message or a typed need) to opening the right official service.
-      Adoption: answers where the person went on to open the official service. Compare with the time people need without Dalil.</p>
-    <div class="how-stats" style="margin-top:0">
-      ${tile(time, "median time to the right official service", t.timed ? `${t.timed} timed` : "")}
-      ${tile(rate, "of answers led to the official service", t.answers ? `${t.opened_official} of ${t.answers}` : "")}
-      ${tile(t.marked_paid || 0, "documents marked as paid")}
-      ${tile((s => s)(t.answers || 0), "answers given")}
+const pct = (x) => `${Math.round(x * 100)}%`;
+const dur = (secs) => (secs == null ? "–" : secs < 90 ? `${Math.round(secs)} s` : `${(secs / 60).toFixed(1)} min`);
+
+// One target: the verdict, without vs with Dalil, and a bar with the target marked
+function targetRow({ title, met, value, valueText, target, scaleMax, without, withDalil, empty }) {
+  const status = value == null ? ["nodata", empty] : met ? ["met", "Target met"] : ["notyet", "Not met yet"];
+  const width = value == null ? 0 : Math.max(0, Math.min(1, value / scaleMax)) * 100;
+  return `
+    <div class="target">
+      <div class="target-head"><h3>${esc(title)}</h3><span class="target-badge ${status[0]}">${esc(status[1])}</span></div>
+      ${value == null ? "" : `<p class="target-value">${esc(valueText)}</p>`}
+      <div class="target-meter" role="img" aria-label="${esc(value == null ? "No result yet" : valueText)}; target ${esc(pct(target))}">
+        <i class="${status[0]}" style="width:${width}%"></i><b style="left:${(target / scaleMax) * 100}%"><span>target ${esc(pct(target))}</span></b>
+      </div>
+      <div class="target-compare">
+        <div><span class="k">Without Dalil</span><span class="v">${esc(without)}</span></div>
+        <div><span class="k">With Dalil</span><span class="v">${esc(withDalil)}</span></div>
+      </div>
+    </div>`;
+}
+
+// The challenge's two targets: from the timing test (real people, without vs with Dalil),
+// plus what real use of the app shows.
+function targetsHtml(tr, live) {
+  const w = tr.without || {}, d = tr.with || {};
+  const runs = (a) => `${a.runs} run${a.runs === 1 ? "" : "s"}`;
+  const cut = tr.discovery_time_cut, inc = tr.adoption_increase;
+  const T = tr.targets || { discovery_time_cut: 0.6, adoption_increase: 0.45 };
+  const discovery = targetRow({
+    title: "60% less time to find the right service", met: tr.met?.discovery, value: cut, target: T.discovery_time_cut, scaleMax: 1,
+    valueText: cut == null ? "" : cut >= 0 ? `${pct(cut)} faster with Dalil` : `${pct(-cut)} slower with Dalil`,
+    without: w.runs ? `${dur(w.median_seconds)} · ${runs(w)}` : "No runs yet",
+    withDalil: d.runs ? `${dur(d.median_seconds)} · ${runs(d)}` : "No runs yet",
+    empty: "Needs runs with and without Dalil",
+  });
+  const adoption = targetRow({
+    title: "45% more people reach the official service", met: tr.met?.adoption, value: inc, target: T.adoption_increase, scaleMax: 1,
+    valueText: inc == null ? "" : inc >= 0 ? `${pct(inc)} more reached it with Dalil` : `${pct(-inc)} fewer reached it with Dalil`,
+    without: w.runs ? `${w.found} of ${w.runs} (${pct(w.found_rate)})` : "No runs yet",
+    withDalil: d.runs ? `${d.found} of ${d.runs} (${pct(d.found_rate)})` : "No runs yet",
+    empty: w.runs && !w.found ? "Nobody reached it without Dalil, so a % increase can't be worked out" : "Needs runs with and without Dalil",
+  });
+  let note = "";
+  if (!tr.runs) note = `<p class="notice">No timing test yet. <a href="/timing">Run it</a> with at least 5 people: each does one task without Dalil and a different task with Dalil.</p>`;
+  else if (!tr.enough) note = `<p class="notice">Only ${w.runs} run${w.runs === 1 ? "" : "s"} without and ${d.runs} with Dalil so far. Aim for at least 5 of each before you quote these numbers.</p>`;
+  const say = cut != null && inc != null && tr.enough
+    ? `<p class="target-say"><span class="k">What to say</span>“In our timing test with ${Math.round(tr.runs / 2)} people, they found the right official service ${pct(cut)} faster with Dalil${inc > 0 ? `, and ${pct(inc)} more of them got there` : ""}.”</p>`
+    : "";
+  const liveRate = live.adoption_rate == null ? null : live.adoption_rate;
+  return `<section class="how-card targets"><h2>Challenge targets</h2>
+    <p class="how-intro">From the <a href="/timing">timing test</a>: real people doing the same kinds of tasks without Dalil
+      (any phone, search engine or website) and with Dalil. Time stops when they open the right official page.
+      Giving up counts as ${Math.round((tr.time_limit || 300) / 60)} minutes.</p>
+    ${discovery}${adoption}${note}${say}
+    <div class="live-use">
+      <h3>In real use of the app</h3>
+      <ul class="bars">
+        <li><span class="bar-label">Median time from asking to opening the official service</span><span class="bar-num">${esc(live.timed ? dur(live.median_seconds_to_official) : "–")}</span></li>
+        <li><span class="bar-label">Answers where the person opened the official service</span><span class="bar-num">${esc(live.answers ? `${live.opened_official} of ${live.answers} (${pct(liveRate)})` : "–")}</span></li>
+        <li><span class="bar-label">Documents marked as paid</span><span class="bar-num">${live.marked_paid || 0}</span></li>
+      </ul>
+      <p class="muted">${live.answers && !live.opened_official
+        ? "Nobody has tapped “Open the official service” after an answer yet, so there is no time to show."
+        : "Counted when someone taps “Open the official service” on an answer. This is what a pilot would track."}</p>
     </div></section>`;
 }
 
@@ -56,7 +107,7 @@ async function load() {
       <p class="lede">Anonymous counts${s.since ? ` since ${esc(s.since)}` : ""}. Dalil never stores photos, message text,
         names or reference numbers: only what kind of document it was, the language and the result.</p>
       ${s.error ? `<p class="notice">${esc(s.error)}</p>` : ""}
-      ${targetsHtml(s.targets || {})}
+      ${targetsHtml(s.trial || {}, s.targets || {})}
       <div class="how-stats">
         ${tile(t.scan || 0, "documents scanned")}
         ${tile(t.message || 0, "messages checked for scams")}

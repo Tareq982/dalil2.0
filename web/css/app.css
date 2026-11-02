@@ -668,3 +668,50 @@ dialog.account-sheet::backdrop { background: rgba(0, 0, 0, 0.28); -webkit-backdr
   .ring .num { font-size: 22px; }
   .doc-kind, .sheet h2 { padding-inline-end: 92px; }
 }
+
+/* challenge targets (stats page) */
+.targets .how-intro a, .notice a { color: var(--accent); font-weight: 600; }
+.target { display: grid; gap: 10px; padding: 16px 0 4px; border-top: 1px solid var(--separator); }
+.target-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.target-head h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+.target-badge { flex: none; padding: 5px 11px; border-radius: 999px; font-weight: 700; font-size: 13px; white-space: nowrap; }
+.target-badge.met { background: rgba(52, 199, 89, 0.16); color: var(--green); }
+.target-badge.notyet { background: var(--orange-tint); color: var(--orange); }
+.target-badge.nodata { background: var(--field); color: var(--label-2); white-space: normal; text-align: end; max-width: 55%; }
+.target-value { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.target-meter { position: relative; height: 12px; border-radius: 999px; background: var(--field); margin: 4px 0 22px; }
+.target-meter i { display: block; height: 100%; border-radius: inherit; background: var(--label-3); }
+.target-meter i.met { background: var(--green-ring); }
+.target-meter i.notyet { background: var(--orange-ring); }
+.target-meter b { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: var(--label); border-radius: 2px; }
+.target-meter b span { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: 600; color: var(--label-2); white-space: nowrap; }
+.target-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.target-compare > div { padding: 10px 12px; border-radius: 16px; background: var(--field); display: grid; gap: 2px; }
+.target-compare .k, .target-say .k, .timer-answer .k { font-size: 12px; font-weight: 600; color: var(--label-2); }
+.target-compare .v { font-weight: 700; font-variant-numeric: tabular-nums; }
+.target-say { padding: 14px 16px; border-radius: 18px; background: var(--accent-tint); display: grid; gap: 4px; font-weight: 600; }
+.targets .notice { margin-top: 0; }
+.live-use { display: grid; gap: 12px; padding-top: 16px; border-top: 1px solid var(--separator); }
+.live-use h3 { font-size: 17px; font-weight: 700; }
+.live-use .bar-label { font-size: 14px; color: var(--label-2); }
+
+/* timing test page */
+.timing-steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 8px; color: var(--label-2); }
+.timing-steps b { color: var(--label); }
+.cond-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; border-radius: 16px; background: var(--field); }
+.cond-toggle button { min-height: 44px; border: 0; border-radius: 12px; background: none; color: var(--label); font: 600 15px var(--font); cursor: pointer; }
+.cond-toggle button.on { background: var(--glass-strong); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); }
+.cond-toggle button:disabled { opacity: 0.5; cursor: default; }
+.timer-task { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.3; }
+.timer-answer { padding: 10px 12px; border-radius: 14px; background: var(--field); display: grid; gap: 2px; font-size: 14px; word-break: break-word; }
+.timer-clock { font-size: 64px; font-weight: 700; letter-spacing: -0.04em; text-align: center; font-variant-numeric: tabular-nums; }
+.timer-clock.over { color: var(--red); }
+.timer-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.timer-buttons .btn { margin: 0; }
+.btn.gave-up { background: var(--field); color: var(--label); box-shadow: none; }
+.suggest { font-size: 14px; color: var(--label-2); }
+.suggest b { color: var(--label); }
+.runs-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.runs-table th, .runs-table td { padding: 8px 6px; border-bottom: 1px solid var(--separator); text-align: start; }
+.runs-table td.n { text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.runs-table th.n { text-align: center; }
