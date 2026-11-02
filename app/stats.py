@@ -173,6 +173,23 @@ def targets(con) -> dict:
             "marked_paid": con.execute("SELECT COUNT(*) FROM events WHERE kind = 'paid'").fetchone()[0]}
 
 
+def owners(con) -> dict:
+    """For service owners: where people got stuck (the challenge's learning loop, root cause R5).
+    Only counts and fixed labels: no text people typed, no photos."""
+    by = lambda sql: _count(con, sql)
+    return {
+        "unmet_needs_by_topic": by("SELECT detail, COUNT(*) FROM events WHERE kind = 'find' AND outcome = 'none' "
+                                   "GROUP BY detail ORDER BY 2 DESC"),
+        "not_clear_by_service": by("SELECT detail, COUNT(*) FROM events WHERE kind = 'feedback' AND outcome = 'no' "
+                                   "AND detail IS NOT NULL GROUP BY detail ORDER BY 2 DESC"),
+        "clear_by_service": by("SELECT detail, COUNT(*) FROM events WHERE kind = 'feedback' AND outcome = 'yes' "
+                               "AND detail IS NOT NULL GROUP BY detail ORDER BY 2 DESC"),
+        "unsupported_documents": con.execute("SELECT COUNT(*) FROM events WHERE kind = 'scan' "
+                                             "AND outcome = 'not_supported'").fetchone()[0],
+        "unclear_photos": con.execute("SELECT COUNT(*) FROM events WHERE kind = 'scan' AND outcome = 'fallback'").fetchone()[0],
+    }
+
+
 def summary() -> dict:
     try:
         with closing(_connect()) as con:
@@ -193,6 +210,7 @@ def summary() -> dict:
                 "chat_by_language": by("lang", "chat"),
                 "find_results": by("outcome", "find"),
                 "targets": targets(con),
+                "owners": owners(con),
                 "trial": trial_results(con),
             }
     except sqlite3.Error as e:

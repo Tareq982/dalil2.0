@@ -7,6 +7,7 @@
 import { getLanguage, t } from "./i18n.js";
 import { esc } from "./util.js";
 import { getProfile, saveProfile } from "./store.js";
+import { helpHtml } from "./help.js";
 
 const EMIRATES = [["Dubai", "دبي"], ["Abu Dhabi", "أبوظبي"], ["Sharjah", "الشارقة"], ["Ajman", "عجمان"],
   ["Umm Al Quwain", "أم القيوين"], ["Ras Al Khaimah", "رأس الخيمة"], ["Fujairah", "الفجيرة"]];
@@ -144,8 +145,10 @@ function card(c) {
     <article class="fy-card glass${c.urgent ? " is-urgent" : ""}">
       <div class="deadline-head"><div><p class="deadline-kind">${esc(s.authority || "")}</p><h3>${esc(title)}</h3></div>${badge}</div>
       <p class="fy-text">${esc(text)}</p>
+      ${c.eligibility ? `<p class="fy-text fy-decision">${esc(fill(t("decision_note"), { authority: s.authority || "" }))}</p>` : ""}
       ${c.eligibility && c.eligibility.source ? `<p class="muted fy-source">${esc(t("source"))}: ${esc(c.eligibility.source)}</p>` : ""}
       <a class="btn btn-quiet small" href="${esc(s.official_url || "https://u.ae")}" target="_blank" rel="noopener">${esc(t("foryou_open"))} · ${esc(s.service_name || "")}</a>
+      ${c.urgent ? helpHtml(s, getLanguage()) : ""}
     </article>`;
 }
 
@@ -155,6 +158,9 @@ export function profileForFind() {
   return getProfile();
 }
 
-export function personalNote(personal, lang) {
-  return personal && personal.grace_days ? fill(t("find_personal", lang), { n: personal.grace_days }) : "";
+// The official rule for this person, and who decides: Dalil explains, the authority decides
+export function personalNote(personal, lang, authority = "") {
+  if (!personal || !personal.grace_days) return "";
+  const rule = fill(t("find_personal", lang), { n: personal.grace_days });
+  return authority ? `${rule} ${fill(t("decision_note", lang), { authority })}` : rule;
 }

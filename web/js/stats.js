@@ -9,7 +9,32 @@ const CHECKS = { passed: "Every number matched the data", retried: "Fixed on the
 const FINDS = { matched: "Found the right service", question: "Asked one question first", none: "Not in the catalog yet: sent to u.ae" };
 const VERDICTS = { dont_pay: "Don't pay via this link", suspicious: "Suspicious", looks_official: "Looks official",
                    unclear: "Too unclear", not_message: "Not a message" };
-let languages = {};
+const TOPICS = { visa_residency: "Visas and residency", traffic_driving: "Traffic and driving", housing: "Housing and renting",
+                 work: "Work and labour", family: "Family (births, marriage)", health: "Health", education: "Education",
+                 business: "Business and licences", bills: "Bills and utilities", id_documents: "ID and passports", other: "Other" };
+let languages = {}, serviceNames = {};
+
+// For service owners: where people got stuck (the challenge's learning loop). Counts only.
+function ownersHtml(o = {}) {
+  const fb = Object.keys({ ...(o.not_clear_by_service || {}), ...(o.clear_by_service || {}) }).map((id) => {
+    const no = (o.not_clear_by_service || {})[id] || 0, yes = (o.clear_by_service || {})[id] || 0;
+    return [id, no, yes];
+  }).sort((a, b) => b[1] - a[1]);
+  return `<section class="how-card owners"><h2>For service owners: where people got stuck</h2>
+    <p class="how-intro">What Dalil couldn't answer yet, and which answers people found unclear. Only topics and counts are kept,
+      never what people typed, so the catalog and the official pages can be improved without collecting personal data.</p>
+    <h3>Needs with no checked service yet, by topic</h3>
+    ${barList(o.unmet_needs_by_topic, TOPICS)}
+    <h3>“Was this clear?” by service</h3>
+    ${fb.length ? `<ul class="bars">${fb.map(([id, no, yes]) => `
+      <li><span class="bar-label">${esc(serviceNames[id] || id)}</span><span class="bar-num">${no} unclear · ${yes} clear</span>
+        <span class="bar"><i style="width:${Math.max(3, Math.round((no / (no + yes)) * 100))}%"></i></span></li>`).join("")}</ul>`
+      : `<p class="muted">No votes yet.</p>`}
+    <ul class="bars">
+      <li><span class="bar-label">Documents Dalil doesn't support yet</span><span class="bar-num">${o.unsupported_documents || 0}</span></li>
+      <li><span class="bar-label">Photos too unclear to read</span><span class="bar-num">${o.unclear_photos || 0}</span></li>
+    </ul></section>`;
+}
 
 const main = document.getElementById("stats");
 
@@ -17,15 +42,18 @@ function tile(num, label, sub = "") {
   return `<div class="how-stat"><span class="num">${esc(num)}</span><span class="label">${esc(label)}</span>${sub ? `<span class="label">${esc(sub)}</span>` : ""}</div>`;
 }
 
-function bars(title, counts, names = {}, note = "") {
+function barList(counts, names = {}) {
   const rows = Object.entries(counts || {});
   const total = rows.reduce((a, [, n]) => a + n, 0);
-  const body = rows.length
+  return rows.length
     ? `<ul class="bars">${rows.map(([k, n]) => `
         <li><span class="bar-label">${esc(names[k] || k)}</span><span class="bar-num">${n}</span>
           <span class="bar"><i style="width:${Math.max(3, Math.round((n / total) * 100))}%"></i></span></li>`).join("")}</ul>`
     : `<p class="muted">Nothing yet.</p>`;
-  return `<section class="how-card"><h2>${esc(title)}</h2>${note ? `<p class="how-intro">${esc(note)}</p>` : ""}${body}</section>`;
+}
+
+function bars(title, counts, names = {}, note = "") {
+  return `<section class="how-card"><h2>${esc(title)}</h2>${note ? `<p class="how-intro">${esc(note)}</p>` : ""}${barList(counts, names)}</section>`;
 }
 
 const pct = (x) => `${Math.round(x * 100)}%`;
@@ -98,6 +126,9 @@ function targetsHtml(tr, live) {
 async function load() {
   try {
     if (!Object.keys(languages).length) languages = await fetch("/languages").then((r) => r.json());
+    if (!Object.keys(serviceNames).length) {
+      serviceNames = Object.fromEntries((await fetch("/services").then((r) => r.json())).map((x) => [x.id, x.service_name]));
+    }
     const s = await fetch("/api/stats", { cache: "no-store" }).then((r) => r.json());
     const t = s.totals || {};
     const votes = (s.helpful?.yes || 0) + (s.helpful?.no || 0);
@@ -121,6 +152,7 @@ async function load() {
       ${bars("Scan results", s.scan_results, RESULTS)}
       ${bars("Find a service (no document)", s.find_results, FINDS)}
       ${bars("Scam check results", s.message_verdicts, VERDICTS)}
+      ${ownersHtml(s.owners)}
       <section class="how-card"><h2>Also used</h2>
         <ul class="bars">
           <li><span class="bar-label">"Explain it simpler" taps</span><span class="bar-num">${t.simpler || 0}</span></li>

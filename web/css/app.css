@@ -715,3 +715,20 @@ dialog.account-sheet::backdrop { background: rgba(0, 0, 0, 0.28); -webkit-backdr
 .runs-table th, .runs-table td { padding: 8px 6px; border-bottom: 1px solid var(--separator); text-align: start; }
 .runs-table td.n { text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
 .runs-table th.n { text-align: center; }
+
+/* talk to a person (help.js) */
+.human-help { display: flex; gap: 12px; align-items: flex-start; margin-top: 14px; padding: 14px 16px; border-radius: 20px; background: var(--field); }
+.hh-icon { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: rgba(52, 199, 89, 0.16); }
+.hh-icon svg { width: 18px; height: 18px; fill: none; stroke: var(--green); stroke-width: 2; stroke-linejoin: round; }
+.hh-body { display: grid; gap: 4px; min-width: 0; }
+.hh-title { font-weight: 700; }
+.hh-text { font-size: 14px; color: var(--label-2); }
+.hh-line { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; margin-top: 2px; }
+.hh-call { font-size: 20px; font-weight: 700; color: var(--accent); text-decoration: none; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.hh-name { font-size: 13px; color: var(--label-2); }
+.hh-more { font-size: 14px; font-weight: 600; color: var(--accent); text-decoration: none; }
+.fy-card .human-help { margin-top: 10px; }
+.find-events-label { margin: 12px 4px 0; font-size: 13px; font-weight: 600; color: var(--label-2); }
+.fy-decision { font-size: 14px; color: var(--label-2); }
+.owners .bar i { background: var(--orange-ring); }
+.owners h3 { font-size: 17px; font-weight: 700; margin-top: 4px; }

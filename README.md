@@ -69,6 +69,7 @@ The third mode on the Scan tab. People describe what they need in their own word
 - The AI can only choose a service id from the catalog; code checks it, so it never invents a service.
 - Every number is checked against that service's data (one retry, then "check the official page").
 - If nothing fits, Dalil says it hasn't checked that service yet and points to the official portal (u.ae).
+- **Life events:** people can start from what's happening in their life (visa expiring, got a fine, renting a home) instead of knowing which entity to ask. "I got a message asking me to pay" goes straight to the scam check.
 
 ## Personalization: About you and For you
 
@@ -78,6 +79,17 @@ In the **My profile** panel (the person button, top right) people can answer a f
 - **Personalization algorithm:** plain rules (no AI) match the profile to the checked services and apply those rules. **For you** (on the My documents tab) shows the services that apply, most urgent first (a residence expiring within 30 days), with the person's own grace period and the official link (`POST /for-you`).
 - **Find a service** gets the profile too, so it skips questions it can already answer and adds "for your residence type: N days of grace period".
 - Where the data has no rule for someone's category, Dalil says to check the official page and never guesses a number.
+- **Dalil explains, the authority decides:** every personal rule says which authority makes the final decision on the person's case.
+
+## Talk to a person (handoff to human help)
+
+Every answer tied to a checked service shows that authority's official call centre (RTA 800 90 90, Amer/GDRFA Dubai 800 5111, ICP 600 522222, Dubai Land Department 800 4488, Abu Dhabi Government Contact Centre 800 555), with a tap-to-call link and the official contact page. Each number was read on a government website (`help` in `data/services.json`, sources in `data/sources.md`). It also appears on urgent For you cards, in the Services tab, and in "Send to family", so a relative helping can call the right office.
+
+If a checked record is more than 3 months old, the answer says so and asks people to confirm on the official page.
+
+## For service owners: where people got stuck (learning loop)
+
+`/stats` has a section for service owners: needs Dalil couldn't answer yet **by topic** (visas, health, education...: the AI labels the need with one fixed topic, and only the topic is counted, never the text), "Was this clear?" thumbs per service, unsupported documents and unclear photos. This shows which services to add to the catalog next and which official explanations confuse people, without collecting personal data.
 
 ## The challenge targets, measured in the app
 

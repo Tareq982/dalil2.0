@@ -65,7 +65,7 @@ def eligibility(profile: dict, service: dict | None) -> dict | None:
 
 
 def _summary(service: dict) -> dict:
-    keep = ["id", "service_name", "authority", "official_url", "verified", "last_checked"]
+    keep = ["id", "service_name", "authority", "official_url", "verified", "last_checked", "help"]
     return {k: service.get(k) for k in keep}
 
 

@@ -19,6 +19,10 @@ from . import ai, catalog, checks, config, explain, personal, safety
 
 PORTAL = "https://u.ae"
 MAX_TEXT = 500
+# When nothing in the catalog fits, the AI labels the need with ONE of these topics. Only the
+# topic is counted (never the text), so service owners can see where people get stuck (/stats).
+TOPICS = ["visa_residency", "traffic_driving", "housing", "work", "family", "health", "education",
+          "business", "bills", "id_documents", "other"]
 
 SYSTEM = """You help UAE residents find the right official government service.
 You get CATALOG (the ONLY services you may choose) and what the person says they need, in any language.
@@ -33,7 +37,8 @@ Return ONLY a JSON object:
   "cost": "1 sentence: the fee, ONLY from the service's fee data, or that the fee is shown when they apply",
   "deadline": "1 sentence: timing rules ONLY from the service's deadline_rule, or that there is no fixed deadline",
   "next_steps": ["up to 3 short steps, from the service's next_steps"],
-  "suggested_questions": ["2 short follow-up questions they may have"]
+  "suggested_questions": ["2 short follow-up questions they may have"],
+  "topic": "only when service_id is null: one of {topics}"
 }}
 
 Rules:
@@ -84,6 +89,8 @@ def find(text: str, lang: str = "en", answer: str | None = None, profile=None) -
     result = {"language": lang, "mock": config.MOCK_AI, "service_id": None, "service": None,
               "question": None, "options": [], "link": PORTAL, "number_check": None,
               "disclaimer": safety.text(lang)["disclaimer"]}
+    if not service and not (raw.get("question") and not answer):
+        result["topic"] = raw.get("topic") if raw.get("topic") in TOPICS else "other"
     if not service and raw.get("question") and not answer:
         result["question"] = str(raw["question"])[:200]
         result["options"] = [str(o)[:40] for o in (raw.get("options") or []) if str(o).strip()][:6]
@@ -111,7 +118,7 @@ def _ask(text: str, answer: str | None, lang: str, warning: str | None = None, p
         prompt += f"\n\nTheir answer to your question: {answer}\nNow choose a service (or null)."
     if warning:
         prompt += "\n\n" + warning
-    return ai.ask_json(SYSTEM.format(language=config.LANGUAGES[lang]), prompt, max_tokens=1800)
+    return ai.ask_json(SYSTEM.format(language=config.LANGUAGES[lang], topics=", ".join(TOPICS)), prompt, max_tokens=1800)
 
 
 def _clean(raw: dict, has_service: bool) -> dict:
@@ -149,6 +156,15 @@ def _checked(text_out: dict, raw: dict, service: dict, need: str, answer: str | 
 
 # ---------------------------------------------------------------- mock (no API key)
 
+MOCK_TOPICS = {"health": {"health", "hospital", "doctor", "insurance", "medical"},
+               "education": {"school", "university", "education", "college"},
+               "family": {"baby", "birth", "marriage", "married", "divorce", "child"},
+               "work": {"job", "work", "labour", "salary", "employer"},
+               "business": {"business", "licence", "license", "company", "trade"},
+               "bills": {"bill", "electricity", "water", "dewa"},
+               "id_documents": {"passport", "id", "emirates"}}
+
+
 def _mock(text: str, answer: str | None, profile: dict | None = None) -> dict:
     """A rough keyword match so the feature can be shown without an AI key. Labelled [MOCK]."""
     words = set(re.findall(r"[a-z]+", (text + " " + (answer or "") + " " + (profile or {}).get("emirate", "")).lower()))
@@ -160,7 +176,9 @@ def _mock(text: str, answer: str | None, profile: dict | None = None) -> dict:
         if n > score:
             best, score = s, n
     if not best:
-        return {"service_id": None, "what_it_is": "[MOCK] Dalil has not checked this service yet. Search the official UAE portal."}
+        topic = next((t for t, keys in MOCK_TOPICS.items() if words & keys), "other")
+        return {"service_id": None, "topic": topic,
+                "what_it_is": "[MOCK] Dalil has not checked this service yet. Search the official UAE portal."}
     return {"service_id": best["id"],
             "what_it_is": f"[MOCK] You need: {best['service_name']} ({best['authority']}).",
             "cost": f"[MOCK] {best.get('fee_note') or 'The fee is shown when you apply.'}",

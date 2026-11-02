@@ -1,6 +1,7 @@
 // Services tab (issue #14): the verified catalog from data/services.json, via GET /services.
-import { t } from "./i18n.js";
+import { getLanguage, t } from "./i18n.js";
 import { esc, formatAED, formatDate } from "./util.js";
+import { helpHtml } from "./help.js";
 
 // Open datasets referenced by "related_datasets" in services.json (details in data/sources.md).
 const DATASETS = {
@@ -76,6 +77,7 @@ function card(s) {
         ${(s.next_steps || []).length ? `<div><h3>${esc(t("h_steps"))}</h3>
           <ol class="steps">${s.next_steps.map((x) => `<li><span>${esc(x)}</span></li>`).join("")}</ol></div>` : ""}
         <a class="btn" href="${esc(s.official_url)}" target="_blank" rel="noopener">${esc(t("open_official"))}</a>
+        ${helpHtml(s, getLanguage())}
         <div class="trust">
           ${s.source ? `<p class="muted">${esc(t("source"))}: ${esc(s.source)}</p>` : ""}
           ${s.legal_basis ? `<p class="muted">${esc(t("legal_basis"))}: ${esc(s.legal_basis)}</p>` : ""}

@@ -10,6 +10,7 @@ import { chatCard } from "./chat.js";
 import { listenButton, stopSpeaking } from "./speak.js";
 import { addResultActions } from "./actions.js";
 import { renderFound, renderQuestion } from "./find.js";
+import { helpHtml, staleHtml } from "./help.js";
 import { profileForFind } from "./profile.js";
 
 let panel;
@@ -68,8 +69,9 @@ export function render(el) {
         <label class="field-label" for="find-text" ${L("find_label")}>${esc(t("find_label"))}</label>
         <textarea id="find-text" rows="3" maxlength="500" dir="auto" data-i18n-placeholder="find_placeholder"
           placeholder="${esc(t("find_placeholder"))}"></textarea>
+        <p class="find-events-label" ${L("find_events")}>${esc(t("find_events"))}</p>
         <div class="chat-chips find-examples">
-          ${["find_ex1", "find_ex2", "find_ex3"].map((k) => `<button type="button" class="chat-chip" data-example="${k}" ${L(k)}>${esc(t(k))}</button>`).join("")}
+          ${["find_ex1", "find_ex2", "find_ex3", "find_ex4"].map((k) => `<button type="button" class="chat-chip" data-example="${k}" ${L(k)}>${esc(t(k))}</button>`).join("")}
         </div>
       </div>
 
@@ -115,7 +117,9 @@ export function render(el) {
   panel.querySelector("#go").addEventListener("click", () => (mode === "msg" ? checkMessage() : mode === "find" ? findService() : analyze()));
   panel.querySelector("#msg-text").addEventListener("input", updateGo);
   panel.querySelector("#find-text").addEventListener("input", updateGo);
+  // Life events. "I got a message asking me to pay" goes to the scam check instead.
   panel.querySelectorAll("[data-example]").forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.example === "find_ex4") { setMode("msg"); panel.querySelector("#msg-text").focus(); return; }
     panel.querySelector("#find-text").value = t(b.dataset.example);
     updateGo();
   }));
@@ -592,6 +596,7 @@ function renderResult(d) {
       <h2>${esc(e.what_it_is)}</h2>
       <div class="listen-slot"></div>
       ${d.number_check === "template" ? `<p class="check-note">${esc(tr("number_check_template"))}</p>` : ""}
+      ${staleHtml(s, lang)}
       ${facts}
       <div class="explain">
         <div><h3>${esc(tr("h_cost"))}</h3><p>${esc(e.cost)}</p></div>
@@ -627,6 +632,7 @@ function renderResult(d) {
       ${d.mock ? `<span class="mock-flag">${esc(tr("mock"))}</span>` : ""}
       ${body}
       ${foot.link ? `<a class="btn" data-official="scan" href="${esc(foot.link)}" target="_blank" rel="noopener">${esc(tr("open_official"))}</a>` : ""}
+      ${d.fallback ? "" : helpHtml(s, lang)}
       ${trust}
       ${read}
     </article>`;
