@@ -62,6 +62,23 @@ Open **http://localhost:8000**, upload a document photo, and pick a language.
 python -m pytest
 ```
 
+## Find a service (no document needed)
+
+The third mode on the Scan tab. People describe what they need in their own words and language ("my residence visa expires next month", "I'm renting a flat in Dubai"). Dalil picks the right service from the checked catalog, asks one short question if it can't tell yet (for example which emirate), and gives the fee, timing and steps in their language with the official link (`app/finder.py`, `POST /find`).
+
+- The AI can only choose a service id from the catalog; code checks it, so it never invents a service.
+- Every number is checked against that service's data (one retry, then "check the official page").
+- If nothing fits, Dalil says it hasn't checked that service yet and points to the official portal (u.ae).
+
+## The challenge targets, measured in the app
+
+`/stats` shows the two targets from the challenge, from anonymous events only:
+
+- **Discovery time:** the median seconds from asking Dalil (a photo, a message or a typed need) to opening the right official service.
+- **Adoption:** the share of answers (explained documents + services found) after which the person opened the official service, plus documents marked as paid.
+
+Compare the discovery time with a quick test of how long people take without Dalil.
+
 ## Ask Dalil (chat about a scanned document)
 
 Under every result there is a chat. People can ask follow-up questions in their language: where to pay, instalments, what happens if they pay late, which documents to bring.
@@ -109,7 +126,8 @@ People can use Dalil without an account: saved documents then stay in that brows
 | `data/services.json` | The verified service catalog | Data |
 | `data/sources.md` | Where every value came from, plus the open datasets used | Data |
 | `tools/lookup_service_prices.py` | Looks up official fees in the Dubai Government Service Prices open dataset | Data |
-| `app/main.py` | Web server and API: `/analyze`, `/check-message`, `/chat`, `/services`, `/languages`, `/health` | everyone |
+| `app/main.py` | Web server and API: `/analyze`, `/check-message`, `/find`, `/chat`, `/simplify`, `/event`, `/stats`, `/services`, `/languages`, `/health` | everyone |
+| `app/finder.py` | Find a service: a need in your own words → the right catalog service (AI picks, code checks) | AI |
 | `app/scamcheck.py` | Is this message real?: AI reads the message, code checks links against the official allow-list and decides the result | AI |
 | `app/chat.py` | Ask Dalil: follow-up chat with live search on official sites only (AI) | AI |
 | `app/langdetect.py` | Detects which of the 7 languages a chat question is in (code) | AI |

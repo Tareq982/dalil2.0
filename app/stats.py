@@ -17,7 +17,7 @@ from . import config
 
 log = logging.getLogger("dalil")
 
-KINDS = {"scan", "message", "chat", "feedback", "simpler", "share"}
+KINDS = {"scan", "message", "chat", "feedback", "simpler", "share", "find", "open_official", "paid"}
 DOC_TYPES = {"traffic_fine", "visa_residency_notice", "tenancy_contract", "other"}
 
 
@@ -52,6 +52,26 @@ def _count(con, sql, *args) -> dict:
     return {k or "unknown": n for k, n in con.execute(sql, args).fetchall()}
 
 
+def targets(con) -> dict:
+    """The challenge's two targets, measured inside the app.
+
+    discovery: seconds from asking (tapping Explain, Find or Check) to opening the official service.
+    adoption: share of answers (explained documents + services found) where the person went on
+    to open the official service. Each answer counts at most once (the app sends one event)."""
+    secs = sorted(float(r[0]) for r in con.execute(
+        "SELECT detail FROM events WHERE kind = 'open_official' AND outcome IN ('scan', 'find') AND detail IS NOT NULL"))
+    answers = con.execute("SELECT COUNT(*) FROM events WHERE (kind = 'scan' AND outcome = 'explained') "
+                          "OR (kind = 'find' AND outcome = 'matched')").fetchone()[0]
+    opened = con.execute("SELECT COUNT(*) FROM events WHERE kind = 'open_official' AND outcome IN ('scan', 'find')").fetchone()[0]
+    median = None
+    if secs:
+        mid = len(secs) // 2
+        median = round(secs[mid] if len(secs) % 2 else (secs[mid - 1] + secs[mid]) / 2, 1)
+    return {"median_seconds_to_official": median, "timed": len(secs), "answers": answers, "opened_official": opened,
+            "adoption_rate": round(min(1.0, opened / answers), 3) if answers else None,
+            "marked_paid": con.execute("SELECT COUNT(*) FROM events WHERE kind = 'paid'").fetchone()[0]}
+
+
 def summary() -> dict:
     try:
         with closing(_connect()) as con:
@@ -70,6 +90,8 @@ def summary() -> dict:
                 "helpful": {"yes": votes.get("yes", 0), "no": votes.get("no", 0)},
                 "message_verdicts": by("outcome", "message"),
                 "chat_by_language": by("lang", "chat"),
+                "find_results": by("outcome", "find"),
+                "targets": targets(con),
             }
     except sqlite3.Error as e:
         log.warning("stats not read: %s", e)

@@ -11,7 +11,7 @@ from datetime import timedelta
 
 from flask import Flask, jsonify, request, send_from_directory
 
-from . import accounts, ai, catalog, chat, checks, config, langdetect, pipeline, scamcheck, stats
+from . import accounts, ai, catalog, chat, checks, config, finder, langdetect, pipeline, scamcheck, stats
 
 app = Flask(__name__, static_folder=str(config.WEB_DIR), static_url_path="/web")
 app.json.sort_keys = False  # keep the language order from config.LANGUAGES
@@ -88,14 +88,42 @@ def simplify():
 
 @app.post("/event")
 def event():
-    """Anonymous taps: thumbs up/down ("feedback") and "Send to family" ("share"). Nothing personal."""
+    """Anonymous taps: thumbs up/down ("feedback"), "Send to family" ("share"), opening the official
+    service after an answer ("open_official", with the seconds since the person asked) and
+    "Mark as paid" ("paid"). Nothing personal."""
     data = request.get_json(silent=True) or {}
     kind = data.get("kind")
-    if kind not in ("feedback", "share"):
+    if kind not in ("feedback", "share", "open_official", "paid"):
         return jsonify({"error": "Unknown event."}), 400
-    outcome = ("yes" if data.get("helpful") else "no") if kind == "feedback" else None
-    stats.record(kind, data.get("doc_type"), data.get("lang"), outcome)
+    outcome = detail = None
+    if kind == "feedback":
+        outcome = "yes" if data.get("helpful") else "no"
+    elif kind == "open_official":
+        outcome = data.get("source") if data.get("source") in ("scan", "find", "documents") else None
+        try:
+            seconds = float(data.get("seconds"))
+            detail = f"{seconds:.1f}" if 0 <= seconds <= 3600 else None
+        except (TypeError, ValueError):
+            detail = None
+    stats.record(kind, data.get("doc_type"), data.get("lang"), outcome, detail)
     return jsonify({"ok": True})
+
+
+@app.post("/find")
+def find_service():
+    """Find a service with no document: the person describes what they need (app/finder.py)."""
+    data = request.get_json(silent=True) or {}
+    try:
+        result = finder.find(data.get("text", ""), data.get("lang", "en"), data.get("answer"))
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except ai.AIError as e:
+        log.warning("find failed: %s", e)
+        return jsonify({"error": str(e)}), 502
+    outcome = "matched" if result["service_id"] else "question" if result["question"] else "none"
+    doc_type = next((s["doc_type"] for s in catalog.load() if s["id"] == result["service_id"]), None)
+    stats.record("find", doc_type, result["language"], outcome)
+    return jsonify(result)
 
 
 @app.get("/stats")
