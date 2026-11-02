@@ -2,7 +2,7 @@
 import sqlite3
 from io import BytesIO
 
-from app import config, stats
+from app import catalog, config, stats
 from app.main import app
 
 FIELDS = {"doc_type": "traffic_fine", "emirate": "Dubai", "issuing_authority": "Dubai Police",
@@ -68,3 +68,53 @@ def test_simpler_in_mock_mode(monkeypatch):
 
 def test_stats_page_is_served():
     assert app.test_client().get("/stats").status_code == 200
+
+
+# ---------------------------------------------------------------- timing test (challenge targets)
+
+def run(client, task, condition, seconds, found=True):
+    return client.post("/api/trials", json={"task": task, "condition": condition, "seconds": seconds, "found": found})
+
+
+def test_timing_test_compares_without_and_with_dalil_against_the_targets():
+    client = app.test_client()
+    for secs, found in [(240, True), (180, True), (300, False), (200, True), (100, False)]:
+        assert run(client, "dubai-visa", "without", secs, found).status_code == 200
+    for secs in (60, 50, 70, 40, 90):
+        assert run(client, "dubai-fine", "with", secs).status_code == 200
+    t = client.get("/api/stats").get_json()["trial"]
+    # gave up counts as the 5-minute limit: without = 180, 200, 240, 300, 300 -> median 240
+    assert t["without"] == {"runs": 5, "found": 3, "median_seconds": 240, "found_rate": 0.6}
+    assert t["with"] == {"runs": 5, "found": 5, "median_seconds": 60, "found_rate": 1.0}
+    assert t["discovery_time_cut"] == 0.75 and t["adoption_increase"] == 0.667
+    assert t["met"] == {"discovery": True, "adoption": True} and t["enough"] is True
+    assert t["per_task"]["dubai-visa"] == {"without": 5, "with": 0}
+
+
+def test_timing_test_targets_not_met_and_not_enough_runs():
+    client = app.test_client()
+    run(client, "dubai-rent", "without", 100)
+    run(client, "sharjah-visa", "with", 70)
+    t = client.get("/api/trials").get_json()
+    assert t["discovery_time_cut"] == 0.3 and t["met"]["discovery"] is False
+    assert t["adoption_increase"] == 0.0 and t["met"]["adoption"] is False
+    assert t["enough"] is False and len(t["tasks"]) == 5
+
+
+def test_timing_test_rejects_bad_runs_and_can_undo():
+    client = app.test_client()
+    assert run(client, "made-up", "with", 50).status_code == 400
+    assert run(client, "dubai-fine", "sometimes", 50).status_code == 400
+    assert run(client, "dubai-fine", "with", 9999).status_code == 400
+    assert run(client, "dubai-fine", "with", 50, found="yes").status_code == 400
+    run(client, "dubai-fine", "with", 50)
+    run(client, "dubai-fine", "without", 150)
+    t = client.post("/api/trials/undo").get_json()
+    assert t["runs"] == 1 and t["last"] == {"task": "dubai-fine", "condition": "with"}
+    assert t["discovery_time_cut"] is None
+
+
+def test_every_timing_task_points_at_a_checked_service():
+    ids = {s["id"] for s in catalog.load()}
+    assert all(t["service_id"] in ids for t in stats.TRIAL_TASKS)
+    assert app.test_client().get("/timing").status_code == 200

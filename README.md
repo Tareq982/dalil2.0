@@ -81,12 +81,16 @@ In the **My profile** panel (the person button, top right) people can answer a f
 
 ## The challenge targets, measured in the app
 
-`/stats` shows the two targets from the challenge, from anonymous events only:
+The challenge asks for a **60% cut in service discovery time** and a **45% increase in service adoption**. `/stats` shows both, with a verdict for each ("Target met" / "Not met yet"):
 
-- **Discovery time:** the median seconds from asking Dalil (a photo, a message or a typed need) to opening the right official service.
-- **Adoption:** the share of answers (explained documents + services found) after which the person opened the official service, plus documents marked as paid.
+- **The timing test (`/timing`):** real people do the same kinds of tasks without Dalil (their own phone, any search engine or website) and with Dalil. The facilitator presses Start, then "Found it" when the tester opens the right official page, or "Gave up" (it stops itself at 5 minutes; giving up counts as 5 minutes).
+  - Discovery time cut = (median without − median with) / median without. Target: 60%.
+  - Adoption increase = (share who reached the official service with Dalil − share without) / share without. Target: +45%.
+  - Each tester does two *different* tasks, one each way, and the page swaps the order for the next tester so practice doesn't favour either side. Run at least 5 testers; the page warns until there are 5 runs each way.
+  - 5 tasks, each tied to a checked service (`TRIAL_TASKS` in `app/stats.py`). Runs are stored as task, without/with, seconds, found: nothing about the tester.
+- **Real use (what a pilot would track):** the median time from asking Dalil to tapping "Open the official service", and the share of answers where people did, plus documents marked as paid.
 
-Compare the discovery time with a quick test of how long people take without Dalil.
+To start fresh before the real test, delete `data/dalil.db` (it also clears the other counts).
 
 ## Ask Dalil (chat about a scanned document)
 
@@ -135,7 +139,7 @@ People can use Dalil without an account: saved documents then stay in that brows
 | `data/services.json` | The verified service catalog | Data |
 | `data/sources.md` | Where every value came from, plus the open datasets used | Data |
 | `tools/lookup_service_prices.py` | Looks up official fees in the Dubai Government Service Prices open dataset | Data |
-| `app/main.py` | Web server and API: `/analyze`, `/check-message`, `/find`, `/chat`, `/simplify`, `/event`, `/stats`, `/services`, `/languages`, `/health` | everyone |
+| `app/main.py` | Web server and API: `/analyze`, `/check-message`, `/find`, `/chat`, `/simplify`, `/event`, `/stats`, `/timing` + `/api/trials`, `/services`, `/languages`, `/health` | everyone |
 | `app/finder.py` | Find a service: a need in your own words → the right catalog service (AI picks, code checks) | AI |
 | `app/scamcheck.py` | Is this message real?: AI reads the message, code checks links against the official allow-list and decides the result | AI |
 | `app/chat.py` | Ask Dalil: follow-up chat with live search on official sites only (AI) | AI |

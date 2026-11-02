@@ -137,6 +137,31 @@ def stats_page():
     return send_from_directory(config.WEB_DIR, "stats.html")
 
 
+@app.get("/timing")
+def timing_page():
+    return send_from_directory(config.WEB_DIR, "timing.html")
+
+
+@app.get("/api/trials")
+def trials_data():
+    return jsonify(stats.trials())
+
+
+@app.post("/api/trials")
+def add_trial():
+    """One timing-test run: {task, condition: "without"|"with", seconds, found: true|false}."""
+    d = request.get_json(silent=True) or {}
+    if not stats.record_trial(d.get("task"), d.get("condition"), d.get("seconds"), d.get("found")):
+        return jsonify({"error": "That run could not be saved. Check the task, the condition and the time."}), 400
+    return jsonify(stats.trials())
+
+
+@app.post("/api/trials/undo")
+def undo_trial():
+    stats.undo_last_trial()
+    return jsonify(stats.trials())
+
+
 @app.get("/api/stats")
 def stats_data():
     return jsonify(stats.summary())
