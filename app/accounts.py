@@ -111,7 +111,7 @@ def signed_in(view):
         if "user_id" not in session or not db().execute(
                 "SELECT 1 FROM users WHERE id = ?", (session["user_id"],)).fetchone():
             session.clear()
-            return jsonify({"error": "Sign in first."}), 401
+            return jsonify({"error": "Sign in first.", "code": "sign_in_first"}), 401
         return view(*args, **kwargs)
     return wrapper
 
@@ -129,15 +129,15 @@ def signup():
     email = str(data.get("email", "")).strip().lower()
     password = str(data.get("password", ""))
     if not EMAIL.match(email) or len(email) > 200:
-        return jsonify({"error": "Enter a valid email address."}), 400
+        return jsonify({"error": "Enter a valid email address.", "code": "invalid_email"}), 400
     if len(password) < 8:
-        return jsonify({"error": "Use a password of at least 8 characters."}), 400
+        return jsonify({"error": "Use a password of at least 8 characters.", "code": "short_password"}), 400
     try:
         cur = db().execute("INSERT INTO users (email, password_hash, created_at) VALUES (?, ?, ?)",
                            (email, generate_password_hash(password), time.time()))
         db().commit()
     except sqlite3.IntegrityError:
-        return jsonify({"error": "An account with this email already exists. Sign in instead."}), 409
+        return jsonify({"error": "An account with this email already exists. Sign in instead.", "code": "account_exists"}), 409
     session.clear()
     session["user_id"], session["email"] = cur.lastrowid, email
     session.permanent = True
@@ -151,7 +151,7 @@ def login():
     row = db().execute("SELECT id, password_hash FROM users WHERE email = ?", (email,)).fetchone()
     if not row or not check_password_hash(row["password_hash"], str(data.get("password", ""))):
         time.sleep(0.4)  # slow down password guessing a little
-        return jsonify({"error": "Email or password is wrong."}), 401
+        return jsonify({"error": "Email or password is wrong.", "code": "bad_login"}), 401
     session.clear()
     session["user_id"], session["email"] = row["id"], email
     session.permanent = True

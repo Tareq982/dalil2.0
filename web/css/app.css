@@ -732,3 +732,7 @@ dialog.account-sheet::backdrop { background: rgba(0, 0, 0, 0.28); -webkit-backdr
 .fy-decision { font-size: 14px; color: var(--label-2); }
 .owners .bar i { background: var(--orange-ring); }
 .owners h3 { font-size: 17px; font-weight: 700; margin-top: 4px; }
+.drop-error { margin: 0 12px 6px; color: var(--red); font-weight: 600; font-size: 15px; text-align: center; }
+.err-details { margin-top: 8px; font-size: 13px; color: var(--label-2); }
+.err-details summary { cursor: pointer; }
+.err-details code { display: block; margin-top: 4px; white-space: pre-wrap; word-break: break-word; font-size: 12px; }

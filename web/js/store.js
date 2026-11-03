@@ -4,6 +4,8 @@
 // Either way: never the photo, only a short summary. The server also drops any field
 // that isn't on its allow-list (see app/accounts.py).
 
+import { apiError } from "./errors.js";
+
 const KEY = "dalil.deadlines"; // older versions saved here; kept so nothing is lost
 let account = null;              // signed-in email, or null
 let remote = [];                 // the account's documents, when signed in
@@ -39,7 +41,7 @@ async function api(path, options = {}) {
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
   });
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data.error || `Server error ${r.status}`);
+  if (!r.ok) throw apiError(data, r.status);
   return data;
 }
 

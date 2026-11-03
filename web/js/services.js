@@ -2,6 +2,7 @@
 import { getLanguage, t } from "./i18n.js";
 import { esc, formatAED, formatDate, localService } from "./util.js";
 import { helpHtml } from "./help.js";
+import { errorHtml } from "./errors.js";
 
 // Open datasets referenced by "related_datasets" in services.json (details in data/sources.md).
 const DATASETS = {
@@ -49,7 +50,7 @@ export async function render(el) {
     draw();
   } catch (err) {
     panel.querySelector("#service-list").innerHTML =
-      `<div class="notice error" role="alert">${esc(t("sv_error"))}<br><small>${esc(err.message)}</small></div>`;
+      `<div class="notice error" role="alert">${esc(t("sv_error"))}<br>${errorHtml(err)}</div>`;
   }
 }
 

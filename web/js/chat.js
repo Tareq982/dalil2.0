@@ -5,6 +5,7 @@
 // each question and answers in it (app/langdetect.py), so the chat follows the person.
 import { LANGUAGES, t } from "./i18n.js";
 import { esc, LOCALES, RTL_LANGS } from "./util.js";
+import { apiError, errorHtml } from "./errors.js";
 
 const SAFE_FIELDS = ["doc_type", "emirate", "issuing_authority", "subject", "amount_aed", "issue_date", "deadline_date"];
 const MAX_QUESTIONS = 12;
@@ -133,7 +134,7 @@ export function chatCard(d) {
         body: JSON.stringify({ fields, service_id: d.service_id, lang: chatLang, messages }),
       });
       const out = await r.json().catch(() => ({ error: `Server error ${r.status}` }));
-      if (!r.ok) throw new Error(out.error || `Server error ${r.status}`);
+      if (!r.ok) throw apiError(out, r.status);
       messages.push({ role: "assistant", content: out.answer });
       // The reply is in the language of the question: label it when that changes.
       const replyLang = LANGUAGES[out.language] ? out.language : chatLang;
@@ -148,7 +149,7 @@ export function chatCard(d) {
       messages.pop(); // let them ask again
       typing.classList.remove("pending");
       typing.classList.add("error");
-      typing.innerHTML = `${esc(tr("chat_error"))}<small>${esc(err.message)}</small>`;
+      typing.innerHTML = `${esc(tr("chat_error"))}${errorHtml(err, chatLang)}`;
     }
     busy = false;
     send.disabled = !input.value.trim();

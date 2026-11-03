@@ -4,6 +4,7 @@ import { t } from "./i18n.js";
 import { esc } from "./util.js";
 import { currentAccount, deleteAccount, signIn, signOut } from "./store.js";
 import { aboutYouHtml, wireAboutYou } from "./profile.js";
+import { errorText } from "./errors.js";
 
 const ICON_PERSON = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.8 19.5c1.3-3.3 4-5 7.2-5s5.9 1.7 7.2 5"/></svg>';
 const ICON_LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>';
@@ -73,7 +74,7 @@ function draw() {
         del.textContent = t("acc_delete_confirm");
         return;
       }
-      try { await deleteAccount(); dialog.close(); } catch (err) { dialog.querySelector("#acc-error").textContent = err.message; }
+      try { await deleteAccount(); dialog.close(); } catch (err) { dialog.querySelector("#acc-error").textContent = errorText(err); }
     });
   } else {
     dialog.innerHTML = `
@@ -105,7 +106,7 @@ function draw() {
         draw();
         if (moved) dialog.querySelector(".account-card").insertAdjacentHTML("afterend", `<p class="ok-note">${esc(t("acc_moved").replace("{n}", moved))}</p>`);
       } catch (err) {
-        dialog.querySelector("#acc-error").textContent = err.message;
+        dialog.querySelector("#acc-error").textContent = errorText(err);
         submit.disabled = false;
       }
     });

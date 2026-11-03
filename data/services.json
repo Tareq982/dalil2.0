@@ -333,7 +333,8 @@
         "grace_days": {
           "sponsored": 60
         },
-        "source": "GDRFA Dubai: Renewing a residence permit for the private sector (official page, checked 2026-10-28)"
+        "source": "GDRFA Dubai: Renewing a residence permit for the private sector (official page, checked 2026-10-28)",
+        "checked": "2026-10-28"
       },
       "help": {
         "name": "Amer call centre (GDRFA Dubai)",
@@ -472,7 +473,8 @@
           "sponsored": 60,
           "other": 30
         },
-        "source": "ICP: Renewal of residency permits (official page, checked 2026-10-28)"
+        "source": "ICP: Renewal of residency permits (official page, checked 2026-10-28)",
+        "checked": "2026-10-28"
       },
       "help": {
         "name": "ICP call centre",

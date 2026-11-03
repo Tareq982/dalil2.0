@@ -27,6 +27,17 @@ log = logging.getLogger("dalil")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 
+# Error replies carry a "code" so the app can show the message in the person's language
+# (web/js/errors.js). "error" stays in English for the team's logs and tests.
+def supported(mimetype: str | None) -> bool:
+    return mimetype in ai.IMAGE_TYPES + (ai.PDF,)
+
+
+def unsupported(mimetype):
+    return jsonify({"error": f"Unsupported file type: {mimetype}. Send a JPG, PNG, WEBP or PDF.",
+                    "code": "unsupported_file"}), 400
+
+
 @app.get("/")
 def index():
     return send_from_directory(config.WEB_DIR, "index.html")
@@ -54,13 +65,15 @@ def services():
 def analyze():
     file = request.files.get("file")
     if not file:
-        return jsonify({"error": "No file was uploaded. Choose a photo or PDF and try again."}), 400
+        return jsonify({"error": "No file was uploaded. Choose a photo or PDF and try again.", "code": "no_file"}), 400
+    if not supported(file.mimetype):
+        return unsupported(file.mimetype)
     data = file.read()  # kept in memory only, never saved
     try:
         result = pipeline.analyze(data, file.mimetype, request.form.get("lang", "en"))
     except ai.AIError as e:
         log.warning("analyze failed: %s", e)
-        return jsonify({"error": str(e)}), 502
+        return jsonify({"error": str(e), "code": "ai_error"}), 502
     outcome = "not_supported" if result.get("not_supported") else "fallback" if result.get("fallback") else "explained"
     stats.record("scan", (result.get("fields") or {}).get("doc_type"), result.get("language"), outcome,
                  result.get("number_check"))
@@ -81,7 +94,7 @@ def simplify():
             fields, service, pipeline.days_until(fields.get("deadline_date")), lang, simple=True)
     except ai.AIError as e:
         log.warning("simplify failed: %s", e)
-        return jsonify({"error": str(e)}), 502
+        return jsonify({"error": str(e), "code": "ai_error"}), 502
     stats.record("simpler", fields.get("doc_type"), lang, outcome)
     return jsonify({"language": lang, "explanation": explanation, "number_check": outcome})
 
@@ -124,10 +137,10 @@ def find_service():
     try:
         result = finder.find(data.get("text", ""), data.get("lang", "en"), data.get("answer"), data.get("profile"))
     except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": str(e), "code": "empty_need"}), 400
     except ai.AIError as e:
         log.warning("find failed: %s", e)
-        return jsonify({"error": str(e)}), 502
+        return jsonify({"error": str(e), "code": "ai_error"}), 502
     outcome = "matched" if result["service_id"] else "question" if result["question"] else "none"
     doc_type = next((s["doc_type"] for s in catalog.load() if s["id"] == result["service_id"]), None)
     stats.record("find", doc_type, result["language"], outcome, result.get("topic"))
@@ -178,12 +191,14 @@ def check_message():
     lang = request.form.get("lang", "en")
     upload = (file.read(), file.mimetype) if file else None  # kept in memory only, never saved
     if not text.strip() and not (upload and upload[0]):
-        return jsonify({"error": "Add a photo or screenshot of the message, or paste its text."}), 400
+        return jsonify({"error": "Add a photo or screenshot of the message, or paste its text.", "code": "empty_message"}), 400
+    if upload and upload[0] and not supported(upload[1]):
+        return unsupported(upload[1])
     try:
         result = scamcheck.check(text=text, file=upload, lang=lang)
     except ai.AIError as e:
         log.warning("check-message failed: %s", e)
-        return jsonify({"error": str(e)}), 502
+        return jsonify({"error": str(e), "code": "ai_error"}), 502
     stats.record("message", None, result.get("language"), result.get("verdict"))
     return jsonify(result)
 
@@ -202,7 +217,7 @@ def ask_dalil():
         answer = chat.ask(data.get("fields") or {}, data.get("service_id"), messages, config.LANGUAGES[lang])
     except ai.AIError as e:
         log.warning("chat failed: %s", e)
-        return jsonify({"error": str(e)}), 502
+        return jsonify({"error": str(e), "code": "ai_error"}), 502
     answer["language"] = lang  # the app labels the reply and sets its direction with this
     stats.record("chat", (data.get("fields") or {}).get("doc_type"), lang, "searched" if answer.get("searched") else "answered")
     return jsonify(answer)
