@@ -19,12 +19,12 @@ const ICONS = {
 // Step id, who does it ("ai" or "code"), icon
 const STEPS = [["read", "ai"], ["match", "code"], ["explain", "ai"], ["check", "code"]];
 
-// The open datasets Dalil uses (details and links in data/sources.md)
+// The open datasets Dalil uses (details and links in data/sources.md). Names and portals are i18n keys.
 const DATASETS = [
-  { name: "Dubai Government Service Prices", portal: "Dubai Pulse", url: "https://www.dubaipulse.gov.ae/data/dof-pricing/dof_government_service_prices-open", use: "how_ds_prices" },
-  { name: "Cause of Traffic Fines", portal: "Bayanat · Ministry of Interior", url: "https://bayanat.ae/en/Datasets/Dataset-info?id=CvrEX9sZ1jUcWJU4W2lyIv8yPCJm1bJ4XTJcDpQCUAg", use: "how_ds_causes" },
-  { name: "Unified Federal Traffic System 2023", portal: "Bayanat · Ministry of Interior", url: "https://bayanat.ae/en/Datasets/Dataset-info?id=wUntGlYM4QgQrmL-ThqY_08k-Cr1-Xdyd2Hn5uT5B3I", use: "how_ds_vehicles" },
-  { name: "Ejari rent contracts", portal: "Dubai Pulse · Dubai Land Department", url: "https://www.dubaipulse.gov.ae/data/dld-registration/dld_rent_contracts-open", use: "how_ds_ejari" },
+  { name: "ds_prices", portal: "src_pulse", url: "https://www.dubaipulse.gov.ae/data/dof-pricing/dof_government_service_prices-open", use: "how_ds_prices" },
+  { name: "ds_causes", portal: "src_bayanat_moi", url: "https://bayanat.ae/en/Datasets/Dataset-info?id=CvrEX9sZ1jUcWJU4W2lyIv8yPCJm1bJ4XTJcDpQCUAg", use: "how_ds_causes" },
+  { name: "ds_vehicles", portal: "src_bayanat_moi", url: "https://bayanat.ae/en/Datasets/Dataset-info?id=wUntGlYM4QgQrmL-ThqY_08k-Cr1-Xdyd2Hn5uT5B3I", use: "how_ds_vehicles" },
+  { name: "ds_ejari", portal: "src_pulse_dld", url: "https://www.dubaipulse.gov.ae/data/dld-registration/dld_rent_contracts-open", use: "how_ds_ejari" },
 ];
 
 export function render(el) {
@@ -74,8 +74,8 @@ export function render(el) {
       <p class="how-intro">${esc(t("how_data_intro"))}</p>
       <ul class="datasets">
         ${DATASETS.map((d) => `
-          <li><a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.name)}</a>
-            <span class="muted">${esc(d.portal)}</span>
+          <li><a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(t(d.name))}</a>
+            <span class="muted">${esc(t(d.portal))}</span>
             <p class="pipe-text">${esc(t(d.use))}</p></li>`).join("")}
       </ul>
       <a class="how-link" href="#services">${esc(t("how_data_link"))}</a>
