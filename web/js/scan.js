@@ -11,7 +11,6 @@ import { listenButton, stopSpeaking } from "./speak.js";
 import { addResultActions } from "./actions.js";
 import { renderFound, renderQuestion } from "./find.js";
 import { agentChatHtml, helpHtml, staleHtml } from "./help.js";
-import { staffCardHtml, wireStaffCard } from "./staff.js";
 import { profileForFind } from "./profile.js";
 import { apiError, errorHtml, errorText } from "./errors.js";
 
@@ -553,18 +552,8 @@ function addListen(result, d) {
     return [...text("h2"), ...text(".explain > div:nth-child(1)"), ...text(".explain > div:nth-child(2)"),
             tr("h_steps") + ".", ...steps].join("\n");
   }, { listen: tr("listen"), stop: tr("listen_stop") });
-  addStaffCard(result, lang);
 }
 
-// "Show this to staff": Copy, and Play in Arabic (for a phone call) when the device has an Arabic voice
-function addStaffCard(result, lang) {
-  wireStaffCard(result);
-  const note = result.querySelector('.staff-note[lang="ar"]');
-  if (!note) return;
-  listenButton(result.querySelector(".staff-listen-slot"), "ar",
-    () => [...note.querySelectorAll("p:not(.staff-lang)")].map((p) => p.textContent).join("\n"),
-    { listen: t("staff_play", lang), stop: t("listen_stop", lang) });
-}
 
 // ---------------------------------------------------------------- result
 
@@ -658,7 +647,6 @@ function renderResult(d) {
       ${foot.link ? `<a class="btn" data-official="scan" href="${esc(foot.link)}" target="_blank" rel="noopener">${esc(tr("open_official"))}</a>` : ""}
       ${d.fallback ? "" : helpHtml(s, lang)}
       ${d.fallback ? "" : agentChatHtml(lang)}
-      ${d.fallback ? "" : staffCardHtml(s, f, lang)}
       ${trust}
       ${read}
     </article>`;

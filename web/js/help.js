@@ -51,7 +51,7 @@ export function agentChatHtml(lang) {
           <div class="agent-bubble you"><span>${esc(tr("agent_you"))}</span><p lang="${esc(lang)}" dir="auto">${esc(tr("agent_sample"))}</p></div>
           <div class="agent-bubble them"><span>${esc(tr("agent_sees"))}</span><p lang="${agentLang}" dir="auto">${esc(t("agent_sample", agentLang))}</p></div>
         </div>
-        <button type="button" class="listen-btn" disabled>${esc(tr("agent_soon"))}</button>
+        <button type="button" class="listen-btn" disabled>${esc(tr("agent_title"))}</button>
       </div>
     </div>`;
 }
