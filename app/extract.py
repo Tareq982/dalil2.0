@@ -3,6 +3,8 @@
 The output shape below is the team's shared contract (see README "Extracted fields").
 If you change it, update the README and catalog.py/explain.py in the same pull request.
 """
+import re
+
 from . import ai, config
 
 DOC_TYPES = ["traffic_fine", "visa_residency_notice", "tenancy_contract", "other"]
@@ -42,6 +44,8 @@ Document types (decide from what the document IS, not from words it mentions):
 
 Rules:
 - Copy values exactly as printed. Never invent a value: use null if it is not visible.
+- Ignore watermarks and stamps such as "SAMPLE", "SPECIMEN", "DRAFT", "COPY" or "NOT AN OFFICIAL
+  DOCUMENT": read the document as if they weren't there, and never put them in key_points or subject.
 - Rent in a tenancy contract is NOT an amount due: use amount_aed null and put the rent in key_points.
 - Do not include personal data such as names, Emirates ID, passport or phone numbers.
 - If it is not an official document or official government screen, set doc_type "other".
@@ -75,12 +79,18 @@ def extract(data: bytes, media_type: str) -> dict:
     return normalise(fields)
 
 
+# Watermark text is not a fact about the reader's document: dropped even if the model copies it
+WATERMARK = re.compile(r"\b(sample|specimen|not an official document|for testing|test document)\b", re.I)
+
+
 def normalise(fields: dict) -> dict:
     """Make sure every key exists with a sensible type, whatever the model returned."""
     out = {k: fields.get(k) for k in MOCK_FIELDS}
     if out["doc_type"] not in DOC_TYPES:
         out["doc_type"] = "other"
-    out["key_points"] = [str(x) for x in (out["key_points"] or [])][:5]
+    out["key_points"] = [str(x) for x in (out["key_points"] or []) if not WATERMARK.search(str(x))][:5]
+    if out["subject"] and WATERMARK.search(str(out["subject"])):
+        out["subject"] = None
     out["keywords"] = [str(x).lower() for x in (out["keywords"] or [])][:8]
     out["readable"] = bool(out["readable"])
     out["web_address"] = str(out["web_address"]).strip()[:300] if out["web_address"] else None
