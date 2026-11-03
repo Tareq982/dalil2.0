@@ -35,7 +35,7 @@ The "Talk to a person" line on each answer (the `help` field in `data/services.j
 
 ## Service names in other languages
 
-`names` in `data/services.json` holds each service's name, authority and call-centre name in the other app languages (shown on answers, For you, the Services tab and in "Talk to a person"). The Arabic authority names are the entities' official Arabic names (for example الهيئة الاتحادية للهوية والجنسية والجمارك وأمن المنافذ, دائرة الأراضي والأملاك في دبي). The rest were translated by Claude and need a native speaker's check (issue #9). Tagalog keeps the English authority names, as they are used in the UAE. Links, fees and rules are the same in every language.
+`names` in `data/services.json` holds each service's name, authority, call-centre name, fee note, deadline rule and steps in the other app languages (shown on answers, For you, the Services tab and in "Talk to a person"). A test checks that every translation contains exactly the same numbers as the English original. Sources, legal bases and fee codes stay in English on purpose: they cite official documents by their exact titles. The Arabic authority names are the entities' official Arabic names (for example الهيئة الاتحادية للهوية والجنسية والجمارك وأمن المنافذ, دائرة الأراضي والأملاك في دبي). The rest were translated by Claude and need a native speaker's check (issue #9). Tagalog keeps the English authority names, as they are used in the UAE. Links, fees and rules are the same in every language.
 
 ## Open datasets (for the 20% open-data score)
 

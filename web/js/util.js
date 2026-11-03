@@ -40,11 +40,14 @@ export function formatAED(amount, lang = uiLang()) {
   }
 }
 
-// A checked service with its names in the answer language (data/services.json "names"),
-// falling back to English. The official link, fees and rules stay the same.
+// A checked service in the answer language (data/services.json "names": names, fee notes, deadline
+// rules and steps), falling back to English. Translations keep the same numbers (tests/test_finder.py).
+// The official link, fee amounts and rules are the same in every language.
 export function localService(service, lang) {
   if (!service) return service;
   const n = (service.names || {})[lang] || {};
   const help = service.help ? { ...service.help, name: n.help || service.help.name } : service.help;
-  return { ...service, service_name: n.service_name || service.service_name, authority: n.authority || service.authority, help };
+  return { ...service, service_name: n.service_name || service.service_name, authority: n.authority || service.authority, help,
+    fee_note: n.fee_note || service.fee_note, deadline_rule: n.deadline_rule || service.deadline_rule,
+    next_steps: n.next_steps || service.next_steps, emirate_name: n.emirate_name || service.emirate };
 }

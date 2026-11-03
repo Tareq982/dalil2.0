@@ -137,3 +137,19 @@ def test_every_service_has_names_in_each_language_it_lists():
         assert set(s["names"]) <= set(config.LANGUAGES) and "ar" in s["names"]
         ar = s["names"]["ar"]
         assert ar["service_name"] and ar["authority"] and ar["help"]
+
+
+def test_translated_fees_and_rules_keep_exactly_the_same_numbers():
+    """A translation must never change a fee, a number of days or any other number."""
+    import re
+    from app import catalog
+    nums = lambda text: sorted(re.findall(r"\d+(?:\.\d+)?", text))
+    for s in catalog.load():
+        for lang, n in s["names"].items():
+            for key in ("fee_note", "deadline_rule"):
+                if key in n:
+                    assert nums(n[key]) == nums(s[key]), (s["id"], lang, key)
+            if "next_steps" in n:
+                assert len(n["next_steps"]) == len(s["next_steps"])
+                for mine, english in zip(n["next_steps"], s["next_steps"]):
+                    assert nums(mine) == nums(english), (s["id"], lang, mine)

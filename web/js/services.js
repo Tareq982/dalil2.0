@@ -5,11 +5,11 @@ import { helpHtml } from "./help.js";
 
 // Open datasets referenced by "related_datasets" in services.json (details in data/sources.md).
 const DATASETS = {
-  "dubai-pulse-government-service-prices": "Dubai Government Service Prices (Dubai Pulse)",
-  "dubai-pulse-ejari-rent-contracts": "Ejari rent contracts (Dubai Pulse)",
-  "bayanat-cause-of-traffic-fines": "Cause of Traffic Fines (Bayanat, Ministry of Interior)",
-  "bayanat-unified-federal-traffic-system-2023": "Unified Federal Traffic System 2023 (Bayanat)",
-  "dubai-pulse-traffic-incidents": "Dubai Police traffic incidents (Dubai Pulse)",
+  "dubai-pulse-government-service-prices": ["ds_prices", "src_pulse"],
+  "dubai-pulse-ejari-rent-contracts": ["ds_ejari", "src_pulse"],
+  "bayanat-cause-of-traffic-fines": ["ds_causes", "src_bayanat_moi"],
+  "bayanat-unified-federal-traffic-system-2023": ["ds_vehicles", "src_bayanat_moi"],
+  "dubai-pulse-traffic-incidents": ["ds_incidents", "src_pulse"],
 };
 
 const FILTERS = [
@@ -60,14 +60,17 @@ function draw() {
 
 function card(raw) {
   const s = localService(raw, getLanguage());
-  const where = s.emirate || t("sv_all_emirates");
-  const fee = [s.fee_aed != null ? formatAED(s.fee_aed) : "", s.fee_note].filter(Boolean).join(". ");
-  const datasets = (s.related_datasets || []).map((id) => DATASETS[id] || id);
+  const where = s.emirate_name || t("sv_all_emirates");
+  const rtl = ["ar", "ur"].includes(getLanguage());
+  // the fee note usually already states the amount: don't repeat it ("AED 177.75. AED 177.75 through…")
+  const showAmount = s.fee_aed != null && !String(s.fee_note || "").includes(String(s.fee_aed));
+  const fee = [showAmount ? formatAED(s.fee_aed) : "", s.fee_note].filter(Boolean).join(". ");
+  const datasets = (s.related_datasets || []).map((id) => (DATASETS[id] ? `${t(DATASETS[id][0])} (${t(DATASETS[id][1])})` : id));
   return `
     <details class="service">
       <summary>
         <span class="service-name">${esc(s.service_name)}</span>
-        <span class="service-meta">${esc(s.authority)}, ${esc(where)}</span>
+        <span class="service-meta">${esc(s.authority)}${rtl ? "، " : ", "}${esc(where)}</span>
         ${s.verified
           ? `<span class="seal">${ICON_SEAL}<span>${esc(t("sv_verified"))} ${esc(formatDate(s.last_checked))}</span></span>`
           : `<span class="seal unverified">${ICON_WARN}<span>${esc(t("sv_unverified"))}</span></span>`}
@@ -83,7 +86,7 @@ function card(raw) {
           ${s.source ? `<p class="muted">${esc(t("source"))}: ${esc(s.source)}</p>` : ""}
           ${s.legal_basis ? `<p class="muted">${esc(t("legal_basis"))}: ${esc(s.legal_basis)}</p>` : ""}
           ${(s.official_fee_codes || []).length ? `<p class="muted">${esc(t("sv_fee_codes"))}: ${esc(s.official_fee_codes.join(", "))}</p>` : ""}
-          ${datasets.length ? `<p class="muted">${esc(t("sv_open_data"))}: ${esc(datasets.join("; "))}</p>` : ""}
+          ${datasets.length ? `<p class="muted">${esc(t("sv_open_data"))}: ${esc(datasets.join(rtl ? "؛ " : "; "))}</p>` : ""}
         </div>
       </div>
     </details>`;
