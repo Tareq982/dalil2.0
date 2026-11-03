@@ -176,3 +176,11 @@ def test_screenshot_of_a_fake_website_is_not_explained(monkeypatch, address):
     monkeypatch.setattr(extract, "extract", lambda data, media: fields(web_address=address))
     r = pipeline.analyze(b"x", "image/png", "en")
     assert r.get("not_supported") and "explanation" not in r
+
+
+def test_watermark_text_is_dropped_from_the_facts():
+    from app.extract import normalise
+    out = normalise({"doc_type": "traffic_fine", "subject": "Using a handheld mobile phone while driving",
+                     "key_points": ["SAMPLE - NOT AN OFFICIAL DOCUMENT", "4 black points", "Specimen"]})
+    assert out["key_points"] == ["4 black points"] and out["subject"].startswith("Using")
+    assert normalise({"subject": "SAMPLE - NOT AN OFFICIAL DOCUMENT"})["subject"] is None

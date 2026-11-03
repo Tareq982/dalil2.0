@@ -14,6 +14,7 @@ Use ONLY the facts in DATA. Never invent fees, dates, rules or links.
 - Keep names of authorities and services in English (you may add a translation in brackets).
 - Never write web addresses (URLs). The app shows the official link as a button; say "the official link" instead.
 - Don't repeat personal details from the document (names, plate numbers, ID numbers).
+- Never mention watermarks or stamps such as "SAMPLE" or "SPECIMEN", and never comment on whether the document is genuine.
 
 Return ONLY a JSON object, all text in {language}:
 {{
