@@ -728,18 +728,17 @@ dialog.account-sheet::backdrop { background: rgba(0, 0, 0, 0.28); -webkit-backdr
 .hh-name { font-size: 13px; color: var(--label-2); }
 .hh-more { font-size: 14px; font-weight: 600; color: var(--accent); text-decoration: none; }
 
-/* "Show this to staff": the person's need in Arabic and English (web/js/staff.js) */
-.staff-card { display: grid; gap: 10px; margin-top: 10px; padding: 14px 16px; border-radius: 20px; background: var(--field); }
-.staff-head { display: flex; gap: 12px; align-items: flex-start; }
-.staff-head .hh-icon { background: rgba(0, 122, 255, 0.14); }
-.staff-head .hh-icon svg { stroke: var(--accent); }
-.staff-note { padding: 12px 14px; border-radius: 14px; background: var(--bg); border: 1px solid var(--separator); font-size: 16px; line-height: 1.45; }
-.staff-note[lang="ar"] { font-size: 18px; text-align: right; }
-.staff-note[lang="en"] { text-align: left; }
-.staff-note p + p { margin-top: 2px; }
-.staff-lang { font-size: 12px; font-weight: 700; letter-spacing: 0.02em; color: var(--label-2); margin-bottom: 4px; }
-.staff-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.staff-actions .listen-btn { margin: 0; }
+/* Live agent chat: a placeholder for the pilot (web/js/help.js agentChatHtml) */
+.agent-chat .hh-icon { background: rgba(175, 82, 222, 0.16); }
+.agent-chat .hh-icon svg { stroke: #AF52DE; }
+.soon-badge { display: inline-block; margin-inline-start: 6px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; vertical-align: middle; background: rgba(175, 82, 222, 0.16); color: #AF52DE; }
+.agent-preview { display: grid; gap: 6px; margin: 6px 0 4px; }
+.agent-bubble { max-width: 85%; padding: 8px 12px; border-radius: 16px; font-size: 15px; }
+.agent-bubble span { display: block; font-size: 11px; font-weight: 700; color: var(--label-2); margin-bottom: 2px; }
+.agent-bubble.you { justify-self: start; background: var(--accent-tint); }
+.agent-bubble.them { justify-self: end; background: var(--bg); border: 1px solid var(--separator); }
+.agent-chat .listen-btn[disabled] { opacity: 0.55; cursor: default; justify-self: start; }
+
 .fy-card .human-help { margin-top: 10px; }
 .find-events-label { margin: 12px 4px 0; font-size: 13px; font-weight: 600; color: var(--label-2); }
 .fy-decision { font-size: 14px; color: var(--label-2); }

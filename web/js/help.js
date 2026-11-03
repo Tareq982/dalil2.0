@@ -32,3 +32,26 @@ export function staleHtml(service, lang, today = new Date()) {
   const days = (today - new Date(`${service.last_checked}T00:00:00`)) / 86400000;
   return days > STALE_DAYS ? `<p class="check-note">${esc(t("stale_note", lang))}</p>` : "";
 }
+
+// Placeholder for the pilot: a live chat with a support agent, translated both ways. Not built in
+// the prototype; it shows what each side would see, using a sample question.
+const ICON_CHAT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v10H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>';
+
+export function agentChatHtml(lang) {
+  const tr = (key) => t(key, lang);
+  // The agent reads Arabic; an Arabic reader's message would reach an English-speaking agent instead
+  const agentLang = lang === "ar" ? "en" : "ar";
+  return `
+    <div class="human-help agent-chat" aria-disabled="true">
+      <span class="hh-icon">${ICON_CHAT}</span>
+      <div class="hh-body">
+        <p class="hh-title">${esc(tr("agent_title"))} <span class="soon-badge">${esc(tr("agent_soon"))}</span></p>
+        <p class="hh-text">${esc(tr("agent_text"))}</p>
+        <div class="agent-preview" aria-hidden="true">
+          <div class="agent-bubble you"><span>${esc(tr("agent_you"))}</span><p lang="${esc(lang)}" dir="auto">${esc(tr("agent_sample"))}</p></div>
+          <div class="agent-bubble them"><span>${esc(tr("agent_sees"))}</span><p lang="${agentLang}" dir="auto">${esc(t("agent_sample", agentLang))}</p></div>
+        </div>
+        <button type="button" class="listen-btn" disabled>${esc(tr("agent_title"))}</button>
+      </div>
+    </div>`;
+}
