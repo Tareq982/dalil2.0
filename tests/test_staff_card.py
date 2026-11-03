@@ -14,7 +14,8 @@ SERVICES = json.loads((ROOT / "data" / "services.json").read_text(encoding="utf-
 
 
 def test_card_labels_exist_in_all_seven_languages():
-    for key in ["staff_title", "staff_text", "staff_copy", "staff_copied", "staff_play"]:
+    for key in ["staff_title", "staff_text", "staff_copy", "staff_copied", "staff_play",
+                "agent_title", "agent_text", "agent_soon", "agent_you", "agent_sees", "agent_sample"]:
         assert len(re.findall(rf'["\s]{key}"?:', I18N)) == 7, key
 
 

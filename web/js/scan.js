@@ -10,7 +10,7 @@ import { chatCard } from "./chat.js";
 import { listenButton, stopSpeaking } from "./speak.js";
 import { addResultActions } from "./actions.js";
 import { renderFound, renderQuestion } from "./find.js";
-import { helpHtml, staleHtml } from "./help.js";
+import { agentChatHtml, helpHtml, staleHtml } from "./help.js";
 import { staffCardHtml, wireStaffCard } from "./staff.js";
 import { profileForFind } from "./profile.js";
 import { apiError, errorHtml, errorText } from "./errors.js";
@@ -657,6 +657,7 @@ function renderResult(d) {
       ${body}
       ${foot.link ? `<a class="btn" data-official="scan" href="${esc(foot.link)}" target="_blank" rel="noopener">${esc(tr("open_official"))}</a>` : ""}
       ${d.fallback ? "" : helpHtml(s, lang)}
+      ${d.fallback ? "" : agentChatHtml(lang)}
       ${d.fallback ? "" : staffCardHtml(s, f, lang)}
       ${trust}
       ${read}

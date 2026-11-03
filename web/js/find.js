@@ -3,7 +3,7 @@
 import { t } from "./i18n.js";
 import { esc, formatDate, localService, RTL_LANGS } from "./util.js";
 import { personalNote } from "./profile.js";
-import { helpHtml, staleHtml } from "./help.js";
+import { agentChatHtml, helpHtml, staleHtml } from "./help.js";
 import { staffCardHtml } from "./staff.js";
 
 const ICON_SEAL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.4 1.8 3-.2.9 2.9 2.4 1.8-1 2.8 1 2.8-2.4 1.8-.9 2.9-3-.2L12 21l-2.4-1.8-3 .2-.9-2.9-2.4-1.8 1-2.8-1-2.8 2.4-1.8.9-2.9 3 .2z"/><path d="M8.5 12.2l2.3 2.3 4.7-4.7"/></svg>';
@@ -65,6 +65,7 @@ export function renderFound(d) {
       </div>
       <a class="btn" data-official="find" href="${esc(d.link)}" target="_blank" rel="noopener">${esc(tr("open_official"))}</a>
       ${helpHtml(s, lang)}
+      ${agentChatHtml(lang)}
       ${staffCardHtml(d.service, {}, lang)}
       <div class="trust">
         ${s.verified
