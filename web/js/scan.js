@@ -12,6 +12,7 @@ import { addResultActions } from "./actions.js";
 import { renderFound, renderQuestion } from "./find.js";
 import { helpHtml, staleHtml } from "./help.js";
 import { profileForFind } from "./profile.js";
+import { apiError, errorHtml, errorText } from "./errors.js";
 
 let panel;
 let upload = null; // { blob, name, previewUrl? }
@@ -190,7 +191,16 @@ async function choose(file) {
     upload = { blob: file, name: file.name };
     inner.innerHTML = `<span class="file-name">${esc(file.name)}</span><span class="drop-change" ${L("drop_change")}>${esc(t("drop_change"))}</span>`;
   } else {
+    // Every photo is redrawn as a JPG, so formats the AI can't take (for example iPhone HEIC
+    // photos on a Mac in Safari) still work. If this browser can't open the photo at all, say so.
     const blob = await shrink(file);
+    if (!blob) {
+      upload = null;
+      inner.innerHTML = `<p class="drop-error" role="alert" ${L("file_unsupported")}>${esc(t("file_unsupported"))}</p><span class="drop-change" ${L("drop_change")}>${esc(t("drop_change"))}</span>`;
+      updateGo();
+      panel.querySelector("#result").innerHTML = "";
+      return;
+    }
     upload = { blob, name: "photo.jpg", previewUrl: URL.createObjectURL(blob) };
     inner.innerHTML = `<img src="${upload.previewUrl}" alt=""><span class="drop-change" ${L("drop_change")}>${esc(t("drop_change"))}</span>`;
   }
@@ -199,6 +209,7 @@ async function choose(file) {
 }
 
 // Phone photos are big: shrink to max 2000px so uploads are quick and fit the AI's limits.
+// Returns a JPG, or null when the browser can't open the image.
 function shrink(file) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -209,9 +220,9 @@ function shrink(file) {
       c.height = Math.round(img.height * scale);
       c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(img.src);
-      c.toBlob((b) => resolve(b || file), "image/jpeg", 0.85);
+      c.toBlob((b) => resolve(b), "image/jpeg", 0.85);
     };
-    img.onerror = () => resolve(file);
+    img.onerror = () => { URL.revokeObjectURL(img.src); resolve(null); };
     img.src = URL.createObjectURL(file);
   });
 }
@@ -257,7 +268,7 @@ async function analyze() {
   try {
     const r = await fetch("/analyze", { method: "POST", body: fd });
     const data = await r.json().catch(() => ({ error: `Server error ${r.status}` }));
-    if (!r.ok) throw new Error(data.error || `Server error ${r.status}`);
+    if (!r.ok) throw apiError(data, r.status);
     progress.finish();
     await new Promise((res) => setTimeout(res, 350));
     progress.hide();
@@ -277,7 +288,7 @@ async function analyze() {
     progress.hide();
     result.innerHTML = `
       <div class="notice error" role="alert"><strong ${L("error_title")}>${esc(t("error_title"))}</strong><br><span ${L("error_hint")}>${esc(t("error_hint"))}</span>
-      <br><small>${esc(err.message)}</small></div>`;
+      <br>${errorHtml(err, lang)}</div>`;
   }
   addAgain(result, form, "scan_another");
 }
@@ -316,7 +327,7 @@ async function findService(answer = null) {
     const r = await fetch("/find", { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: lastNeed, answer, lang, profile: profileForFind() }) });
     const data = await r.json().catch(() => ({ error: `Server error ${r.status}` }));
-    if (!r.ok) throw new Error(data.error || `Server error ${r.status}`);
+    if (!r.ok) throw apiError(data, r.status);
     progress.finish();
     await new Promise((res) => setTimeout(res, 300));
     progress.hide();
@@ -341,7 +352,7 @@ async function findService(answer = null) {
     progress.hide();
     result.innerHTML = `
       <div class="notice error" role="alert"><strong ${L("find_error")}>${esc(t("find_error"))}</strong>
-      <br><small>${esc(err.message)}</small></div>`;
+      <br>${errorHtml(err, lang)}</div>`;
   }
   addAgain(result, form, "find_again");
 }
@@ -355,7 +366,8 @@ async function checkMessage() {
   const text = panel.querySelector("#msg-text").value.trim();
   if (text) fd.append("text", text);
   if (upload) fd.append("file", upload.blob, upload.name);
-  fd.append("lang", panel.querySelector("#lang").value || "en");
+  const lang = panel.querySelector("#lang").value || "en";
+  fd.append("lang", lang);
   form.hidden = true;
   result.innerHTML = "";
   delete result.dataset.opened;
@@ -364,7 +376,7 @@ async function checkMessage() {
   try {
     const r = await fetch("/check-message", { method: "POST", body: fd });
     const data = await r.json().catch(() => ({ error: `Server error ${r.status}` }));
-    if (!r.ok) throw new Error(data.error || `Server error ${r.status}`);
+    if (!r.ok) throw apiError(data, r.status);
     progress.finish();
     await new Promise((res) => setTimeout(res, 350));
     progress.hide();
@@ -373,7 +385,7 @@ async function checkMessage() {
     progress.hide();
     result.innerHTML = `
       <div class="notice error" role="alert"><strong ${L("msg_error_title")}>${esc(t("msg_error_title"))}</strong><br><span ${L("msg_error_hint")}>${esc(t("msg_error_hint"))}</span>
-      <br><small>${esc(err.message)}</small></div>`;
+      <br>${errorHtml(err, lang)}</div>`;
   }
   addAgain(result, form, "msg_check_another");
 }

@@ -57,11 +57,11 @@ def residency_service(profile: dict) -> dict | None:
 def eligibility(profile: dict, service: dict | None) -> dict | None:
     """The official rule that applies to this person for this service, if the data has one.
 
-    Returns {"grace_days": n, "source": "..."} or None (then the app says to check the
+    Returns {"grace_days": n, "source": "...", "checked": "YYYY-MM-DD"} or None (then the app says to check the
     official page for their category, and never guesses a number)."""
     rules = (service or {}).get("eligibility") or {}
     days = (rules.get("grace_days") or {}).get(profile.get("residence"))
-    return {"grace_days": days, "source": rules.get("source")} if days else None
+    return {"grace_days": days, "source": rules.get("source"), "checked": rules.get("checked")} if days else None
 
 
 def _summary(service: dict) -> dict:

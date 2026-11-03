@@ -5,7 +5,7 @@
 //   answers to the checked services and apply the official rules for this person, for example
 //   the grace period for their residence type.
 import { getLanguage, t } from "./i18n.js";
-import { esc, localService } from "./util.js";
+import { esc, formatDate, localService } from "./util.js";
 import { getProfile, saveProfile } from "./store.js";
 import { helpHtml } from "./help.js";
 
@@ -13,6 +13,16 @@ const EMIRATES = [["Dubai", "دبي"], ["Abu Dhabi", "أبوظبي"], ["Sharjah"
   ["Umm Al Quwain", "أم القيوين"], ["Ras Al Khaimah", "رأس الخيمة"], ["Fujairah", "الفجيرة"]];
 const RESIDENCE = ["sponsored", "skilled", "golden", "owner", "graduate", "other", "citizen", "not_sure"];
 const HOME = ["rent", "own", "other"];
+
+// Emirate names in the interface language (i18n.js "em_Dubai"...), English as the fallback
+const emirateName = (en) => t(`em_${String(en).replace(/ /g, "_")}`).replace(/^em_.*/, en);
+// The picker: English and Arabic for English readers, the reader's own language (and English) otherwise
+function emirateOption(en, ar) {
+  const lang = getLanguage();
+  if (lang === "en") return `${en} · ${ar}`;
+  const own = emirateName(en);
+  return own === en ? `${en} · ${ar}` : lang === "ar" ? own : `${own} · ${en}`;
+}
 
 const fill = (text, values) => Object.entries(values).reduce((s, [k, v]) => s.replace(`{${k}}`, v), text);
 const has = (p) => Object.keys(p || {}).length > 0;
@@ -33,7 +43,7 @@ export function aboutYouHtml() {
       <p class="muted">${esc(t("profile_lede"))}</p>
       <form id="profile-form" class="profile-form" autocomplete="off">
         <label class="field-label" for="pf-emirate">${esc(t("profile_emirate"))}</label>
-        <select id="pf-emirate">${opt("", t("profile_choose"), p.emirate)}${EMIRATES.map(([en, ar]) => opt(en, `${en} · ${ar}`, p.emirate)).join("")}</select>
+        <select id="pf-emirate">${opt("", t("profile_choose"), p.emirate)}${EMIRATES.map(([en, ar]) => opt(en, emirateOption(en, ar), p.emirate)).join("")}</select>
         <label class="field-label" for="pf-residence">${esc(t("profile_residence"))}</label>
         <select id="pf-residence">${opt("", t("profile_choose"), p.residence)}${RESIDENCE.map((r) => opt(r, t(`res_${r}`), p.residence)).join("")}</select>
         <label class="field-label" for="pf-expiry">${esc(t("profile_expiry"))}</label>
@@ -78,7 +88,7 @@ export function wireAboutYou(root) {
 
 export function profileSummary(p = getProfile()) {
   if (!has(p)) return "";
-  return [p.emirate, p.residence ? t(`res_${p.residence}`) : "", p.drives ? t("profile_drives") : ""].filter(Boolean).join(" · ");
+  return [p.emirate ? emirateName(p.emirate) : "", p.residence ? t(`res_${p.residence}`) : "", p.drives ? t("profile_drives") : ""].filter(Boolean).join(" · ");
 }
 
 // ---------------------------------------------------------------- For you (My documents tab)
@@ -134,8 +144,7 @@ function card(c) {
       badge = `<span class="days${cls}">${esc(c.days_left < 0 ? fill(t("foryou_overdue"), { n: -c.days_left }) : fill(t("foryou_days_left"), { n: c.days_left }))}</span>`;
     }
   } else if (c.reason === "driving") {
-    const ar = (EMIRATES.find(([en]) => en === c.emirate) || [])[1];
-    title = fill(t("foryou_driving"), { emirate: ["ar", "ur"].includes(getLanguage()) && ar ? ar : c.emirate });
+    title = fill(t("foryou_driving"), { emirate: emirateName(c.emirate) });
     text = t("foryou_driving_text");
   } else if (c.reason === "renting") {
     title = t("foryou_renting");
@@ -146,7 +155,7 @@ function card(c) {
       <div class="deadline-head"><div><p class="deadline-kind">${esc(s.authority || "")}</p><h3>${esc(title)}</h3></div>${badge}</div>
       <p class="fy-text">${esc(text)}</p>
       ${c.eligibility ? `<p class="fy-text fy-decision">${esc(fill(t("decision_note"), { authority: s.authority || "" }))}</p>` : ""}
-      ${c.eligibility && c.eligibility.source ? `<p class="muted fy-source">${esc(t("source"))}: ${esc(c.eligibility.source)}</p>` : ""}
+      ${c.eligibility && c.eligibility.checked ? `<p class="muted fy-source">${esc(fill(t("fy_rule_source"), { authority: s.authority || "", date: formatDate(c.eligibility.checked) }))}</p>` : ""}
       <a class="btn btn-quiet small" href="${esc(s.official_url || "https://u.ae")}" target="_blank" rel="noopener">${esc(t("foryou_open"))} · ${esc(s.service_name || "")}</a>
       ${c.urgent ? helpHtml(s, getLanguage()) : ""}
     </article>`;

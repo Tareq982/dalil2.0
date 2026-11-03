@@ -3,6 +3,7 @@
 import { t } from "./i18n.js";
 import { esc, localService } from "./util.js";
 import { stopSpeaking } from "./speak.js";
+import { apiError, errorText } from "./errors.js";
 
 const SAFE_FIELDS = ["doc_type", "emirate", "issuing_authority", "subject", "amount_aed", "issue_date", "deadline_date", "key_points"];
 const I = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
@@ -48,7 +49,7 @@ export function addResultActions(result, d) {
         body: JSON.stringify({ fields, service_id: d.service_id, lang }),
       });
       const out = await r.json().catch(() => ({ error: `Server error ${r.status}` }));
-      if (!r.ok) throw new Error(out.error || `Server error ${r.status}`);
+      if (!r.ok) throw apiError(out, r.status);
       stopSpeaking();
       showExplanation(sheet, out.explanation, out.number_check, tr);
       d.explanation = { ...d.explanation, ...out.explanation, suggested_questions: d.explanation.suggested_questions };
@@ -58,7 +59,7 @@ export function addResultActions(result, d) {
       simpler.disabled = false;
       simpler.classList.remove("busy");
       simpler.innerHTML = `${ICON_SIMPLE}<span>${esc(tr("simpler_button"))}</span>`;
-      status.textContent = `${tr("simpler_error")} (${err.message})`;
+      status.textContent = `${tr("simpler_error")} ${errorText(err, lang)}`;
     }
   });
 
