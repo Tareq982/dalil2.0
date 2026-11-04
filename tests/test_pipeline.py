@@ -184,3 +184,26 @@ def test_watermark_text_is_dropped_from_the_facts():
                      "key_points": ["SAMPLE - NOT AN OFFICIAL DOCUMENT", "4 black points", "Specimen"]})
     assert out["key_points"] == ["4 black points"] and out["subject"].startswith("Using")
     assert normalise({"subject": "SAMPLE - NOT AN OFFICIAL DOCUMENT"})["subject"] is None
+
+
+def test_arabic_test_labels_are_dropped_too():
+    from app.extract import normalise
+    out = normalise({"doc_type": "traffic_fine", "key_points": ["مستند تجريبي - غير رسمي", "Fictional test document", "600 درهم"]})
+    assert out["key_points"] == ["600 درهم"]
+
+
+def test_reader_is_told_not_to_judge_authenticity():
+    from app.extract import SYSTEM
+    assert "never change doc_type" in SYSTEM and "checking authenticity is not your job" in SYSTEM
+
+
+def test_demo_check_flags_problems():
+    from tools.check_demo import problems
+    good = {"fields": {"doc_type": "traffic_fine", "amount_aed": 600, "deadline_date": "2026-11-20"},
+            "service_id": "dubai-traffic-fine", "confidence": 0.95, "number_check": "passed",
+            "explanation": {"what_it_is": "This is a speeding fine from Dubai Police."}}
+    assert problems(good, "traffic_fine", "dubai-traffic-fine") == []
+    worried = dict(good, explanation={"what_it_is": "This may be a sample, not a real fine."})
+    assert problems(worried, "traffic_fine", "dubai-traffic-fine")
+    other = dict(good, fields={"doc_type": "other"}, fallback="Not supported", confidence=0.9)
+    assert len(problems(other, "traffic_fine", "dubai-traffic-fine")) >= 3
