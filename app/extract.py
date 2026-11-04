@@ -44,11 +44,15 @@ Document types (decide from what the document IS, not from words it mentions):
 
 Rules:
 - Copy values exactly as printed. Never invent a value: use null if it is not visible.
-- Ignore watermarks and stamps such as "SAMPLE", "SPECIMEN", "DRAFT", "COPY" or "NOT AN OFFICIAL
-  DOCUMENT": read the document as if they weren't there, and never put them in key_points or subject.
+- Ignore watermarks, stamps and test labels such as "SAMPLE", "SPECIMEN", "DRAFT", "COPY",
+  "NOT AN OFFICIAL DOCUMENT", "fictional test document", "تجريبي" or "غير رسمي": read the document
+  as if they weren't there. Never put them in key_points or subject, and never change doc_type or
+  lower confidence because of them.
 - Rent in a tenancy contract is NOT an amount due: use amount_aed null and put the rent in key_points.
 - Do not include personal data such as names, Emirates ID, passport or phone numbers.
-- If it is not an official document or official government screen, set doc_type "other".
+- If it is not a document or screen from a government entity (for example a receipt, an advert, a
+  chat or a private company's letter), set doc_type "other". Decide from what the document is, not
+  from whether it looks genuine: checking authenticity is not your job.
 - Set readable false if the photo is too blurry, dark or cut off to read the key details
   (reference number, amounts, dates) with certainty. Never guess a detail you can't read clearly."""
 
@@ -80,7 +84,7 @@ def extract(data: bytes, media_type: str) -> dict:
 
 
 # Watermark text is not a fact about the reader's document: dropped even if the model copies it
-WATERMARK = re.compile(r"\b(sample|specimen|not an official document|for testing|test document)\b", re.I)
+WATERMARK = re.compile(r"\b(sample|specimen|not an official document|for testing|test document|fictional)\b|تجريبي|غير رسمي", re.I)
 
 
 def normalise(fields: dict) -> dict:
